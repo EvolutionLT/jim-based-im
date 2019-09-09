@@ -26,7 +26,7 @@ public class SingleMessageBody {
     private String createAt;
 
     /**
-     * 消息状态0-未读，1-已读
+     * 消息状态0-未读，1-已读，备用字段，后续扩展使用
      */
     private Integer msgStatus;
 
@@ -34,5 +34,10 @@ public class SingleMessageBody {
      * 文本消息内容
      */
     private String msgContent;
+
+    /**
+     * 消息类型
+     */
+    private String msgType;
 
 }

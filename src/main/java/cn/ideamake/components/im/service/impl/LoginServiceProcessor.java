@@ -4,30 +4,30 @@
 package cn.ideamake.components.im.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.ideamake.components.im.common.common.id.impl.UUIDSessionIdGenerator;
+import cn.ideamake.components.im.service.PeriodService;
 import org.apache.commons.lang3.StringUtils;
-import org.jim.common.ImConst;
-import org.jim.common.ImPacket;
-import org.jim.common.ImSessionContext;
-import org.jim.common.ImStatus;
-import org.jim.common.http.HttpConst;
-import org.jim.common.packets.*;
-import org.jim.common.session.id.impl.UUIDSessionIdGenerator;
-import org.jim.common.utils.JsonKit;
-import org.jim.common.utils.Md5;
-import org.jim.server.command.CommandManager;
-import org.jim.server.command.handler.JoinGroupReqHandler;
-import org.jim.server.command.handler.processor.login.LoginCmdProcessor;
+import cn.ideamake.components.im.common.common.ImConst;
+import cn.ideamake.components.im.common.common.ImPacket;
+import cn.ideamake.components.im.common.common.ImSessionContext;
+import cn.ideamake.components.im.common.common.ImStatus;
+import cn.ideamake.components.im.common.common.http.HttpConst;
+import cn.ideamake.components.im.common.common.packets.*;
+import cn.ideamake.components.im.common.common.utils.JsonKit;
+import cn.ideamake.components.im.common.common.utils.Md5;
+import cn.ideamake.components.im.common.server.command.CommandManager;
+import cn.ideamake.components.im.common.server.command.handler.JoinGroupReqHandler;
+import cn.ideamake.components.im.common.server.command.handler.processor.login.LoginCmdProcessor;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 
 import java.util.*;
 
-/**
- * @author WChao
- *
- */
+
 public class LoginServiceProcessor implements LoginCmdProcessor {
+
+	PeriodService periodService = new PeriodServiceImpl();
 
 //	private Logger logger = LoggerFactory.getLogger(LoginServiceProcessor.class);
 
@@ -64,7 +64,7 @@ public class LoginServiceProcessor implements LoginCmdProcessor {
 	 */
 	public User getUser(String token) {
 		//demo中用map，生产环境需要用cache
-		User user = tokenMap.get(token);
+		User user = periodService.getUserInfoById(token);
 		if (user == null) {
 			user = new User();
 			user.setId(UUIDSessionIdGenerator.instance.sessionId(null));
@@ -93,6 +93,8 @@ public class LoginServiceProcessor implements LoginCmdProcessor {
 		Group myFriend = new Group("1","我的好友");
 		List<User> myFriendGroupUsers = new ArrayList<User>();
 		User user1 = new User();
+
+		//此处初始化用户,通过登录的用户id从真实数据库中查询，暂时打算远程调用业务端接口，封装一个http客户端#TODO
 		user1.setId(UUIDSessionIdGenerator.instance.sessionId(null));
 		user1.setNick(familyName[RandomUtil.randomInt(0, familyName.length - 1)] + secondName[RandomUtil.randomInt(0, secondName.length - 1)]);
 		user1.setAvatar(nextImg());
@@ -117,7 +119,8 @@ public class LoginServiceProcessor implements LoginCmdProcessor {
 	 */
 	@Override
 	public LoginRespBody doLogin(LoginReqBody loginReqBody , ChannelContext channelContext) {
-		String loginname = loginReqBody.getLoginname();
+//		return null;
+		String loginname = loginReqBody.getUserId();
 		String password = loginReqBody.getPassword();
 		ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
 		String handshakeToken = imSessionContext.getToken();

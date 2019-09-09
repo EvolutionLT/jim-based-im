@@ -45,4 +45,15 @@ public class Rest<T> {
         this.data = data;
         return this;
     }
+
+    public static Rest ok(){
+        Rest re  = new Rest(0,"success");
+        return re;
+    }
+
+    public static Rest okObj(Object object){
+        Rest re = new Rest(0,"success");
+        re.setData(object);
+        return re;
+    }
 }

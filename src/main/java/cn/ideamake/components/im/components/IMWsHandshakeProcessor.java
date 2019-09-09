@@ -3,25 +3,27 @@
  */
 package cn.ideamake.components.im.components;
 
+import cn.ideamake.components.im.common.common.ImAio;
+import cn.ideamake.components.im.common.common.ImPacket;
+import cn.ideamake.components.im.common.common.http.HttpConst;
+import cn.ideamake.components.im.common.common.http.HttpRequest;
+import cn.ideamake.components.im.common.common.packets.Command;
+import cn.ideamake.components.im.common.common.packets.LoginReqBody;
+import cn.ideamake.components.im.common.common.utils.JsonKit;
+import cn.ideamake.components.im.common.server.command.CommandManager;
+import cn.ideamake.components.im.common.server.command.handler.LoginReqHandler;
+import cn.ideamake.components.im.common.server.command.handler.processor.handshake.WsHandshakeProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.jim.common.ImAio;
-import org.jim.common.ImPacket;
-import org.jim.common.http.HttpConst;
-import org.jim.common.http.HttpRequest;
-import org.jim.common.packets.Command;
-import org.jim.common.packets.LoginReqBody;
-import org.jim.common.utils.JsonKit;
-import org.jim.server.command.CommandManager;
-import org.jim.server.command.handler.LoginReqHandler;
-import org.jim.server.command.handler.processor.handshake.WsHandshakeProcessor;
+
 import org.tio.core.ChannelContext;
 
 /**
- * @author WChao
- *
+ * @author Walt
+ * ws连接握手，在此处校验用户token
  */
 @Slf4j
 public class IMWsHandshakeProcessor extends WsHandshakeProcessor {
+
 
 	@Override
 	public void onAfterHandshaked(ImPacket packet, ChannelContext channelContext) throws Exception {

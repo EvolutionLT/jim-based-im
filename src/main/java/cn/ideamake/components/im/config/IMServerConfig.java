@@ -1,18 +1,19 @@
 package cn.ideamake.components.im.config;
 
+import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import cn.ideamake.components.im.components.IMWsHandshakeProcessor;
 import cn.ideamake.components.im.service.impl.LoginServiceProcessor;
 import org.apache.commons.lang3.StringUtils;
-import org.jim.common.ImConfig;
-import org.jim.common.ImConst;
-import org.jim.common.config.PropertyImConfigBuilder;
-import org.jim.common.packets.Command;
-import org.jim.common.utils.PropUtil;
-import org.jim.server.ImServerStarter;
-import org.jim.server.command.CommandManager;
-import org.jim.server.command.handler.HandshakeReqHandler;
-import org.jim.server.command.handler.LoginReqHandler;
-import org.jim.server.listener.ImGroupListener;
+import cn.ideamake.components.im.common.common.ImConfig;
+import cn.ideamake.components.im.common.common.ImConst;
+import cn.ideamake.components.im.common.common.config.PropertyImConfigBuilder;
+import cn.ideamake.components.im.common.common.packets.Command;
+import cn.ideamake.components.im.common.common.utils.PropUtil;
+import cn.ideamake.components.im.common.server.ImServerStarter;
+import cn.ideamake.components.im.common.server.command.CommandManager;
+import cn.ideamake.components.im.common.server.command.handler.HandshakeReqHandler;
+import cn.ideamake.components.im.common.server.command.handler.LoginReqHandler;
+import cn.ideamake.components.im.common.server.listener.ImGroupListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.tio.core.ssl.SslConfig;
@@ -23,7 +24,7 @@ import java.io.IOException;
  * im-server 配置类
  */
 @Configuration
-public class IMConfig {
+public class IMServerConfig {
 
     @Bean
     public ImServerStarter imServerStarter() throws IOException {
@@ -38,8 +39,13 @@ public class IMConfig {
         //添加自定义握手处理器;
         handshakeReqHandler.addProcessor(new IMWsHandshakeProcessor());
         LoginReqHandler loginReqHandler = CommandManager.getCommand(Command.COMMAND_LOGIN_REQ, LoginReqHandler.class);
+
         //添加登录业务处理器;
         loginReqHandler.addProcessor(new LoginServiceProcessor());
+
+        //添加持久话消息处理
+        RedisMessageHelper redisMessageHelper = new RedisMessageHelper(imConfig);
+        imConfig.setMessageHelper(redisMessageHelper);
         /*****************end *******************************************************************************************/
         imServerStarter.start();
         return imServerStarter;

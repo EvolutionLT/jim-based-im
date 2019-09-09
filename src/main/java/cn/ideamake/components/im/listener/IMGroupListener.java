@@ -1,10 +1,10 @@
 package cn.ideamake.components.im.listener;
 
-import org.jim.common.ImAio;
-import org.jim.common.ImPacket;
-import org.jim.common.ImSessionContext;
-import org.jim.common.packets.*;
-import org.jim.server.listener.ImGroupListener;
+import cn.ideamake.components.im.common.common.ImAio;
+import cn.ideamake.components.im.common.common.ImPacket;
+import cn.ideamake.components.im.common.common.ImSessionContext;
+import cn.ideamake.components.im.common.common.packets.*;
+import cn.ideamake.components.im.common.server.listener.ImGroupListener;
 import org.tio.core.ChannelContext;
 
 public class IMGroupListener extends ImGroupListener {
