@@ -1,6 +1,7 @@
 package cn.ideamake.components.im.common.server.helper.redis;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import cn.ideamake.components.im.common.common.ImConfig;
@@ -18,7 +19,9 @@ import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.server.helper.redis.RedisImBindListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,34 +32,42 @@ import java.util.Set;
  * @author WChao
  * @date 2018年4月9日 下午4:39:30
  */
-@SuppressWarnings("unchecked")
+//@SuppressWarnings("unchecked")
+@Service
+@Slf4j
 public class RedisMessageHelper extends AbstractMessageHelper {
 	
-	private RedisCache groupCache = null;
-	private RedisCache pushCache = null;
-	private RedisCache storeCache = null;
-	private RedisCache userCache = null;
+	private static RedisCache groupCache = null;
+	private static RedisCache pushCache = null;
+	private static RedisCache storeCache = null;
+	private static RedisCache userCache = null;
 	
 	private final String SUBFIX = ":";
-	private Logger log = LoggerFactory.getLogger(cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper.class);
+//	private Logger log = LoggerFactory.getLogger(cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper.class);
 	
 	static{
 		RedisCacheManager.register(USER, Integer.MAX_VALUE, Integer.MAX_VALUE);
 		RedisCacheManager.register(GROUP, Integer.MAX_VALUE, Integer.MAX_VALUE);
 		RedisCacheManager.register(STORE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 		RedisCacheManager.register(PUSH, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		groupCache = RedisCacheManager.getCache(GROUP);
+		pushCache = RedisCacheManager.getCache(PUSH);
+		storeCache = RedisCacheManager.getCache(STORE);
+		userCache = RedisCacheManager.getCache(USER);
 	}
 	
 	public RedisMessageHelper(){
-		this(null);
 	}
-	public RedisMessageHelper(ImConfig imConfig){
-		this.groupCache = RedisCacheManager.getCache(GROUP);
-		this.pushCache = RedisCacheManager.getCache(PUSH);
-		this.storeCache = RedisCacheManager.getCache(STORE);
-		this.userCache = RedisCacheManager.getCache(USER);
-		this.imConfig = imConfig;
+    //初始化时需要设置imConfig配置
+	public void init(ImConfig imConfig){
 	}
+//	public RedisMessageHelper(ImConfig imConfig){
+//		this.groupCache = RedisCacheManager.getCache(GROUP);
+//		this.pushCache = RedisCacheManager.getCache(PUSH);
+//		this.storeCache = RedisCacheManager.getCache(STORE);
+//		this.userCache = RedisCacheManager.getCache(USER);
+//		this.imConfig = imConfig;
+//	}
 	
 	@Override
 	public ImBindListener getBindListener() {

@@ -5,6 +5,8 @@ import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.ImSessionContext;
 import cn.ideamake.components.im.common.server.ImServerGroupContext;
 import cn.ideamake.components.im.common.server.command.handler.processor.chat.MsgQueueRunnable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.exception.AioDecodeException;
@@ -18,13 +20,15 @@ import java.nio.ByteBuffer;
  * @author WChao 
  *
  */
+@Service
+@Slf4j
 public class ImServerAioHandler implements ServerAioHandler {
 
 	private ImConfig imConfig;
-	
-	public ImServerAioHandler(ImConfig imConfig) {
-		this.imConfig = imConfig;
-	}
+
+//	public ImServerAioHandler(ImConfig imConfig) {
+//		this.imConfig = imConfig;
+//	}
 	/** 
 	 * @see org.tio.core.intf.AioHandler#handler(Packet)
 	 *

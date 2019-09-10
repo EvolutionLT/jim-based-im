@@ -13,10 +13,11 @@ import cn.ideamake.components.im.common.common.cluster.redis.RedisClusterConfig;
 import cn.ideamake.components.im.common.server.command.CommandManager;
 import cn.ideamake.components.im.common.server.handler.ImServerAioHandler;
 import cn.ideamake.components.im.common.server.handler.ProtocolHandlerManager;
-import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
+import cn.ideamake.components.im.listener.ImServerAioListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.server.ServerGroupContext;
+import org.tio.server.intf.ServerAioListener;
 import org.tio.utils.Threads;
 import org.tio.utils.thread.pool.DefaultThreadFactory;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
@@ -40,7 +41,7 @@ public class ImServerGroupContext extends ServerGroupContext{
 	
 	protected SynThreadPoolExecutor timExecutor = null;
 	
-	public ImServerGroupContext(ImConfig imConfig , ImServerAioHandler imServerAioHandler, ImServerAioListener imServerAioListener) {
+	public ImServerGroupContext(ImConfig imConfig , ImServerAioHandler imServerAioHandler, ServerAioListener imServerAioListener) {
 		super(imServerAioHandler, imServerAioListener);
 		this.imConfig = imConfig;
 		this.setHeartbeatTimeout(imConfig.getHeartbeatTimeout());

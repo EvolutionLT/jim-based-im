@@ -3,9 +3,6 @@
  */
 package cn.ideamake.components.im.common.common.packets;
 
-import cn.ideamake.components.im.common.common.packets.Message;
-import cn.ideamake.components.im.common.common.packets.User;
-
 import java.util.List;
 
 /**

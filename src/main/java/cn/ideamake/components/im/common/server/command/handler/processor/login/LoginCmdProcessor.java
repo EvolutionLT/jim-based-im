@@ -14,7 +14,7 @@ import org.tio.core.ChannelContext;
  */
 public interface LoginCmdProcessor extends CmdProcessor {
 	/**
-	 * 执行登录操作接口方法
+	 * 当登陆失败时设置user属性需要为空，相反登陆成功user属性是必须非空的;
 	 * @param loginReqBody
 	 * @param channelContext
 	 * @return

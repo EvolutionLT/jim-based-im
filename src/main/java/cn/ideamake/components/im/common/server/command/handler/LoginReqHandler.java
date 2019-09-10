@@ -42,7 +42,7 @@ public class LoginReqHandler extends AbstractCmdHandler {
 		
 		LoginRespBody loginRespBody = loginServiceHandler.doLogin(loginReqBody,channelContext);
 		if (loginRespBody == null || loginRespBody.getUser() == null) {
-			log.info("登录失败, loginName:{}, password:{}", loginReqBody.getUserId(), loginReqBody.getPassword());
+			log.info("登录失败, token:{}",loginReqBody.getToken());
 			if(loginRespBody == null){
 				loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
 			}

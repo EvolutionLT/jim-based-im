@@ -22,11 +22,6 @@ public class ImServerAioListener implements ServerAioListener {
 
 	private ImConfig imConfig;
 	
-	/**
-	 * @author: WChao
-	 * 2016年12月16日 下午5:52:06
-	 * 
-	 */
 	public ImServerAioListener() {}
 	public ImServerAioListener(ImConfig imConfig) {
 		this.imConfig = imConfig;

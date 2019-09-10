@@ -1,10 +1,10 @@
 package cn.ideamake.components.im.web;
 
 import cn.ideamake.components.im.common.Rest;
-import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.pojo.dto.LoginDTO;
 import cn.ideamake.components.im.pojo.dto.UserDTO;
 import cn.ideamake.components.im.service.PeriodService;
+import cn.ideamake.components.im.service.impl.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,8 +43,9 @@ public class PeriodController {
      * @return
      */
     @PostMapping("/app/period/im-login")
-    public String loginCheck(@RequestBody LoginDTO loginDTO){
+    public Rest loginCheck(@RequestBody LoginDTO loginDTO){
         log.info("app server:"+loginDTO.toString());
-        return "success";
+        UserInfo user = new UserInfo(loginDTO.getUserId(),loginDTO.getPassword());
+        return Rest.okObj(user);
     }
 }

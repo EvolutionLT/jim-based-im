@@ -4,10 +4,20 @@ import cn.ideamake.components.im.common.common.ImAio;
 import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImSessionContext;
 import cn.ideamake.components.im.common.common.packets.*;
-import cn.ideamake.components.im.common.server.listener.ImGroupListener;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
+import org.tio.core.intf.GroupListener;
 
-public class IMGroupListener extends ImGroupListener {
+@Service
+@Slf4j
+public class ImGroupListener implements GroupListener {
+
+    @Override
+    public void onAfterBind(ChannelContext channelContext, String s) throws Exception {
+
+    }
+
     /**
      * @param channelContext
      * @param group

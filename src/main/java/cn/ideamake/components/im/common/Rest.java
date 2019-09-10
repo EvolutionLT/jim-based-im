@@ -2,7 +2,7 @@ package cn.ideamake.components.im.common;
 
 public class Rest<T> {
 
-    private int code;
+    private Integer code;
     private String msg;
     private T data;
 
@@ -19,12 +19,12 @@ public class Rest<T> {
         this.data = data;
     }
 
-    public Rest<T> setCode(int code) {
+    public Rest<T> setCode(Integer code) {
         this.code = code;
         return this;
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

@@ -3,8 +3,8 @@
  */
 package cn.ideamake.components.im.common.common.packets;
 
-import com.alibaba.fastjson.JSONObject;
 import cn.ideamake.components.im.common.common.utils.JsonKit;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.Serializable;
 

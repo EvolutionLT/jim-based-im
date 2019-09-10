@@ -22,4 +22,13 @@ public interface Constants {
         String USER_TOKEN="USER_TOKEN";
 
     }
+
+    interface FRIENDS {
+        String LABEL = "FRIENDS_LABEL";
+    }
+    interface USER {
+        String PREFIX = "user";
+        String INFO = "info";
+        String FRIENDS = "friends";
+    }
 }
