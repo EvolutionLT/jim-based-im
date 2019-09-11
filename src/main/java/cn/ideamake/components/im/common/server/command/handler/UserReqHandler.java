@@ -3,6 +3,8 @@
  */
 package cn.ideamake.components.im.common.server.command.handler;
 
+import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import cn.ideamake.components.im.common.common.ImAio;
 import cn.ideamake.components.im.common.common.ImConst;
@@ -13,9 +15,11 @@ import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.server.command.AbstractCmdHandler;
+import org.redisson.api.RMapCache;
 import org.tio.core.ChannelContext;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,7 +37,8 @@ public class UserReqHandler extends AbstractCmdHandler {
 	@Override
 	public ImPacket handler(ImPacket packet, ChannelContext channelContext) throws Exception {
 		UserReqBody userReqBody = JsonKit.toBean(packet.getBody(), UserReqBody.class);
-		User user = null;
+//		User user = null;
+		Collection<User> users = null;
 		RespBody resPacket = null;
 		
 		String userId = userReqBody.getUserid();
@@ -43,25 +48,35 @@ public class UserReqHandler extends AbstractCmdHandler {
 		//(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线]);
 		Integer type = userReqBody.getType() == null ? 2 : userReqBody.getType();
 		if(0 == userReqBody.getType() || 1 == userReqBody.getType() || 2 == userReqBody.getType()){
-			user = getUserInfo(userId, type);
-			//在线用户
-			if(0 == userReqBody.getType()){
-				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10005);
-			//离线用户;
-			}else if(1 == userReqBody.getType()){
-				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10006);
-			//在线+离线用户;
-			}else if(2 == userReqBody.getType()){
-				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10003);
-			}
+		    users = getUserFriends(userId);
+		    resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10003);
+//			user = getUserInfo(userId, type);
+			//暂时不考虑在线离线用户，后续迭代增加
+//			//在线用户
+//			if(0 == userReqBody.getType()){
+//				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10005);
+//			//离线用户;
+//			}else if(1 == userReqBody.getType()){
+//				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10006);
+//			//在线+离线用户;
+//			}else if(2 == userReqBody.getType()){
+//				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10003);
+//			}
 		}
-		if(user == null) {
+		if(users == null) {
 			return ImKit.ConvertRespPacket(new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10004), channelContext);
 		}
-		resPacket.setData(user);
+		resPacket.setData(users);
 		return ImKit.ConvertRespPacket(resPacket, channelContext);
 	}
-	
+
+
+	public Collection<User> getUserFriends(String userId){
+		RMapCache<String,User> userFriendskv = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
+		Collection<User> userFriends =  userFriendskv.values();
+		return userFriends;
+	}
+
 	  /**
      * 根据用户id获取用户在线及离线用户;
      * @param userid

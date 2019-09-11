@@ -141,7 +141,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 			if(keys != null && keys.size() > 0){
 				List<ChatBody> results = new ArrayList<ChatBody>();
 				Iterator<String> keyitr = keys.iterator();
-				//获取好友离线消息;
+				//获取好友离线消息;后续改成key+
 				while(keyitr.hasNext()){
 					String key = keyitr.next();
 					key = key.substring(key.indexOf(USER+SUBFIX));
@@ -434,6 +434,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		if(user_id == null) {
 			return null;
 		}
+		//应对后续对用户信息的更新，避免遍历所有用户做更新，使用RMapCache<String,User>存储
 		List<JSONObject> friendJsonArray = userCache.get(user_id+SUBFIX+FRIENDS, List.class);
 		if(CollectionUtils.isEmpty(friendJsonArray)) {
 			return null;

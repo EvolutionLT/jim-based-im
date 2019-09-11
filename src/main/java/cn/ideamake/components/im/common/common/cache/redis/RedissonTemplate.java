@@ -26,12 +26,16 @@ public class RedissonTemplate implements Serializable{
 	
 	private RedissonTemplate(){};
 	
-	public static RedissonTemplate me() throws Exception{
+	public static RedissonTemplate me() {
 		 if (instance == null) { 
 	        	synchronized (RedissonTemplate.class) {
 					if(instance == null){
-						redisConfig = RedisConfigurationFactory.parseConfiguration();
-						init();
+						try {
+							redisConfig = RedisConfigurationFactory.parseConfiguration();
+							init();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 						instance = new RedissonTemplate();
 					}
 				}

@@ -4,7 +4,6 @@ import cn.ideamake.components.im.common.common.ImConfig;
 import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImSessionContext;
-import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.message.MessageHelper;
@@ -156,26 +155,66 @@ public class ImServerAioListener implements ServerAioListener {
                 log.error("接收者{}信息未被初始化", chatBody.getTo());
                 return;
             }
-            //当发送者和接收者信息都不为空时对双方的好友列表做存储
+            //当发送者和接收者信息都不为空时对双方的好友列表做存储,暂时不考虑组！！！！！
             RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getFrom() + ":" + Constants.USER.FRIENDS);
 
-
+            //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
+//            List<User>
             //发送者好友列表没有接收者时，将接收者添加到其好友列表
             if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(chatBody.getTo())) {
                 log.info("发送者[{}]好友列表中不存在[{}],做追加操作",sender.getNick(),receiver.getNick());
         		User receiverSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
-        		friendsOfSender.put(chatBody.getTo(),receiver);
+        		friendsOfSender.put(chatBody.getTo(),receiverSimple);
             }
-
             RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getTo() + ":" + Constants.USER.FRIENDS);
             //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
             if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(chatBody.getFrom())) {
                 log.info("接收者[{}]好友列表中不存在[{}],做追加操作",receiver.getNick(),sender.getNick());
-        		User senderSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
+        		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
         		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
             }
             log.info(chatBody.toString());
         }
     }
+
+
+//    //为了兼容jim存储，此处设计颇为不合理，每次发消息检查东西过多，后续有更好方式再做优化#TODO,用户信息动态控制存在很大问题
+//    private boolean checkUserFriends(ChatBody chatBody){
+//        RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
+//        List<JSONObject> friendJsonArray = userCache.get(chatBody.getFrom()+":"+Constants.USER.FRIENDS, List.class);
+//
+//        if(CollectionUtils.isEmpty(friendJsonArray)){
+//           JSONObject groupJson = new JSONObject();
+//        }
+//        return true;
+//
+//
+//        //应对后续对用户信息的更新，避免遍历所有用户做更新，使用RMapCache<String,User>存储
+//        List<JSONObject> friendJsonArray = userCache.get(user_id+SUBFIX+FRIENDS, List.class);
+//        if(CollectionUtils.isEmpty(friendJsonArray)) {
+//            return null;
+//        }
+//        List<Group> friends = new ArrayList<Group>();
+//        for(JSONObject groupJson : friendJsonArray){
+//            Group group = JSONObject.toJavaObject(groupJson, Group.class);
+//            List<User> users = group.getUsers();
+//            if(CollectionUtils.isEmpty(users)) {
+//                continue;
+//            }
+//            List<User> userResults = new ArrayList<User>();
+//            for(User user : users){
+//                initUserStatus(user);
+//                String status = user.getStatus();
+//                if(type == 0 && ONLINE.equals(status)){
+//                    userResults.add(user);
+//                }else if(type == 1 && OFFLINE.equals(status)){
+//                    userResults.add(user);
+//                }else if(type == 2){
+//                    userResults.add(user);
+//                }
+//            }
+//            group.setUsers(userResults);
+//            friends.add(group)
+//    }
 
 }
