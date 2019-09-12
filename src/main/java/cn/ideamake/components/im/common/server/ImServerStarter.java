@@ -71,8 +71,8 @@ public class ImServerStarter {
 //		init();
 //	}
 
-	@Autowired
-    private ImServerAioListener imServerAioListener;
+//	@Autowired
+//    private ImServerAioListener imServerAioListener;
 
 	@Autowired
 	private RedisMessageHelper redisMessageHelper;
@@ -107,12 +107,12 @@ public class ImServerStarter {
 		loginReqHandler.addProcessor(periodService);
 
 		//开启SSL
-		if(ImConst.ON.equals(imConfig.getIsSSL())){
-			SslConfig sslConfig = imConfig.getSslConfig();
-			if(sslConfig != null) {
-				imServerGroupContext.setSslConfig(sslConfig);
-			}
-		}
+//		if(ImConst.ON.equals(imConfig.getIsSSL())){
+//			SslConfig sslConfig = imConfig.getSslConfig();
+//			if(sslConfig != null) {
+//				imServerGroupContext.setSslConfig(sslConfig);
+//			}
+//		}
 		aioServer = new AioServer(imServerGroupContext);
 		//添加持久话消息处理
 		redisMessageHelper.setImConfig(imConfig);

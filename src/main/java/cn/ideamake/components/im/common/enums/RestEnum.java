@@ -25,7 +25,7 @@ public enum RestEnum {
     TOKEN_EXPIRED(500201, "token expired"),
     /** 未登录 */
     NEED_LOGIN(500202, "no login"),
-    TOKEN_ERROR(500203, "token error"),
+    TOKEN_ERROR(1001, "token认证失败"),
     REFRESH_TOKEN_EXPIRED(500204, "refresh token expired"),
     USER_NOT_FOUND(500205, "user not found"),
     NOT_BINDING(500206, "visitor not binding for the project"),

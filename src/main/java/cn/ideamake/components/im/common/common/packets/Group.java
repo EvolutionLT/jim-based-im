@@ -7,13 +7,14 @@ import java.util.List;
 
 /**
  * 版本: [1.0]
- * 功能说明: 
+ * 功能说明:
  * 作者: WChao 创建时间: 2017年9月21日 下午1:54:04
  */
 public class Group extends Message {
 	
 	private static final long serialVersionUID = -3817755433171220952L;
 	private String group_id;
+	private String ownerId;
 	private String name;//群组名称;
 	private String avatar;//群组头像;
 	private Integer online;//在线人数;
@@ -21,6 +22,11 @@ public class Group extends Message {
 
 	public Group(){}
 	public Group(String group_id , String name){
+		this.group_id = group_id;
+		this.name = name;
+	}
+	public Group(String ownerId,String group_id , String name){
+		this.ownerId = ownerId;
 		this.group_id = group_id;
 		this.name = name;
 	}
@@ -54,5 +60,13 @@ public class Group extends Message {
 	}
 	public void setGroup_id(String group_id) {
 		this.group_id = group_id;
+	}
+
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
 	}
 }

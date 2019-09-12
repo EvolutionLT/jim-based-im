@@ -1,6 +1,5 @@
 package cn.ideamake.components.im.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -9,12 +8,15 @@ import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.ImStatus;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
-import cn.ideamake.components.im.common.common.id.impl.UUIDSessionIdGenerator;
 import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
-import cn.ideamake.components.im.common.server.command.handler.processor.login.LoginCmdProcessor;
+import cn.ideamake.components.im.common.enums.RestEnum;
+import cn.ideamake.components.im.common.exception.PeriodException;
+import cn.ideamake.components.im.pojo.dto.GroupInsertDTO;
 import cn.ideamake.components.im.pojo.dto.LoginDTO;
+import cn.ideamake.components.im.pojo.dto.UserInfoDTO;
+import cn.ideamake.components.im.pojo.vo.UserAuthVO;
 import cn.ideamake.components.im.service.PeriodService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -24,14 +26,12 @@ import org.redisson.api.RMapCache;
 import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class PeriodServiceImpl implements PeriodService, LoginCmdProcessor {
+public class PeriodServiceImpl implements PeriodService {
 
     @Override
     public User getUserInfoById(String userId) {
@@ -66,15 +66,16 @@ public class PeriodServiceImpl implements PeriodService, LoginCmdProcessor {
     }
 
     @Override
-    public String loginInfoToToken(LoginDTO loginDTO) {
-        log.info("用户登录：{}", loginDTO.getUserId());
-        JSONObject jsonObject = JSONUtil.parseObj(loginDTO);
-        String result = HttpRequest.post(Constants.SERVER_URL.USER_LOGIN).body(jsonObject).execute().body();
-        Rest<User> jsonObjects  =JSON.parseObject(result,new TypeReference<Rest<User>>(){});
+    public UserAuthVO loginInfoToToken(LoginDTO loginDTO) {
+        log.info("用户登录：{}", loginDTO.getToken());
+//        JSONObject jsonObject = JSONUtil.parseObj(loginDTO);
+        String result = HttpRequest.get(Constants.SERVER_URL.USER_LOGIN).header("IM-TOKEN",loginDTO.getToken()).execute().body();
+        log.info(result);
+        Rest<UserInfoDTO> jsonObjects  =JSON.parseObject(result,new TypeReference<Rest<UserInfoDTO>>(){});
 //        if (jsonResult.get("code") != null && jsonResult.get("code").equals(0) && jsonResult.get("data") != null) {
-        if (jsonObjects != null && jsonObjects.getCode() !=null && jsonObjects.getCode().equals(0) && jsonObjects.getData()!=null) {
+        if (jsonObjects != null && jsonObjects.getCode() !=null && jsonObjects.getCode().equals(200) && jsonObjects.getData()!=null) {
             //此处初始化用户登录信息,目前暂定验证成功后，由应用方返回用户信息，im服务做限时存储，
-            User user = jsonObjects.getData();
+            UserInfoDTO userInfoDTO = jsonObjects.getData();
 //            user.setGroups(initGroups(user));
 //            user.setFriends(initFriends(user));
             //使用前端传来的用户明和密码向应用服务器请求做验证，验证通过返回用户的基本信息，im服务生成token返回给用户，并做存储，暂时先用redis的过期机制来做有效期判断
@@ -85,15 +86,19 @@ public class PeriodServiceImpl implements PeriodService, LoginCmdProcessor {
                 e.printStackTrace();
             }
             String token = getUserToken();
-            tokens.put(token, user, 30, TimeUnit.MINUTES);
 
             //初始化用户信息
-            User loginInfoSimple = ImKit.copyUserWithoutFriendsGroups(user);
-            RedisCacheManager.getCache(ImConst.USER).put(user.getId()+":"+Constants.USER.INFO,loginInfoSimple);
-            return token;
+            User loginInfoSimple = new User(userInfoDTO.getOpenId(),userInfoDTO.getNickname());
+            loginInfoSimple.setAvatar(userInfoDTO.getAvatar());
+            //token有效期设置为两个小时
+            tokens.put(token, loginInfoSimple, 120, TimeUnit.MINUTES);
+            RedisCacheManager.getCache(ImConst.USER).put(loginInfoSimple.getId()+":"+Constants.USER.INFO,loginInfoSimple);
+            UserAuthVO userAuthVO = new UserAuthVO(token,loginInfoSimple.getId());
+
+            return userAuthVO;
         }
         log.error("应用服务器授权失败，请检查授权方式，请求参数{}", loginDTO.toString());
-        return null;
+        throw new PeriodException(RestEnum.TOKEN_ERROR);
     }
 
 
@@ -200,4 +205,49 @@ public class PeriodServiceImpl implements PeriodService, LoginCmdProcessor {
 //        friends.add(myFriend);
 //        return friends;
 //    }
+
+    /**
+     * 用户添加群组
+     */
+    @Override
+    public Group addGroup(GroupInsertDTO groupInsertDTO){
+        String ownerId = checkToken(groupInsertDTO.getToken());
+        //组id暂时用时间戳
+        String groupId = String.valueOf(System.currentTimeMillis());
+        String groupName = groupInsertDTO.getName()==null?"默认群名":groupInsertDTO.getName();
+        Group group = new Group(ownerId,groupId,groupName);
+        RedisCacheManager.getCache(ImConst.GROUP).put(groupId+":"+Constants.USER.INFO,group);
+
+        return group;
+    }
+
+    @Override
+    public boolean deleteGroup(String groupId,String token) {
+        String ownerId =checkToken(token);
+        Group group = RedisCacheManager.getCache(ImConst.GROUP).get(groupId+":"+Constants.USER.INFO,Group.class);
+        if(group == null){
+            log.warn("组[{}]不存在，请检查数据",groupId);
+            return true;
+        }
+        if(group.getOwnerId()!=null && group.getOwnerId().equals(ownerId)){
+            RedisCacheManager.getCache(ImConst.GROUP).remove(groupId+":"+Constants.USER.INFO);
+            log.info("组[ {} ]删除成功",group);
+        }
+        return true;
+    }
+
+    /**
+     * 检查授权token
+     * 成功返回用户id
+     * @param token
+     * @return
+     */
+    private String checkToken(String token){
+        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
+        User user = mapCache.get(token);
+        if(user!=null){
+            return user.getId();
+        }
+        throw new PeriodException(RestEnum.TOKEN_EXPIRED);
+    }
 }

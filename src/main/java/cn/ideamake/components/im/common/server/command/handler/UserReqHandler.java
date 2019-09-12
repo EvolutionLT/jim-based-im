@@ -71,10 +71,23 @@ public class UserReqHandler extends AbstractCmdHandler {
 	}
 
 
+	/**
+	 * 获取用户好友列表
+	 * @param userId
+	 * @return
+	 */
 	public Collection<User> getUserFriends(String userId){
 		RMapCache<String,User> userFriendskv = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
 		Collection<User> userFriends =  userFriendskv.values();
 		return userFriends;
+	}
+
+	/**
+	 * 获取用组
+	 * @return
+	 */
+	public Collection<Group> getUserGroups(){
+		return null;
 	}
 
 	  /**

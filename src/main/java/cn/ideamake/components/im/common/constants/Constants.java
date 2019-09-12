@@ -5,7 +5,7 @@ public interface Constants {
     interface SERVER_URL {
 
         String GET_USER_INFO = "ws.server:8082/app/period/im-login";
-        String USER_LOGIN = "ws.server:8082/im/app/period/im-login";
+        String USER_LOGIN = "http://shidaijia.ideamake.cn/api/authorization/information";
     }
 
     interface RESULT_STATUS {
@@ -30,5 +30,6 @@ public interface Constants {
         String PREFIX = "user";
         String INFO = "info";
         String FRIENDS = "friends";
+        String GROUP = "group";
     }
 }

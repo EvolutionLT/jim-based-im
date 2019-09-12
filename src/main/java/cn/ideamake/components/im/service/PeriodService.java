@@ -1,9 +1,13 @@
 package cn.ideamake.components.im.service;
 
+import cn.ideamake.components.im.common.common.packets.Group;
 import cn.ideamake.components.im.common.common.packets.User;
+import cn.ideamake.components.im.common.server.command.handler.processor.login.LoginCmdProcessor;
+import cn.ideamake.components.im.pojo.dto.GroupInsertDTO;
 import cn.ideamake.components.im.pojo.dto.LoginDTO;
+import cn.ideamake.components.im.pojo.vo.UserAuthVO;
 
-public interface PeriodService {
+public interface PeriodService extends LoginCmdProcessor {
     /**
      * 获取用户基本界面初始化信息
      * @param userId
@@ -27,7 +31,7 @@ public interface PeriodService {
      * @param loginDTO
      * @return
      */
-    String loginInfoToToken(LoginDTO loginDTO);
+    UserAuthVO loginInfoToToken(LoginDTO loginDTO);
 
     /**
      * 更新用户基本信息,备用
@@ -35,4 +39,19 @@ public interface PeriodService {
      * @return
      */
     boolean updateUserInfo(User user);
+
+    /**
+     * 添加群组接口
+     * @param groupInsertDTO
+     * @return
+     */
+    Group addGroup(GroupInsertDTO groupInsertDTO);
+
+
+    /**
+     * 删除群组
+     * @param groupId
+     * @return
+     */
+    boolean deleteGroup(String groupId,String token);
 }

@@ -4,6 +4,7 @@ package cn.ideamake.components.im.handler;
 import cn.ideamake.components.im.common.Rest;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.AbstractException;
+import cn.ideamake.components.im.common.exception.PeriodException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -25,7 +26,11 @@ public class GlobalExceptionHandler {
     public Rest handler(HttpServletRequest req, Object handler, Exception e) {
 
         Rest rest = new Rest();
+
         rest.setCode(RestEnum.ERROR.getCode()).setMsg(RestEnum.ERROR.getMsg());
+        if(e instanceof AbstractException ){
+            rest.setCode(((AbstractException) e).getCode()).setMsg(((AbstractException) e).getMsg());
+        }
         printException(e, req);
         return rest;
     }
