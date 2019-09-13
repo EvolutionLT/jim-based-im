@@ -20,7 +20,7 @@ public class Message implements Serializable{
 	 * 消息创建时间
 	 * new Date().getTime()
 	 */
-	protected Long createTime;
+	protected Long createTime =System.currentTimeMillis();
 	/**
 	 * 消息id，全局唯一
 	 * UUIDSessionIdGenerator.instance.sessionId(null)

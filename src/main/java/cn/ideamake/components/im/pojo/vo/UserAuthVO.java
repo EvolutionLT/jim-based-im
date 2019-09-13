@@ -12,4 +12,6 @@ import lombok.Data;
 public class UserAuthVO {
     private String token;
     private String userId;
+    private String avatar;
+    private String nickname;
 }

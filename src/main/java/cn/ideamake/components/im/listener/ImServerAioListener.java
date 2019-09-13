@@ -140,9 +140,9 @@ public class ImServerAioListener implements ServerAioListener {
         ChatBody chatBody = ChatKit.toChatBody(imPacket.getBody(), channelContext);
         //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录
         if (chatBody != null && !StringUtils.isEmpty(chatBody.getFrom()) && !StringUtils.isEmpty(chatBody.getTo())) {
-            String key = chatBody.getFrom() + ":" + Constants.USER.INFO;
-            log.info(key);
-            User sender = RedisCacheManager.getCache(ImConst.USER).get(key,User.class);
+            String keySender = chatBody.getFrom() + ":" + Constants.USER.INFO;
+//            log.info(keySender);
+            User sender = RedisCacheManager.getCache(ImConst.USER).get(keySender,User.class);
 //            User sender = (User) RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + chatBody.getFrom() + Constants.USER.INFO);
             //发送者信息未被初始化,正常情况下应用和im双方用户数据需要打通，暂不考虑发送方不存在的情况，会被记录，但是不纪录用户列表
             if (sender == null) {
@@ -150,7 +150,8 @@ public class ImServerAioListener implements ServerAioListener {
                 //此处后续可以向三方服务器拉取用户信息
                 return;
             }
-            User receiver= RedisCacheManager.getCache(ImConst.USER).get(key,User.class);
+            String keyReceiver = chatBody.getFrom() + ":" + Constants.USER.INFO;
+            User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
             if (receiver == null) {
                 log.error("接收者{}信息未被初始化", chatBody.getTo());
                 return;
@@ -173,7 +174,7 @@ public class ImServerAioListener implements ServerAioListener {
         		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
         		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
             }
-            log.info(chatBody.toString());
+//            log.info(chatBody.toString());
         }
     }
 

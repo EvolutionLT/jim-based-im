@@ -5,6 +5,7 @@ import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.Group;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.packets.UserMessageData;
+import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 
 import java.util.List;
 
@@ -99,6 +100,14 @@ public interface MessageHelper {
 	 */
 	public UserMessageData getFriendsOfflineMessage(String userId, String fromUserId);
 	/**
+	 * 获取与指定用户离线消息,不删除消息队列，用于消息的已读和未读判断;
+	 * @param userId
+	 * @param fromUserId
+	 * @return
+	 */
+	public UserMessageData getFriendsOfflineMessageWithoutRemove(String userId, String fromUserId);
+
+	/**
 	 * 获取与所有用户离线消息;
 	 * @param userId
 	 * @return
@@ -134,4 +143,9 @@ public interface MessageHelper {
 	 * @return
 	 */
 	public UserMessageData getGroupHistoryMessage(String userId, String groupid, Double beginTime, Double endTime, Integer offset, Integer count);
+
+
+
+	//下面是对持久化的自定义接口
+	public UserDetailVO getUserDetailInfo(String userId);
 }

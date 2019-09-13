@@ -1,5 +1,6 @@
 package cn.ideamake.components.im.common.server.helper.redis;
 
+import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -134,6 +135,14 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 	}
 
 	@Override
+	public UserMessageData getFriendsOfflineMessageWithoutRemove(String userId, String fromUserId){
+		String key = USER+SUBFIX+userId+SUBFIX+fromUserId;
+		List<String> messageList = pushCache.sortSetGetAll(key);
+		List<ChatBody> datas = JsonKit.toArray(messageList, ChatBody.class);
+		return putFriendsMessage(new UserMessageData(userId), datas);
+	}
+
+	@Override
 	public UserMessageData getFriendsOfflineMessage(String userid) {
 		try{
 			Set<String> keys = JedisTemplate.me().keys(PUSH+SUBFIX+USER+SUBFIX+userid);
@@ -235,13 +244,19 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		putGroupMessage(messageData, JsonKit.toArray(messages, ChatBody.class));
 		return messageData;
 	}
-	
+
+	@Override
+	public UserDetailVO getUserDetailInfo(String userId) {
+		return null;
+	}
+
+
 	/**
 	 * 放入用户群组消息;
 	 * @param userMessage
 	 * @param messages
 	 */
-	public UserMessageData putGroupMessage(UserMessageData userMessage, List<ChatBody> messages){
+	public UserMessageData  putGroupMessage(UserMessageData userMessage, List<ChatBody> messages){
 		if(userMessage == null || messages == null) {
 			return null;
 		}
@@ -497,4 +512,10 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		List<String> groups = userCache.listGetAll(user_id+SUBFIX+GROUP);
 		return groups;
 	}
+
+	//此处一下
+
+
+
+
 }

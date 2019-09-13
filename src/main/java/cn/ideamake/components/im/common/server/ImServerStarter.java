@@ -5,7 +5,6 @@ package cn.ideamake.components.im.common.server;
 
 
 import cn.ideamake.components.im.common.common.ImConfig;
-import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.config.PropertyImConfigBuilder;
 import cn.ideamake.components.im.common.common.packets.Command;
 import cn.ideamake.components.im.common.server.command.CommandManager;
@@ -13,23 +12,21 @@ import cn.ideamake.components.im.common.server.command.handler.HandshakeReqHandl
 import cn.ideamake.components.im.common.server.command.handler.LoginReqHandler;
 import cn.ideamake.components.im.common.server.handler.ImServerAioHandler;
 import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
-//import cn.ideamake.components.im.common.server.listener.ImGroupListener;
-//import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
 import cn.ideamake.components.im.components.IMWsHandshakeProcessor;
 import cn.ideamake.components.im.listener.ImGroupListener;
 import cn.ideamake.components.im.listener.ImServerAioListener;
-import cn.ideamake.components.im.service.PeriodService;
 import cn.ideamake.components.im.service.impl.PeriodServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.tio.core.intf.GroupListener;
-import org.tio.core.ssl.SslConfig;
 import org.tio.server.AioServer;
 import org.tio.server.intf.ServerAioListener;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+
+//import cn.ideamake.components.im.common.server.listener.ImGroupListener;
+//import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
 
 //import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
 //import cn.ideamake.components.im.listener.ImServerAioListener;
@@ -50,7 +47,7 @@ public class ImServerStarter {
 	 * 消息包拦截监听处理
 	 */
 	@Autowired
-	private ServerAioListener imAioListener;
+	private ImServerAioListener imAioListener;
 	private ImServerGroupContext imServerGroupContext = null;
 
 	/**
@@ -117,7 +114,7 @@ public class ImServerStarter {
 		//添加持久话消息处理
 		redisMessageHelper.setImConfig(imConfig);
 		imAioHandler.setImConfig(imConfig);
-
+		imAioListener.setImConfig(imConfig);
 
 
 

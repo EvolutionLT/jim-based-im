@@ -56,10 +56,10 @@ public class MessageReqHandler extends AbstractCmdHandler {
 		//消息类型;
 		int type = messageReqBody.getType();
 		//如果用户ID为空或者type格式不正确，获取消息失败;
-		if(StringUtils.isEmpty(userId) || (0 != type && 1 != type) || !ImConst.ON.equals(imConfig.getIsStore())){
+		if(StringUtils.isEmpty(userId) || (0 != type && 1 != type && 2 != type) || !ImConst.ON.equals(imConfig.getIsStore())){
 			return getMessageFailedPacket(channelContext);
 		}
-		if(type == 0){
+		if(type == 0 || type == 2){
 			resPacket = new RespBody(Command.COMMAND_GET_MESSAGE_RESP, ImStatus.C10016);
 		}else{
 			resPacket = new RespBody(Command.COMMAND_GET_MESSAGE_RESP, ImStatus.C10018);
@@ -81,12 +81,14 @@ public class MessageReqHandler extends AbstractCmdHandler {
 				return getMessageFailedPacket(channelContext);
 			}
 		}else{
-			//获取与指定用户离线消息;
+			//获取与指定用户离线消息,并删除推送队列;
 			if(0 == type){
 				messageData = messageHelper.getFriendsOfflineMessage(userId, fromUserId);
 			//获取与指定用户历史消息;
 			}else if(1 == type){
 				messageData = messageHelper.getFriendHistoryMessage(userId, fromUserId,beginTime,endTime,offset,count);
+			}else if(2 == type){
+				messageData = messageHelper.getFriendsOfflineMessageWithoutRemove(userId, fromUserId);
 			}
 		}
 		resPacket.setData(messageData);

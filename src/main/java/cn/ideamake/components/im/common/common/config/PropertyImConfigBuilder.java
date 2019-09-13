@@ -56,9 +56,9 @@ public class PropertyImConfigBuilder extends ImConfigBuilder {
 		} catch (UnknownHostException e) {
 			log.error(e.getMessage(),e);
 		}
-		String ip = localHost.getHostAddress();
-//		this.setBindIp(PropUtil.get("jim.bind.ip"));
-		this.setBindIp(ip);
+//		String ip = localHost.getHostAddress();
+		this.setBindIp(PropUtil.get("jim.bind.ip"));
+//		this.setBindIp(ip);
 		this.setBindPort(PropUtil.getInt("jim.port"));
 		this.setHeartbeatTimeout(PropUtil.getLong("jim.heartbeat.timeout"));
 		this.setIsStore(PropUtil.get("jim.store"));
