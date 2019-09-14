@@ -4,7 +4,6 @@
 package cn.ideamake.components.im.common.common.packets;
 
 import com.alibaba.fastjson.JSONObject;
-import cn.ideamake.components.im.common.common.packets.Message;
 
 /**
  * 版本: [1.0]
@@ -37,37 +36,38 @@ public class ChatBody extends Message {
 	/**
 	 * 消息发到哪个群组;
 	 */
-	private String group_id;
+	private String groupId;
 
 	private ChatBody(){}
 
-	private ChatBody(String id , String from , String to , Integer msgType , Integer chatType , String content , String group_id , Integer cmd , Long createTime , JSONObject extras){
+	private ChatBody(String id , String from , String to , Integer msgType , Integer chatType , String content , String groupId, Integer cmd , Long createTime , JSONObject extras){
 		this.id = id;
 		this.from = from ;
 		this.to = to;
 		this.msgType = msgType;
 		this.chatType = chatType;
 		this.content = content;
-		this.group_id = group_id;
+		this.groupId = groupId;
+
 		this.cmd = cmd;
 		this.createTime = createTime;
 		this.extras = extras;
 	}
 
-	public static cn.ideamake.components.im.common.common.packets.ChatBody.Builder newBuilder(){
-		return new cn.ideamake.components.im.common.common.packets.ChatBody.Builder();
+	public static ChatBody.Builder newBuilder(){
+		return new ChatBody.Builder();
 	}
 	public String getFrom() {
 		return from;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setFrom(String from) {
+	public ChatBody setFrom(String from) {
 		this.from = from;
 		return this;
 	}
 	public String getTo() {
 		return to;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setTo(String to) {
+	public ChatBody setTo(String to) {
 		this.to = to;
 		return this;
 	}
@@ -75,34 +75,34 @@ public class ChatBody extends Message {
 	public Integer getMsgType() {
 		return msgType;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setMsgType(Integer msgType) {
+	public ChatBody setMsgType(Integer msgType) {
 		this.msgType = msgType;
 		return this;
 	}
 	public String getContent() {
 		return content;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setContent(String content) {
+	public ChatBody setContent(String content) {
 		this.content = content;
 		return this;
 	}
 
-	public String getGroup_id() {
-		return group_id;
+	public String getGroupId() {
+		return groupId;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setGroup_id(String group_id) {
-		this.group_id = group_id;
+	public ChatBody setGroupId(String groupId) {
+		this.groupId = groupId;
 		return this;
 	}
 	public Integer getChatType() {
 		return chatType;
 	}
-	public cn.ideamake.components.im.common.common.packets.ChatBody setChatType(Integer chatType) {
+	public ChatBody setChatType(Integer chatType) {
 		this.chatType = chatType;
 		return this;
 	}
 
-	public static class Builder extends Message.Builder<cn.ideamake.components.im.common.common.packets.ChatBody, cn.ideamake.components.im.common.common.packets.ChatBody.Builder>{
+	public static class Builder extends Message.Builder<ChatBody, ChatBody.Builder>{
 		/**
 		 * 来自user_id;
 		 */
@@ -126,7 +126,7 @@ public class ChatBody extends Message {
 		/**
 		 * 消息发到哪个群组;
 		 */
-		private String group_id;
+		private String groupId;
 		
 		public Builder(){};
 		
@@ -150,8 +150,8 @@ public class ChatBody extends Message {
 			this.content = content;
 			return this;
 		}
-		public Builder setGroup_id(String group_id) {
-			this.group_id = group_id;
+		public Builder setGroupId(String groupId) {
+			this.groupId = groupId;
 			return this;
 		}
 		@Override
@@ -159,8 +159,8 @@ public class ChatBody extends Message {
 			return this;
 		}
 		@Override
-		public cn.ideamake.components.im.common.common.packets.ChatBody build(){
-			return new cn.ideamake.components.im.common.common.packets.ChatBody(this.id , this.from , this.to , this.msgType , this.chatType , this.content , this.group_id ,this.cmd , this.createTime , this.extras);
+		public ChatBody build(){
+			return new ChatBody(this.id , this.from , this.to , this.msgType , this.chatType , this.content , this.groupId,this.cmd , this.createTime , this.extras);
 		}
 	}
 }

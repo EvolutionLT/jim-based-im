@@ -52,7 +52,9 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
   "cmd": 19,
   "type":"0",
   "userId":"asdfghjkl",
-  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw"
+  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
+  "offset":1,
+  "count":2
 }
 ```
 > 返回结果：
@@ -107,7 +109,9 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
   "cmd": 19,
   "type":"2",
   "userId":"asdfghjkl",
-  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw"
+  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
+  "offset":1,
+  "count":2
 }
 ```
 > 返回接口结果同上
@@ -119,7 +123,9 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
   "cmd": 19,
   "type":"2",
   "userId":"asdfghjkl",
-  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw"
+  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
+  "offset":1,
+  "count":2
 }
 ```
 返回接口同上

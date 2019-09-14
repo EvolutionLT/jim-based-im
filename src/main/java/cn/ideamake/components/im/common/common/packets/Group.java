@@ -13,7 +13,7 @@ import java.util.List;
 public class Group extends Message {
 	
 	private static final long serialVersionUID = -3817755433171220952L;
-	private String group_id;
+	private String groupId;
 	private String ownerId;
 	private String name;//群组名称;
 	private String avatar;//群组头像;
@@ -21,13 +21,13 @@ public class Group extends Message {
 	private List<User> users;//组用户;
 
 	public Group(){}
-	public Group(String group_id , String name){
-		this.group_id = group_id;
+	public Group(String groupId, String name){
+		this.groupId = groupId;
 		this.name = name;
 	}
-	public Group(String ownerId,String group_id , String name){
+	public Group(String ownerId, String groupId, String name){
 		this.ownerId = ownerId;
-		this.group_id = group_id;
+		this.groupId = groupId;
 		this.name = name;
 	}
 	public String getName() {
@@ -55,11 +55,11 @@ public class Group extends Message {
 	public void setUsers(List<User> users) {
 		this.users = users;
 	}
-	public String getGroup_id() {
-		return group_id;
+	public String getGroupId() {
+		return groupId;
 	}
-	public void setGroup_id(String group_id) {
-		this.group_id = group_id;
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
 	public String getOwnerId() {

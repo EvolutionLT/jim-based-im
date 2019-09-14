@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@SpringBootApplication(scanBasePackages = {"cn.ideamake.components.im","cn.ideamake.components.im.web"},scanBasePackageClasses = PeriodController.class )
+@SpringBootApplication
 @RestController
 @Slf4j
 public class ImApplication {
@@ -18,17 +18,5 @@ public class ImApplication {
     public static void main(String[] args) {
         SpringApplication.run(ImApplication.class, args);
 
-    }
-    /**
-     * 用户通过用户名和密码换取token
-     * @return
-     */
-    @Autowired
-    public PeriodService periodService;
-
-    @PostMapping("/tokens")
-    public Rest getToken(){
-        log.info(periodService.getUserInfoById("asd").toString());
-        return Rest.ok();
     }
 }

@@ -5,6 +5,7 @@ import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.server.command.handler.processor.login.LoginCmdProcessor;
 import cn.ideamake.components.im.pojo.dto.GroupInsertDTO;
 import cn.ideamake.components.im.pojo.dto.LoginDTO;
+import cn.ideamake.components.im.pojo.dto.UserGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserAuthVO;
 
 public interface PeriodService extends LoginCmdProcessor {
@@ -54,4 +55,20 @@ public interface PeriodService extends LoginCmdProcessor {
      * @return
      */
     boolean deleteGroup(String groupId,String token);
+
+
+    /**
+     * 添加用户到群组
+     * @param userGroupDTO
+     * @return
+     */
+    boolean addUserToGroup(UserGroupDTO userGroupDTO);
+
+
+    /**
+     * 将用户从群组中移除
+     * @param userGroupDTO
+     * @return
+     */
+    boolean removeUserFromGroup(UserGroupDTO userGroupDTO);
 }

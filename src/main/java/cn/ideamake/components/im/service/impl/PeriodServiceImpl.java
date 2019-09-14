@@ -1,21 +1,19 @@
 package cn.ideamake.components.im.service.impl;
 
 import cn.hutool.http.HttpRequest;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import cn.ideamake.components.im.common.Rest;
 import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.ImStatus;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.common.message.MessageHelper;
 import cn.ideamake.components.im.common.common.packets.*;
-import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.common.enums.GroupOperator;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.PeriodException;
-import cn.ideamake.components.im.pojo.dto.GroupInsertDTO;
-import cn.ideamake.components.im.pojo.dto.LoginDTO;
-import cn.ideamake.components.im.pojo.dto.UserInfoDTO;
+import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
+import cn.ideamake.components.im.pojo.dto.*;
 import cn.ideamake.components.im.pojo.vo.UserAuthVO;
 import cn.ideamake.components.im.service.PeriodService;
 import com.alibaba.fastjson.JSON;
@@ -23,6 +21,7 @@ import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
 
@@ -32,6 +31,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class PeriodServiceImpl implements PeriodService {
+
+    @Autowired
+    private MessageHelper messageHelper;
 
     @Override
     public User getUserInfoById(String userId) {
@@ -216,44 +218,42 @@ public class PeriodServiceImpl implements PeriodService {
      */
     @Override
     public Group addGroup(GroupInsertDTO groupInsertDTO) {
-        String ownerId = checkToken(groupInsertDTO.getToken());
-        //组id暂时用时间戳
-        String groupId = String.valueOf(System.currentTimeMillis());
-        String groupName = groupInsertDTO.getName() == null ? "默认群名" : groupInsertDTO.getName();
-        Group group = new Group(ownerId, groupId, groupName);
-        RedisCacheManager.getCache(ImConst.GROUP).put(groupId + ":" + Constants.USER.INFO, group);
-
-        return group;
+        OperatorGroupDTO operatorGroupDTO = new OperatorGroupDTO();
+        operatorGroupDTO.setToken(groupInsertDTO.getToken());
+        operatorGroupDTO.setOperatorId(GroupOperator.ADD);
+        Group group = new Group();
+        group.setName(groupInsertDTO.getName());
+        group.setAvatar(groupInsertDTO.getAvatar());
+        operatorGroupDTO.setGroup(group);
+        return messageHelper.operateGroup(operatorGroupDTO);
     }
 
     @Override
     public boolean deleteGroup(String groupId, String token) {
-        String ownerId = checkToken(token);
-        Group group = RedisCacheManager.getCache(ImConst.GROUP).get(groupId + ":" + Constants.USER.INFO, Group.class);
-        if (group == null) {
-            log.warn("组[{}]不存在，请检查数据", groupId);
-            return true;
-        }
-        if (group.getOwnerId() != null && group.getOwnerId().equals(ownerId)) {
-            RedisCacheManager.getCache(ImConst.GROUP).remove(groupId + ":" + Constants.USER.INFO);
-            log.info("组[ {} ]删除成功", group);
-        }
+        OperatorGroupDTO operatorGroupDTO = new OperatorGroupDTO();
+        operatorGroupDTO.setGroupId(groupId);
+        operatorGroupDTO.setToken(token);
+        operatorGroupDTO.setOperatorId(GroupOperator.DELETE);
+        messageHelper.operateGroup(operatorGroupDTO);
         return true;
     }
 
-    /**
-     * 检查授权token
-     * 成功返回用户id
-     *
-     * @param token
-     * @return
-     */
-    private String checkToken(String token) {
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        User user = mapCache.get(token);
-        if (user != null) {
-            return user.getId();
-        }
-        throw new PeriodException(RestEnum.TOKEN_EXPIRED);
+    @Override
+    public boolean addUserToGroup(UserGroupDTO userGroupDTO) {
+        String tokenUserId = RedisMessageHelper.checkToken(userGroupDTO.getToken());
+        //校验邀请者身份，后续再加权限验证,暂时只要
+
+        log.info("用户{}邀请用户{}加入群组{}",tokenUserId,userGroupDTO.getUserId(),userGroupDTO.getGroupId());
+        messageHelper.addGroupUser(userGroupDTO.getUserId(),userGroupDTO.getGroupId());
+        return true;
+    }
+
+    @Override
+    public boolean removeUserFromGroup(UserGroupDTO userGroupDTO) {
+        String tokenUserId = RedisMessageHelper.checkToken(userGroupDTO.getToken());
+        //后续再校验权限问题
+        log.info("用户{}删除用户{}加入群组{}",tokenUserId,userGroupDTO.getUserId(),userGroupDTO.getGroupId());
+        messageHelper.removeGroupUser(userGroupDTO.getUserId(),userGroupDTO.getGroupId());
+        return true;
     }
 }

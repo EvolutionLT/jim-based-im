@@ -123,7 +123,7 @@ public class RedisImBindListener extends AbstractImBindListener {
 			return;
 		}
 		for(Group group : groups){
-			if(groupId.equals(group.getGroup_id())){
+			if(groupId.equals(group.getGroupId())){
 				groupCache.put(groupId+SUBFIX+INFO, group);
 				break;
 			}

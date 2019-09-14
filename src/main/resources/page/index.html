@@ -169,7 +169,7 @@ function groupOfflineMessage(msgObj,msgFlag){
        for(var index in chatDatas){
     	   var user_id = chatDatas[index].from;
     	   var createTime = new Date(chatDatas[index].createTime).Format("yyyy/MM/dd HH:mm:ss");
-    	   logDiv.innerHTML+="<font color='	#009ACD' size='1' style='font-weight: bold'>"+user_id+"</font><font color='#DC143C' size='1' style='font-weight: bold'>(群聊["+chatDatas[index].group_id+"]"+msgFlag+")</font>"+"<font color='#009ACD' size='1' style='font-weight: bold'>"+createTime+"</font><br>";
+    	   logDiv.innerHTML+="<font color='	#009ACD' size='1' style='font-weight: bold'>"+user_id+"</font><font color='#DC143C' size='1' style='font-weight: bold'>(群聊["+chatDatas[index].groupId+"]"+msgFlag+")</font>"+"<font color='#009ACD' size='1' style='font-weight: bold'>"+createTime+"</font><br>";
     	   logDiv.innerHTML+="<font color='#FFFFFF' size='1'>&nbsp;"+chatDatas[index].content+"</font><br>";
        }
 	}
@@ -246,7 +246,7 @@ function sendGroup(){
 	var content = document.getElementById('content').value;
 	if(content == "")
 		return ;
-	var msg = "{\"from\": \""+username+"\",\"createTime\":"+createTime+",\"cmd\":11,\"group_id\":\"100\",\"chatType\":\"1\",\"msgType\":\"0\",\"content\": \""+content+"\"}";
+	var msg = "{\"from\": \""+username+"\",\"createTime\":"+createTime+",\"cmd\":11,\"groupId\":\"100\",\"chatType\":\"1\",\"msgType\":\"0\",\"content\": \""+content+"\"}";
 	socket.send(msg);
 	var chatObj = eval("("+msg+")");
 	var createTime = new Date(chatObj.createTime).Format("yyyy/MM/dd HH:mm:ss");
@@ -343,12 +343,12 @@ function groupHistoryCmd(){
 		alert("请先登录!");
 		return;
 	}
-	var group_id = document.getElementById("history_group_id").value;;
-	if(group_id == ""){
+	var groupId = document.getElementById("history_group_id").value;;
+	if(groupId == ""){
 		alert("请输入要获取的群组ID!");
 		return;
 	}
-	var msgHistoryCmd = "{\"cmd\":19,\"type\":\"1\",\"groupId\":\""+group_id+"\",\"userId\":\""+username+"\"}";
+	var msgHistoryCmd = "{\"cmd\":19,\"type\":\"1\",\"groupId\":\""+groupId+"\",\"userId\":\""+username+"\"}";
 	socket.send(msgHistoryCmd);//获取群组历史消息;
 }
 </script>

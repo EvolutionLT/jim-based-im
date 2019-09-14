@@ -83,7 +83,7 @@ public class LoginReqHandler extends AbstractCmdHandler {
 			//绑定群组
 			for(Group group : groups){
 				if(isStore && groupIds != null){
-					groupIds.remove(group.getGroup_id());
+					groupIds.remove(group.getGroupId());
 				}
 				ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ, JsonKit.toJsonBytes(group));
 				try {

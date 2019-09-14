@@ -5,6 +5,7 @@ import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.Group;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.packets.UserMessageData;
+import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 
 import java.util.List;
@@ -148,4 +149,6 @@ public interface MessageHelper {
 
 	//下面是对持久化的自定义接口
 	public UserDetailVO getUserDetailInfo(String userId);
+
+	public Group operateGroup(OperatorGroupDTO operatorGroupDTO);
 }

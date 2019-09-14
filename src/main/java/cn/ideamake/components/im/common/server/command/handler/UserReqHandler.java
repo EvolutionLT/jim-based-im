@@ -154,7 +154,7 @@ public class UserReqHandler extends AbstractCmdHandler {
 			 Group copyGroup = ImKit.copyGroupWithoutUsers(group);
 			 List<User> users = null;
 			 if(flag == 1){
-				 users = ImAio.getAllUserByGroup(group.getGroup_id());
+				 users = ImAio.getAllUserByGroup(group.getGroupId());
 			 }else if(flag == 0){
 				 users = group.getUsers();
 			 }

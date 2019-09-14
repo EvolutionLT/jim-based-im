@@ -25,33 +25,6 @@ public class PeriodController {
     @Autowired
     public PeriodService periodService;
 
-    @PostMapping("/period/token")
-    public Rest getToken(UserDTO user){
-        log.info(periodService.getUserInfoById("asd").toString());
-        return Rest.ok();
-    }
-
-    /**
-     * 添加群组
-     * @param groupInsertDTO
-     * @return
-     */
-    @PostMapping("/group/save")
-    public Rest createGroup(GroupInsertDTO groupInsertDTO){
-       return Rest.okObj(periodService.addGroup(groupInsertDTO));
-    }
-
-    /**
-     * 删除群组
-     * @param userId
-     * @return
-     */
-    @DeleteMapping("/group/{token}/{userId}")
-    public Rest deleteGroup(@PathVariable String userId,@PathVariable String token){
-        periodService.deleteGroup(userId,token);
-        return Rest.ok();
-    }
-
     /**
      * 用户登录im
      * @param loginDTO
@@ -62,6 +35,8 @@ public class PeriodController {
         UserAuthVO userAuthVO = periodService.loginInfoToToken(loginDTO);
         return Rest.okObj(userAuthVO);
     }
+
+
     //模拟应用服务器接口
     /**
      *

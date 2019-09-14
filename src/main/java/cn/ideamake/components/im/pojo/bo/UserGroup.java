@@ -11,4 +11,9 @@ import lombok.Data;
 public class UserGroup {
 
     private String groupName;
+
+
+    public static void main(String[] args) {
+        System.out.println(System.nanoTime());
+    }
 }

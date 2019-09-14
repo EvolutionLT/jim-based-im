@@ -48,7 +48,7 @@ public class JoinGroupReqHandler extends AbstractCmdHandler {
 		User notifyUser = new User(clientUser.getId(),clientUser.getNick());
 		
 		Group joinGroup = JsonKit.toBean(packet.getBody(), Group.class);
-		String groupId = joinGroup.getGroup_id();
+		String groupId = joinGroup.getGroupId();
 		//发进房间通知  COMMAND_JOIN_GROUP_NOTIFY_RESP
 		JoinGroupNotifyRespBody joinGroupNotifyRespBody = new JoinGroupNotifyRespBody().setGroup(groupId).setUser(notifyUser);
 		RespBody notifyRespBody = new RespBody(Command.COMMAND_JOIN_GROUP_NOTIFY_RESP,joinGroupNotifyRespBody);
@@ -68,7 +68,7 @@ public class JoinGroupReqHandler extends AbstractCmdHandler {
 			throw new Exception("body is null");
 		}
 		Group joinGroup = JsonKit.toBean(packet.getBody(), Group.class);
-		String groupId = joinGroup.getGroup_id();
+		String groupId = joinGroup.getGroupId();
 		if (StringUtils.isBlank(groupId)) {
 			log.error("group is null,{}", channelContext);
 			Aio.close(channelContext, "group is null when join group");

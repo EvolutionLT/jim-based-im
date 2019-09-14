@@ -1,5 +1,10 @@
 package cn.ideamake.components.im.common.server.helper.redis;
 
+import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.common.enums.RestEnum;
+import cn.ideamake.components.im.common.exception.PeriodException;
+import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +22,11 @@ import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.packets.UserMessageData;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.common.utils.JsonKit;
-import cn.ideamake.components.im.common.server.helper.redis.RedisImBindListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.redisson.api.RMapCache;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -113,16 +117,22 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 
 
 	@Override
-	public void addGroupUser(String userid, String group_id) {
-		List<String> users = groupCache.listGetAll(group_id);
+	public void addGroupUser(String userid, String groupId) {
+		//此处后续添加判断组是否存在#TODO
+		List<String> users = groupCache.listGetAll(groupId+SUBFIX+USER);
 		if(!users.contains(userid)){
-			groupCache.listPushTail(group_id, userid);
+//			groupCache.listPushTail(groupId, userid);
+			groupCache.listPushTail(groupId+SUBFIX+USER, userid);
 		}
 	}
 
 	@Override
-	public void removeGroupUser(String userid, String group_id) {
-		groupCache.listRemove(group_id,userid);
+	@Transactional
+	public void removeGroupUser(String userId, String groupId) {
+		groupCache.listRemove(groupId,userId);
+		//删除用户拥有的组内容
+		userCache.listRemove(userId + SUBFIX + GROUP,groupId );
+
 	}
 
 	@Override
@@ -143,6 +153,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 	}
 
 	@Override
+	@Transactional
 	public UserMessageData getFriendsOfflineMessage(String userid) {
 		try{
 			Set<String> keys = JedisTemplate.me().keys(PUSH+SUBFIX+USER+SUBFIX+userid);
@@ -245,11 +256,6 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		return messageData;
 	}
 
-	@Override
-	public UserDetailVO getUserDetailInfo(String userId) {
-		return null;
-	}
-
 
 	/**
 	 * 放入用户群组消息;
@@ -261,7 +267,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 			return null;
 		}
 		for(ChatBody chatBody : messages){
-			String group = chatBody.getGroup_id();
+			String group = chatBody.getGroupId();
 			if(StringUtils.isEmpty(group)) {
 				continue;
 			}
@@ -399,7 +405,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 			return null;
 		}
 		for(Group group : friends){
-			if(friend_group_id.equals(group.getGroup_id())){
+			if(friend_group_id.equals(group.getGroupId())){
 				List<User> users = group.getUsers();
 				if(CollectionUtils.isEmpty(users)) {
 					return null;
@@ -513,9 +519,106 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		return groups;
 	}
 
-	//此处一下
+	//此处一下是根据实际业务需求新增的适配接口
 
+	@Override
+	public UserDetailVO getUserDetailInfo(String userId) {
+		return null;
+	}
 
+	@Override
+	@Transactional
+	public Group operateGroup(OperatorGroupDTO operatorGroupDTO){
+		String ownerId = checkToken(operatorGroupDTO.getToken());
+		switch (operatorGroupDTO.getOperatorId()){
+			case ADD:
+				//组id暂时用时间戳
+				String groupId = String.valueOf(System.nanoTime());
+				String groupName = operatorGroupDTO.getGroup().getName() == null ? "默认群名" : operatorGroupDTO.getGroup().getName();
+				Group group = new Group(ownerId, groupId, groupName);
+				group.setAvatar(operatorGroupDTO.getGroup().getAvatar());
+				log.info("用户{},添加组{}",ownerId,group);
+				//将组添加到持久化存储里
+				groupCache.put(groupId + SUBFIX + INFO, group);
+				//将组添加到用户的拥有组中
+				groupCache.listPushTail(groupId + SUBFIX + USER , ownerId);
+				//将用户添加到自己的组列表中
+				userCache.listPushTail(ownerId + SUBFIX + GROUP,groupId);
+				return group;
+			case GET:
+				String groupIdGet = operatorGroupDTO.getGroupId();
+				Group searchGroup = groupCache.get(groupIdGet + SUBFIX + INFO,Group.class);
+				return searchGroup;
+			case DELETE:
+				Group groupDelete = groupCache.get(operatorGroupDTO.getGroupId() + SUBFIX + INFO,Group.class);
+				if (groupDelete == null) {
+					log.warn("组[ {} ]不存在，请检查数据", operatorGroupDTO.getGroupId());
+					//此处检查系统剩余脏数据清理，清除自身在组里信息
+					checkReomovedGroup(operatorGroupDTO.getGroupId());
+					return operatorGroupDTO.getGroup();
+				}
+				if (groupDelete.getOwnerId() != null && groupDelete.getOwnerId().equals(ownerId)) {
+					groupCache.remove(operatorGroupDTO.getGroupId() + SUBFIX + INFO);
+					log.info("组[ {} ]删除成功", groupDelete.getGroupId());
+					checkReomovedGroup(operatorGroupDTO.getGroupId());
+					return operatorGroupDTO.getGroup();
+				}else {
+					throw new PeriodException("操作越权");
+				}
+			case UPDATE:
+				log.info("更新组信息");
+				Group groupUpdate = groupCache.get(operatorGroupDTO.getGroupId() + SUBFIX + INFO,Group.class);
+				if (groupUpdate == null) {
+					log.warn("组[{}]不存在，请检查数据", operatorGroupDTO.getGroup());
+					return operatorGroupDTO.getGroup();
+				}
+				if (groupUpdate.getOwnerId() != null && groupUpdate.getOwnerId().equals(ownerId)) {
+					Group  groupDto = operatorGroupDTO.getGroup();
+					BeanUtils.copyProperties(groupDto,groupUpdate);
+					groupCache.put(operatorGroupDTO.getGroupId() + SUBFIX + INFO,groupDto);
+				}else {
+					throw new PeriodException("操作越权");
+				}
+				return operatorGroupDTO.getGroup();
+		}
+		return null;
+	}
+	/**
+	 * 检查授权token
+	 * 成功返回用户id
+	 *
+	 * @param token
+	 * @return
+	 */
+	public static String checkToken(String token) {
+		RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
+		User user = mapCache.get(token);
+		if (user != null) {
+			return user.getId();
+		}
+		throw new PeriodException(RestEnum.TOKEN_EXPIRED);
+	}
 
+	private void checkReomovedGroup(String groupId){
+		//此处处理清除工作，有三处地方
+		//1.拥有组的成员组信息；2.组的聊天纪录看情况清除
+		//此处多线程操作可能会存在问题,实际操作时会存在管理员把群删除了，用户还是可以看到组信息，暂时先删除，后续看具体逻辑
+		//群主删除群后，用户也看不到群聊
+		List<String> groupUserIds = groupCache.listGetAll(groupId+SUBFIX+USER);
+		if(!groupUserIds.isEmpty()){
+			groupUserIds.forEach(userId ->{
+				userCache.listRemove(userId+SUBFIX+GROUP,groupId);
 
+				//群主解散时清除群成员相关的组信息
+				List<String> userGroups =  userCache.listGetAll(userId+SUBFIX+GROUP);
+				if(userGroups.isEmpty()){
+					userCache.remove((userId+SUBFIX+GROUP));
+				}
+			});
+			//为空时删除对应key值list
+//			if(groupUserIds.isEmpty()){
+			groupCache.remove(groupId + SUBFIX + USER);
+//			}
+		}
+	}
 }
