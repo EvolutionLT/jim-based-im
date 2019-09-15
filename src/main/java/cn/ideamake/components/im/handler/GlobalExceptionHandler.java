@@ -4,7 +4,6 @@ package cn.ideamake.components.im.handler;
 import cn.ideamake.components.im.common.Rest;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.AbstractException;
-import cn.ideamake.components.im.common.exception.PeriodException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;

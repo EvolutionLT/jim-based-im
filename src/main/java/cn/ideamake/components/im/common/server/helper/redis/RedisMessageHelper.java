@@ -3,9 +3,10 @@ package cn.ideamake.components.im.common.server.helper.redis;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.enums.RestEnum;
-import cn.ideamake.components.im.common.exception.PeriodException;
+import cn.ideamake.components.im.common.exception.IMException;
 import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
+import cn.ideamake.components.im.pojo.vo.UserFriendsVO;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -563,7 +564,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 					checkReomovedGroup(operatorGroupDTO.getGroupId());
 					return operatorGroupDTO.getGroup();
 				}else {
-					throw new PeriodException("操作越权");
+					throw new IMException("操作越权");
 				}
 			case UPDATE:
 				log.info("更新组信息");
@@ -577,12 +578,85 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 					BeanUtils.copyProperties(groupDto,groupUpdate);
 					groupCache.put(operatorGroupDTO.getGroupId() + SUBFIX + INFO,groupDto);
 				}else {
-					throw new PeriodException("操作越权");
+					throw new IMException("操作越权");
 				}
 				return operatorGroupDTO.getGroup();
 		}
 		return null;
 	}
+
+	@Override
+	public Group getGroupInfo(String groupId) {
+		return groupCache.get(groupId+SUBFIX+INFO,Group.class);
+	}
+
+
+	/**
+	 * 此接口暂时用于快速开发，用户量不大时处理
+	 * @param userId
+	 * @return
+	 */
+	@Override
+	public UserDetailVO initLoginUserInfo(String userId) {
+		UserDetailVO userDetailVO = new UserDetailVO();
+		//获取登录人的基本信息
+		User user = userCache.get(userId + SUBFIX + INFO,User.class);
+		if(user == null){
+			throw new IMException(RestEnum.USER_NOT_FOUND);
+		}
+
+		//初始化用户基本信息
+		userDetailVO.setNickname(user.getNick()==null?"":user.getNick());
+		userDetailVO.setUserId(user.getId());
+		userDetailVO.setAvatar(user.getAvatar()==null?"":user.getAvatar());
+
+		//初始化用户群组信息
+		RMapCache<String,User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
+
+		List<UserFriendsVO> friendsVOS = new ArrayList<>();
+		//次数先做遍历初始化，默认用户不会特别多，后续再优化内容结构
+		friendsIds.forEach((friendId,friend)->{
+			//次数存储取第一次存储的用户数据，后续实时更新可存id，拉取时遍历获取
+			UserFriendsVO userFriendsVO = new UserFriendsVO();
+			//每次取最新的，后续将好友存在改成id
+			User userFriend = userCache.get(friendId+SUBFIX+INFO,User.class);
+			userFriendsVO.setNickname(userFriend.getNick()==null?"":userFriend.getNick());
+			userFriendsVO.setUserId(friendId);
+			userFriendsVO.setAvatar(userFriend.getAvatar()==null?"":userFriend.getAvatar());
+
+			String sessionId = ChatKit.sessionId(userId, friendId);
+
+			String key = USER+SUBFIX+sessionId;
+			//取10条聊天纪录
+			List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE,0,10);
+			if(!messages.isEmpty()){
+				List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
+				userFriendsVO.setHistoryMessage(chatBodyList);
+			}else{
+				userFriendsVO.setHistoryMessage(new ArrayList<>(0));
+			}
+
+			//统计未读信息
+			String keyPushUnread = USER+SUBFIX+userId+SUBFIX+friendId;
+			List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
+			if(messageList.isEmpty()){
+				userFriendsVO.setUnReadNum(0);
+			}else {
+				userFriendsVO.setUnReadNum(messageList.size());
+			}
+//			List<ChatBody> datas = JsonKit.toArray(messageList, ChatBody.class);
+
+//			UserMessageData userMessageData = getFriendsOfflineMessageWithoutRemove(userId, friendId);
+//			if(userMessageData != null && !userMessageData.getFriends().isEmpty()){
+//				userFriendsVO.setUnReadNum(userMessageData.getFriends());
+//			}
+			friendsVOS.add(userFriendsVO);
+
+		});
+		userDetailVO.setFriends(friendsVOS);
+		return userDetailVO;
+	}
+
 	/**
 	 * 检查授权token
 	 * 成功返回用户id
@@ -596,7 +670,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		if (user != null) {
 			return user.getId();
 		}
-		throw new PeriodException(RestEnum.TOKEN_EXPIRED);
+		throw new IMException(RestEnum.TOKEN_EXPIRED);
 	}
 
 	private void checkReomovedGroup(String groupId){

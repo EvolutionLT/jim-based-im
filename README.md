@@ -143,19 +143,22 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
 > 返回结果
 ```json
 {
-  "code": 10003,
+  "code": 200,
   "command": 18,
   "data": [{
-    "id": "asdfghjkl",
-    "nick": "770e4",
+    "id": "oqRgw5YLLbymI6SKG2Mqrpx-1Q0w",
+    "nick": "栗子",
+    "terminal": "ws"
+  }, {
+    "id": "oqRgw5U2o6siu0viOo2MQJIBafcw",
     "terminal": "ws"
   }],
-  "msg": "ok 获取用户信息成功!"
+  "msg": "success "
 }
 ```
 -------------------------------------------------------------
 
-6.心跳包，用于防止服务器断开连接
+#### 6.心跳包，用于防止服务器断开连接
 > 请求内容
 ```json
 {"cmd":13,"hbbyte":"-127"}
@@ -169,5 +172,106 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
     "hbbyte": -128
   }
 }
+
 ```
 
+---
+#### 7.拉取用户详细信息
+包含用户好友、好友消息前10条、未读消息数量、好友的基本信息
+> 请求内容
+```json
+{
+  "cmd": 17,
+  "type":"2",
+  "userId":"asdfghjkl"
+}
+```
+> 响应内容
+```json
+{
+  "code": 200,
+  "command": 18,
+  "data": {
+    "avatar": "",
+    "friends": [{
+      "avatar": "",
+      "historyMessage": [{
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,你2好\"}",
+        "createTime": 1568557297820,
+        "from": "oqRgw5YLLbymI6SKG2Mqrpx-1Q0w",
+        "id": "0e848234998c443ebd5657ff83cc1d42",
+        "msgType": 0,
+        "to": "asdfghjkl"
+      }],
+      "nickname": "栗子",
+      "unReadNum": 0,
+      "userId": "oqRgw5YLLbymI6SKG2Mqrpx-1Q0w"
+    }, {
+      "avatar": "",
+      "historyMessage": [{
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,message from jkl\"}",
+        "createTime": 1568012384,
+        "from": "oqRgw5U2o6siu0viOo2MQJIBafcw",
+        "id": "6094a267c0ff4814ab6e8114bf730778",
+        "msgType": 0,
+        "to": "asdfghjkl"
+      }, {
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,message from jkl\"}",
+        "createTime": 1568012384,
+        "from": "oqRgw5U2o6siu0viOo2MQJIBafcw",
+        "id": "c3925e56024e43b79f2cd6bc8f218eff",
+        "msgType": 0,
+        "to": "asdfghjkl"
+      }, {
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,message from jkl\"}",
+        "createTime": 1568012384,
+        "from": "oqRgw5U2o6siu0viOo2MQJIBafcw",
+        "id": "ed7ffc310af842c090ef3f61a7f186fb",
+        "msgType": 0,
+        "to": "asdfghjkl"
+      }, {
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,你2好\"}",
+        "createTime": 1568012384,
+        "from": "asdfghjkl",
+        "id": "6cbf021e1d214c02b68cd1574dc98004",
+        "msgType": 0,
+        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
+      }, {
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,你2好\"}",
+        "createTime": 1568012384,
+        "from": "asdfghjkl",
+        "id": "d413c7a9b277460a858085178fcae65c",
+        "msgType": 0,
+        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
+      }, {
+        "chatType": 2,
+        "cmd": 11,
+        "content": "{\"asd\":\"hell,message from fcw111\"}",
+        "createTime": 1568556650564,
+        "from": "oqRgw5U2o6siu0viOo2MQJIBafcw",
+        "id": "6494f6b9b6f04d4a984c444fc4614410",
+        "msgType": 0,
+        "to": "asdfghjkl"
+      }],
+      "nickname": "",
+      "unReadNum": 2,
+      "userId": "oqRgw5U2o6siu0viOo2MQJIBafcw"
+    }],
+    "nickname": "770e4",
+    "userId": "asdfghjkl"
+  },
+  "msg": "success "
+}
+```

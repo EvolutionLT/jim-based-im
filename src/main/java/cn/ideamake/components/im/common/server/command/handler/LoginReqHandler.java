@@ -22,6 +22,7 @@ import java.util.List;
  * @date 2018年4月10日 下午2:40:07
  */
 @Slf4j
+
 public class LoginReqHandler extends AbstractCmdHandler {
 
 	@Override
@@ -71,34 +72,63 @@ public class LoginReqHandler extends AbstractCmdHandler {
 	 */
 	public void bindUnbindGroup(ChannelContext channelContext , User user)throws Exception{
 		String userId = user.getId();
-		List<Group> groups = user.getGroups();
-		if( groups != null){
-			boolean isStore = ImConst.ON.equals(imConfig.getIsStore());
-			MessageHelper messageHelper = null;
-			List<String> groupIds = null;
-			if(isStore){
-				messageHelper = imConfig.getMessageHelper();
-				groupIds = messageHelper.getGroups(userId);
-			}
-			//绑定群组
-			for(Group group : groups){
-				if(isStore && groupIds != null){
-					groupIds.remove(group.getGroupId());
-				}
+		MessageHelper messageHelper = imConfig.getMessageHelper();
+		List<String> groups = messageHelper.getGroups(userId);
+		if(!groups.isEmpty()){
+			groups.forEach(groupId->{
+//				groups.remove(groupId);
+				Group group = messageHelper.getGroupInfo(groupId);
 				ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ, JsonKit.toJsonBytes(group));
 				try {
+					//向群聊发进入通知
 					JoinGroupReqHandler joinGroupReqHandler = CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
 					joinGroupReqHandler.bindGroup(groupPacket, channelContext);
+
 				} catch (Exception e) {
 					log.error(e.toString(),e);
 				}
-			}
-			if(isStore && groupIds != null){
-				for(String groupId : groupIds){
-					messageHelper.getBindListener().onAfterGroupUnbind(channelContext, groupId);
-				}
-			}
+
+			});
+
 		}
+
+//		if (!groups.isEmpty()) {
+//			for (String groupId : groups) {
+//				messageHelper.getBindListener().onAfterGroupUnbind(channelContext, groupId);
+//			}
+//		}
+
+
+//
+//		String userId = user.getId();
+////		List<Group> groups = user.getGroups();
+//		if( groups != null){
+//			boolean isStore = ImConst.ON.equals(imConfig.getIsStore());
+//			MessageHelper messageHelper = null;
+//			List<String> groupIds = null;
+//			if(isStore){
+//				messageHelper = imConfig.getMessageHelper();
+//				groupIds = messageHelper.getGroups(userId);
+//			}
+//			//绑定群组
+//			for(Group group : groups){
+//				if(isStore && groupIds != null){
+//					groupIds.remove(group.getGroupId());
+//				}
+//				ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ, JsonKit.toJsonBytes(group));
+//				try {
+//					JoinGroupReqHandler joinGroupReqHandler = CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
+//					joinGroupReqHandler.bindGroup(groupPacket, channelContext);
+//				} catch (Exception e) {
+//					log.error(e.toString(),e);
+//				}
+//			}
+//			if(isStore && groupIds != null){
+//				for(String groupId : groupIds){
+//					messageHelper.getBindListener().onAfterGroupUnbind(channelContext, groupId);
+//				}
+//			}
+//		}
 	}
 	@Override
 	public Command command() {

@@ -11,7 +11,7 @@ import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.enums.GroupOperator;
 import cn.ideamake.components.im.common.enums.RestEnum;
-import cn.ideamake.components.im.common.exception.PeriodException;
+import cn.ideamake.components.im.common.exception.IMException;
 import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import cn.ideamake.components.im.pojo.dto.*;
 import cn.ideamake.components.im.pojo.vo.UserAuthVO;
@@ -104,7 +104,7 @@ public class PeriodServiceImpl implements PeriodService {
             }
         }
         log.error("应用服务器授权失败，请检查授权方式，请求参数{}", loginDTO.toString());
-        throw new PeriodException(RestEnum.TOKEN_ERROR);
+        throw new IMException(RestEnum.TOKEN_ERROR);
     }
 
 

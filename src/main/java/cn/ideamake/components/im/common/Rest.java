@@ -47,12 +47,12 @@ public class Rest<T> {
     }
 
     public static Rest ok(){
-        Rest re  = new Rest(0,"success");
+        Rest re  = new Rest(200,"success");
         return re;
     }
 
     public static Rest okObj(Object object){
-        Rest re = new Rest(0,"success");
+        Rest re = new Rest(200,"success");
         re.setData(object);
         return re;
     }

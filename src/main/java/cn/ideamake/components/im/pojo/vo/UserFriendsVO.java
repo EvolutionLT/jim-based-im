@@ -1,5 +1,6 @@
 package cn.ideamake.components.im.pojo.vo;
 
+import cn.ideamake.components.im.common.common.packets.ChatBody;
 import lombok.Data;
 
 import java.util.List;
@@ -13,12 +14,18 @@ import java.util.List;
 public class UserFriendsVO {
     private String userId;
     private String nickname;
+    private String avatar;
+    private String lastMessageTime;
+    /**
+     * 未读消息数量
+     */
+    private Integer unReadNum;
     /**
      * 历史消息
      */
-    private List<MessageVO> historyMessage;
-    /**
-     * 未读消息
-     */
-    private List<MessageVO> unReadMessage;
+    private List<ChatBody> historyMessage;
+//    /**
+//     * 未读消息,
+//     */
+//    private List<ChatBody> unReadMessage;
 }

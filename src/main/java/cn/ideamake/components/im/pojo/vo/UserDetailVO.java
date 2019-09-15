@@ -14,8 +14,13 @@ import java.util.List;
 public class UserDetailVO {
     private String nickname;
     private String userId;
+    private String avatar;
     /**
-     * 用户好友
+     * 用户好友，返回历史消息和未读消息数量，以及用户的基本信息
      */
     private List<UserFriendsVO> friends;
+
+    /**
+     * 用户群组消息后续添加
+     */
 }

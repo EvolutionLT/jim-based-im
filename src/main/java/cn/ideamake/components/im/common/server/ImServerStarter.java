@@ -20,16 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.tio.server.AioServer;
-import org.tio.server.intf.ServerAioListener;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-//import cn.ideamake.components.im.common.server.listener.ImGroupListener;
-//import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
-
-//import cn.ideamake.components.im.common.server.listener.ImServerAioListener;
-//import cn.ideamake.components.im.listener.ImServerAioListener;
 
 /**
  * 
@@ -48,6 +42,8 @@ public class ImServerStarter {
 	 */
 	@Autowired
 	private ImServerAioListener imAioListener;
+
+
 	private ImServerGroupContext imServerGroupContext = null;
 
 	/**
@@ -56,20 +52,6 @@ public class ImServerStarter {
 	@Autowired
 	private ImGroupListener imGroupListener;
 	private AioServer aioServer;
-//	private ImConfig imConfig = null;
-	
-//	public ImServerStarter(ImConfig imConfig){
-//		this(imConfig,null);
-//	}
-
-//	public ImServerStarter(ImConfig imConfig, ServerAioListener imAioListener){
-//		this.imConfig = imConfig;
-//		this.imAioListener = imAioListener;
-//		init();
-//	}
-
-//	@Autowired
-//    private ImServerAioListener imServerAioListener;
 
 	@Autowired
 	private RedisMessageHelper redisMessageHelper;
@@ -86,35 +68,30 @@ public class ImServerStarter {
 
 		//此bean暂时手工注入
 //		imAioHandler = new ImServerAioHandler(imConfig) ;
+		//添加持久话消息处理
 
+		imAioHandler.setImConfig(imConfig);
+		imAioListener.setImConfig(imConfig);
+		imConfig.setImGroupListener(imGroupListener);
 
+		//初始化上下文
 		imServerGroupContext = new ImServerGroupContext(imConfig,imAioHandler, imAioListener);
 		imServerGroupContext.setGroupListener(imGroupListener);
 
-//		if(imConfig.getMessageHelper() == null){
-//			imConfig.setMessageHelper(new RedisMessageHelper());
-//		}
-		HandshakeReqHandler handshakeReqHandler = CommandManager.getCommand(Command.COMMAND_HANDSHAKE_REQ, HandshakeReqHandler.class);
 		//添加自定义握手处理器;
+		HandshakeReqHandler handshakeReqHandler = CommandManager.getCommand(Command.COMMAND_HANDSHAKE_REQ, HandshakeReqHandler.class);
 		handshakeReqHandler.addProcessor(new IMWsHandshakeProcessor());
+
+		//持久化类设置
 		imConfig.setMessageHelper(redisMessageHelper);
+		redisMessageHelper.setImConfig(imConfig);
 
 		//添加登录业务处理器;
 		LoginReqHandler loginReqHandler = CommandManager.getCommand(Command.COMMAND_LOGIN_REQ, LoginReqHandler.class);
 		loginReqHandler.addProcessor(periodService);
 
-		//开启SSL
-//		if(ImConst.ON.equals(imConfig.getIsSSL())){
-//			SslConfig sslConfig = imConfig.getSslConfig();
-//			if(sslConfig != null) {
-//				imServerGroupContext.setSslConfig(sslConfig);
-//			}
-//		}
 		aioServer = new AioServer(imServerGroupContext);
-		//添加持久话消息处理
-		redisMessageHelper.setImConfig(imConfig);
-		imAioHandler.setImConfig(imConfig);
-		imAioListener.setImConfig(imConfig);
+
 
 
 

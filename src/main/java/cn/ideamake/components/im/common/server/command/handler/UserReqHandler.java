@@ -5,6 +5,7 @@ package cn.ideamake.components.im.common.server.command.handler;
 
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import org.apache.commons.lang3.StringUtils;
 import cn.ideamake.components.im.common.common.ImAio;
 import cn.ideamake.components.im.common.common.ImConst;
@@ -16,6 +17,8 @@ import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.server.command.AbstractCmdHandler;
 import org.redisson.api.RMapCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
 
 import java.util.ArrayList;
@@ -27,7 +30,11 @@ import java.util.List;
  * 功能说明: 获取用户信息消息命令
  * @author : WChao 创建时间: 2017年9月18日 下午4:08:47
  */
+//@Service
 public class UserReqHandler extends AbstractCmdHandler {
+
+//	@Autowired
+//	private MessageHelper messageHelper;
 
 	@Override
 	public Command command() {
@@ -40,16 +47,31 @@ public class UserReqHandler extends AbstractCmdHandler {
 //		User user = null;
 		Collection<User> users = null;
 		RespBody resPacket = null;
-		
+
 		String userId = userReqBody.getUserid();
-		if(StringUtils.isEmpty(userId)) {
+		if (StringUtils.isEmpty(userId)) {
 			return ImKit.ConvertRespPacket(new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10004), channelContext);
 		}
 		//(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线]);
-		Integer type = userReqBody.getType() == null ? 2 : userReqBody.getType();
-		if(0 == userReqBody.getType() || 1 == userReqBody.getType() || 2 == userReqBody.getType()){
-		    users = getUserFriends(userId);
-		    resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10003);
+		int type = userReqBody.getType() == null ? 2 : userReqBody.getType();
+		UserDetailVO userDetailVO = null;
+
+
+		//离线和在线后续处理
+		if (1 == type || 2 == type) {
+			resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C200);
+
+			//1返回简单好友列表
+			if(type == 1){
+				users = getUserFriends(userId);
+				resPacket.setData(users);
+			}
+			//返回详细好友列表
+			if(type == 2){
+				userDetailVO = imConfig.getMessageHelper().initLoginUserInfo(userId);
+				resPacket.setData(userDetailVO);
+			}
+
 //			user = getUserInfo(userId, type);
 			//暂时不考虑在线离线用户，后续迭代增加
 //			//在线用户
@@ -63,16 +85,16 @@ public class UserReqHandler extends AbstractCmdHandler {
 //				resPacket = new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10003);
 //			}
 		}
-		if(users == null) {
+		if (userDetailVO == null && users == null) {
 			return ImKit.ConvertRespPacket(new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10004), channelContext);
 		}
-		resPacket.setData(users);
 		return ImKit.ConvertRespPacket(resPacket, channelContext);
 	}
 
 
 	/**
 	 * 获取用户好友列表
+	 * TODO 此处后续需要抽离出去到持久化类中
 	 * @param userId
 	 * @return
 	 */
