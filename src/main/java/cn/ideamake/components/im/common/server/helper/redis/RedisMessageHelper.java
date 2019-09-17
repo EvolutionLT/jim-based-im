@@ -617,33 +617,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 		//次数先做遍历初始化，默认用户不会特别多，后续再优化内容结构
 		friendsIds.forEach((friendId,friend)->{
 			//次数存储取第一次存储的用户数据，后续实时更新可存id，拉取时遍历获取
-			UserFriendsVO userFriendsVO = new UserFriendsVO();
-			//每次取最新的，后续将好友存在改成id
-			User userFriend = userCache.get(friendId+SUBFIX+INFO,User.class);
-			userFriendsVO.setNickname(userFriend.getNick()==null?"":userFriend.getNick());
-			userFriendsVO.setUserId(friendId);
-			userFriendsVO.setAvatar(userFriend.getAvatar()==null?"":userFriend.getAvatar());
-
-			String sessionId = ChatKit.sessionId(userId, friendId);
-
-			String key = USER+SUBFIX+sessionId;
-			//取10条聊天纪录
-			List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE,0,10);
-			if(!messages.isEmpty()){
-				List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
-				userFriendsVO.setHistoryMessage(chatBodyList);
-			}else{
-				userFriendsVO.setHistoryMessage(new ArrayList<>(0));
-			}
-
-			//统计未读信息
-			String keyPushUnread = USER+SUBFIX+userId+SUBFIX+friendId;
-			List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
-			if(messageList.isEmpty()){
-				userFriendsVO.setUnReadNum(0);
-			}else {
-				userFriendsVO.setUnReadNum(messageList.size());
-			}
+			UserFriendsVO userFriendsVO = getUserFriendSingle(userId,friendId);
 //			List<ChatBody> datas = JsonKit.toArray(messageList, ChatBody.class);
 
 //			UserMessageData userMessageData = getFriendsOfflineMessageWithoutRemove(userId, friendId);
@@ -653,9 +627,50 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 			friendsVOS.add(userFriendsVO);
 
 		});
+
 		userDetailVO.setFriends(friendsVOS);
 		return userDetailVO;
 	}
+
+	@Override
+	public UserFriendsVO getUserFriendSingle(String userId,String friendId) {
+		//次数存储取第一次存储的用户数据，后续实时更新可存id，拉取时遍历获取
+		UserFriendsVO userFriendsVO = new UserFriendsVO();
+		//每次取最新的，后续将好友存在改成id
+		String keyFriend = friendId + SUBFIX + INFO;
+		User userFriend = userCache.get(keyFriend.trim(),User.class);
+		if(userFriend ==null){
+			log.error("好友信息不在im库中，请登录im");
+			return null;
+		}
+		userFriendsVO.setNickname(userFriend.getNick()==null?"":userFriend.getNick());
+		userFriendsVO.setUserId(friendId);
+		userFriendsVO.setAvatar(userFriend.getAvatar()==null?"":userFriend.getAvatar());
+
+		String sessionId = ChatKit.sessionId(userId, friendId);
+
+		String key = USER+SUBFIX+sessionId;
+		//取最新一条聊天纪录
+		List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE,0,1);
+		if(!messages.isEmpty()){
+			List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
+			userFriendsVO.setHistoryMessage(chatBodyList);
+			userFriendsVO.setLastMessageTime(chatBodyList.get(chatBodyList.size()-1).getCreateTime());
+		}else{
+			userFriendsVO.setHistoryMessage(new ArrayList<>(0));
+		}
+
+		//统计未读信息
+		String keyPushUnread = USER+SUBFIX+userId+SUBFIX+friendId;
+		List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
+		if(messageList.isEmpty()){
+			userFriendsVO.setUnReadNum(0);
+		}else {
+			userFriendsVO.setUnReadNum(messageList.size());
+		}
+		return userFriendsVO;
+	}
+
 
 	/**
 	 * 检查授权token

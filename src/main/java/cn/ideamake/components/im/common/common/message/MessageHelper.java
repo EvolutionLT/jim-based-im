@@ -7,6 +7,7 @@ import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.packets.UserMessageData;
 import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
+import cn.ideamake.components.im.pojo.vo.UserFriendsVO;
 
 import java.util.List;
 
@@ -187,5 +188,7 @@ public interface MessageHelper {
     public Group getGroupInfo(String groupId);
 
     UserDetailVO initLoginUserInfo(String userId);
+
+    UserFriendsVO getUserFriendSingle(String userId,String friendId);
 
 }
