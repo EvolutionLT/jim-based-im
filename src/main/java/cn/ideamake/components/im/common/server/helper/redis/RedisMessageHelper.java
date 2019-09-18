@@ -28,10 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -627,7 +624,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 			friendsVOS.add(userFriendsVO);
 
 		});
-
+		//按最新一条消息排序
+		Collections.sort(friendsVOS);
 		userDetailVO.setFriends(friendsVOS);
 		return userDetailVO;
 	}

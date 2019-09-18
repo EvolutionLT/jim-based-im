@@ -11,7 +11,7 @@ import java.util.List;
  * 好友列表中的子单元，一条聊天纪录
  */
 @Data
-public class UserFriendsVO {
+public class UserFriendsVO implements Comparable<UserFriendsVO>{
     private String userId;
     private String nickname;
     private String avatar;
@@ -24,6 +24,11 @@ public class UserFriendsVO {
      * 历史消息
      */
     private List<ChatBody> historyMessage;
+
+    @Override
+    public int compareTo(UserFriendsVO o) {
+        return (int) (o.lastMessageTime - this.lastMessageTime);
+    }
 //    /**
 //     * 未读消息,
 //     */
