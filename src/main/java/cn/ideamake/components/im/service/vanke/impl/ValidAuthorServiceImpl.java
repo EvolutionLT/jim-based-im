@@ -72,18 +72,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotNull Integer type = dto.getType();
         User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
-            Boolean isValid = false;
-            //查询db，判断数据的准确性
-            if (type.equals(TermianlType.CUSTOMER.getType())) {
-                isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
-            } else if (type.equals(TermianlType.VISITOR.getType())) {
-                isValid = Optional.ofNullable(visitorMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
-            } else if (type.equals(TermianlType.ESTATE_AGENT.getType())) {
-                isValid = Optional.ofNullable(userMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
-            }
-            if (!isValid) {
-                throw new IllegalArgumentException("VankeLoginService-validToken(), token is error, token:" + token);
-            }
+            valid(senderId, token, type);
             //初始化数据
             cacheUserInfo(dto);
             return;
@@ -93,15 +82,34 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         }
     }
 
+    private void valid(@NotBlank String senderId, @NotBlank String token, @NotNull Integer type) {
+        Boolean isValid = false;
+        //查询db，判断数据的准确性
+        if (type.equals(TermianlType.CUSTOMER.getType())) {
+            isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
+        } else if (type.equals(TermianlType.VISITOR.getType())) {
+            isValid = Optional.ofNullable(visitorMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
+        } else if (type.equals(TermianlType.ESTATE_AGENT.getType())) {
+            isValid = Optional.ofNullable(userMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
+        }
+        if (!isValid) {
+            throw new IllegalArgumentException("VankeLoginService-validToken(), token is error, token:" + token);
+        }
+    }
+
     @Override
     public User getReceiverInfo(VankeLoginDTO dto) {
         @NotBlank String senderId = dto.getSenderId();
         String receiverId = dto.getReceiverId();
+        @NotBlank String token = dto.getToken();
+        @NotNull Integer type = dto.getType();
         //校验发送人合法性
-        Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(dto.getSenderId() + ":" + Constants.USER.INFO, VankeLoginDTO.class)).orElseThrow(
-                () -> new IllegalArgumentException("发送人userId错误，请重新登录, userId: " + senderId)
-        );
-
+        VankeLoginDTO loginDTO = RedisCacheManager.getCache(ImConst.USER).get(dto.getSenderId() + ":" + Constants.USER.INFO, VankeLoginDTO.class);
+        if(Objects.isNull(loginDTO)) {
+            valid(senderId, token, type);
+            //初始化数据
+            cacheUserInfo(dto);
+        }
         //校验接收人合法性
         if (StringUtils.isNotBlank(receiverId)) {
             return Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(dto.getToken() + ":" + Constants.USER.INFO, User.class)).orElseThrow(
