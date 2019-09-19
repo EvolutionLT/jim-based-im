@@ -13,6 +13,8 @@ import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
+import cn.ideamake.components.im.service.vanke.CusChatMemberService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +24,8 @@ import org.tio.core.ChannelContext;
 import org.tio.core.intf.Packet;
 import org.tio.server.intf.ServerAioListener;
 
+import javax.annotation.Resource;
+
 @Slf4j
 @Service
 public class ImServerAioListener implements ServerAioListener {
@@ -29,6 +33,9 @@ public class ImServerAioListener implements ServerAioListener {
 
     @Setter
     private ImConfig imConfig;
+
+    @Resource
+    private CusChatMemberService cusChatMemberService;
 
 //    static RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
 
@@ -50,7 +57,8 @@ public class ImServerAioListener implements ServerAioListener {
      */
     @Override
     public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) {
-        return;
+        //异步修改成员在线状态
+        cusChatMemberService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.ON_LINE.getStatus());
     }
 
     /**
@@ -96,6 +104,8 @@ public class ImServerAioListener implements ServerAioListener {
                 return;
             }
             messageHelper.getBindListener().initUserTerminal(channelContext, onlineUser.getTerminal(), ImConst.OFFLINE);
+            //异步修改成员在线状态
+            cusChatMemberService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.OFF_LINE.getStatus());
         }
     }
 
@@ -174,6 +184,7 @@ public class ImServerAioListener implements ServerAioListener {
         		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
         		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
             }
+            cusChatMemberService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
 //            log.info(chatBody.toString());
         }
     }

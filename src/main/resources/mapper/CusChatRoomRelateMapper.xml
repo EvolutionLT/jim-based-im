@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.CusChatRoomRelateMapper">
+
+    <update id="updateStatus">
+        update wk_cus_chat_room_relate set status = #{status} where chat_member_id = #{id} and status = 1
+    </update>
+
+    <select id="selectReleates" resultType="cn.ideamake.components.im.pojo.entity.CusChatRoomRelate">
+        select b.* from wk_cus_chat_member a inner join wk_cus_chat_room_relate b on a.id = b.chat_member_id where a.user_id = #{userId}  a.type = 0 and a.status = 1  and b.status = 1
+    </select>
+</mapper>

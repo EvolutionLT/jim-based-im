@@ -16,6 +16,7 @@ import cn.ideamake.components.im.components.IMWsHandshakeProcessor;
 import cn.ideamake.components.im.listener.ImGroupListener;
 import cn.ideamake.components.im.listener.ImServerAioListener;
 import cn.ideamake.components.im.service.impl.PeriodServiceImpl;
+import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -59,6 +60,9 @@ public class ImServerStarter {
 	@Autowired
 	private PeriodServiceImpl periodService;
 
+	@Autowired
+	private ValidAuthorService vankeLoginService;
+
 
 	@PostConstruct
 	public void init(){
@@ -88,7 +92,7 @@ public class ImServerStarter {
 
 		//添加登录业务处理器;
 		LoginReqHandler loginReqHandler = CommandManager.getCommand(Command.COMMAND_LOGIN_REQ, LoginReqHandler.class);
-		loginReqHandler.addProcessor(periodService);
+		loginReqHandler.addProcessor(vankeLoginService);
 
 		aioServer = new AioServer(imServerGroupContext);
 

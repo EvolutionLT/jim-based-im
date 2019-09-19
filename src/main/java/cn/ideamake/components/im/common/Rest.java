@@ -11,7 +11,13 @@ public class Rest<T> {
         this.msg = msg;
     }
 
-    public Rest(){
+    public Rest(Integer code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public Rest() {
 
     }
 
@@ -46,14 +52,34 @@ public class Rest<T> {
         return this;
     }
 
-    public static Rest ok(){
-        Rest re  = new Rest(200,"success");
+    public static Rest ok() {
+        Rest re = new Rest(200, "success");
         return re;
     }
 
-    public static Rest okObj(Object object){
-        Rest re = new Rest(200,"success");
+    public static Rest okObj(Object object) {
+        Rest re = new Rest(200, "success");
         re.setData(object);
         return re;
+    }
+
+    public static Rest error() {
+        return error(500);
+    }
+
+    public static Rest error(Integer code) {
+        return error(code, "error");
+    }
+
+    public static Rest error(String msg) {
+        return error(500, msg);
+    }
+
+    public static Rest error(Integer code, String msg) {
+        return error(code, msg, null);
+    }
+
+    public static Rest error(Integer code, String msg, Object obj) {
+        return new Rest(code, msg, obj);
     }
 }

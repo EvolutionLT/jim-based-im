@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.CusChatRoomMapper">
+
+<select id="selectByUniqueCode" resultType="cn.ideamake.components.im.pojo.entity.CusChatRoom">
+    select * from wk_cus_chat_room where unique_code = #{code} limit 1
+</select>
+</mapper>
