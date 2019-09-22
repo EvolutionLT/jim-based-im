@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.server.tcp;
 
@@ -32,41 +32,41 @@ import java.nio.ByteBuffer;
  */
 @Slf4j
 public class TcpProtocolHandler extends AbstractProtocolHandler {
-	
 
-	@Override
-	public void init(ImConfig imConfig) {
-	}
 
-	@Override
-	public ByteBuffer encode(Packet packet, GroupContext groupContext,ChannelContext channelContext) {
-		TcpPacket tcpPacket = (TcpPacket)packet;
-		return TcpServerEncoder.encode(tcpPacket, groupContext, channelContext);
-	}
+    @Override
+    public void init(ImConfig imConfig) {
+    }
 
-	@Override
-	public void handler(Packet packet, ChannelContext channelContext)throws Exception {
-		TcpPacket tcpPacket = (TcpPacket)packet;
-		AbstractCmdHandler cmdHandler = CommandManager.getCommand(tcpPacket.getCommand());
-		if(cmdHandler == null){
-			ImPacket imPacket = new ImPacket(Command.COMMAND_UNKNOW, new RespBody(Command.COMMAND_UNKNOW, ImStatus.C10017).toByte());
-			ImAio.send(channelContext, imPacket);
-			return;
-		}
-		ImPacket response = cmdHandler.handler(tcpPacket, channelContext);
-		if(response != null && tcpPacket.getSynSeq() < 1){
-			ImAio.send(channelContext,response);
-		}
-	}
+    @Override
+    public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext) {
+        TcpPacket tcpPacket = (TcpPacket) packet;
+        return TcpServerEncoder.encode(tcpPacket, groupContext, channelContext);
+    }
 
-	@Override
-	public TcpPacket decode(ByteBuffer buffer, ChannelContext channelContext)throws AioDecodeException {
-		TcpPacket tcpPacket = TcpServerDecoder.decode(buffer, channelContext);
-		return tcpPacket;
-	}
+    @Override
+    public void handler(Packet packet, ChannelContext channelContext) throws Exception {
+        TcpPacket tcpPacket = (TcpPacket) packet;
+        AbstractCmdHandler cmdHandler = CommandManager.getCommand(tcpPacket.getCommand());
+        if (cmdHandler == null) {
+            ImPacket imPacket = new ImPacket(Command.COMMAND_UNKNOW, new RespBody(Command.COMMAND_UNKNOW, ImStatus.C10017).toByte());
+            ImAio.send(channelContext, imPacket);
+            return;
+        }
+        ImPacket response = cmdHandler.handler(tcpPacket, channelContext);
+        if (response != null && tcpPacket.getSynSeq() < 1) {
+            ImAio.send(channelContext, response);
+        }
+    }
 
-	@Override
-	public IProtocol protocol() {
-		return new TcpProtocol();
-	}
+    @Override
+    public TcpPacket decode(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
+        TcpPacket tcpPacket = TcpServerDecoder.decode(buffer, channelContext);
+        return tcpPacket;
+    }
+
+    @Override
+    public IProtocol protocol() {
+        return new TcpProtocol();
+    }
 }

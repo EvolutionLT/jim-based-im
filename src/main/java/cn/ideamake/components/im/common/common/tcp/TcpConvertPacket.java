@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.tcp;
 
@@ -18,33 +18,34 @@ import org.tio.core.ChannelContext;
  */
 public class TcpConvertPacket implements IConvertProtocolPacket {
 
-	/**
-	 * 转TCP协议响应包;
-	 */
-	@Override
-	public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
-		Object sessionContext = channelContext.getAttribute();
-		if(sessionContext instanceof TcpSessionContext){//转TCP协议响应包;
-			TcpPacket tcpPacket = new TcpPacket(command,body);
-			TcpServerEncoder.encode(tcpPacket, channelContext.getGroupContext(), channelContext);
-			tcpPacket.setCommand(command);
-			return tcpPacket;
-		}
-		return null;
-	}
-	/**
-	 * 转TCP协议请求包;
-	 */
-	@Override
-	public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
-		Object sessionContext = channelContext.getAttribute();
-		if(sessionContext instanceof TcpSessionContext){//转TCP协议请求包;
-			TcpPacket tcpPacket = new TcpPacket(command,body);
-			TcpServerEncoder.encode(tcpPacket, channelContext.getGroupContext(), channelContext);
-			tcpPacket.setCommand(command);
-			return tcpPacket;
-		}
-		return null;
-	}
+    /**
+     * 转TCP协议响应包;
+     */
+    @Override
+    public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
+        Object sessionContext = channelContext.getAttribute();
+        if (sessionContext instanceof TcpSessionContext) {//转TCP协议响应包;
+            TcpPacket tcpPacket = new TcpPacket(command, body);
+            TcpServerEncoder.encode(tcpPacket, channelContext.getGroupContext(), channelContext);
+            tcpPacket.setCommand(command);
+            return tcpPacket;
+        }
+        return null;
+    }
+
+    /**
+     * 转TCP协议请求包;
+     */
+    @Override
+    public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
+        Object sessionContext = channelContext.getAttribute();
+        if (sessionContext instanceof TcpSessionContext) {//转TCP协议请求包;
+            TcpPacket tcpPacket = new TcpPacket(command, body);
+            TcpServerEncoder.encode(tcpPacket, channelContext.getGroupContext(), channelContext);
+            tcpPacket.setCommand(command);
+            return tcpPacket;
+        }
+        return null;
+    }
 
 }

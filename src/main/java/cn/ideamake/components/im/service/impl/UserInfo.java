@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.service.impl;
 
@@ -11,51 +11,53 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class UserInfo implements Serializable{
-	
-	private static final long serialVersionUID = 1L;
-	/**
-	 * 用户id;
-	 */
-	private String id;
-	/**
-	 * user nick
-	 */
-	private String nick;
-	/**
-	 * 用户头像
-	 */
-	private String avatar;
-	/**
-	 * 在线状态(online、offline)
-	 */
-	private String status;
-	/**
-	 * 个性签名;
-	 */
-	private String sign;
-	/**
-	 * 用户所属终端;
-	 */
-	private String terminal;
-	/**
-	 * 好友列表;
-	 */
-	private List<Group> friends;
-	/**
-	 * 群组列表;
-	 */
-	private List<Group> groups;
-	/**
-	 * 扩展预留字段;
-	 */
-	private JSONObject extras;
+public class UserInfo implements Serializable {
 
-	public UserInfo(){}
-	public UserInfo(String id , String nick){
-		this.id = id;
-		this.nick = nick;
-	}
+    private static final long serialVersionUID = 1L;
+    /**
+     * 用户id;
+     */
+    private String id;
+    /**
+     * user nick
+     */
+    private String nick;
+    /**
+     * 用户头像
+     */
+    private String avatar;
+    /**
+     * 在线状态(online、offline)
+     */
+    private String status;
+    /**
+     * 个性签名;
+     */
+    private String sign;
+    /**
+     * 用户所属终端;
+     */
+    private String terminal;
+    /**
+     * 好友列表;
+     */
+    private List<Group> friends;
+    /**
+     * 群组列表;
+     */
+    private List<Group> groups;
+    /**
+     * 扩展预留字段;
+     */
+    private JSONObject extras;
+
+    public UserInfo() {
+    }
+
+    public UserInfo(String id, String nick) {
+        this.id = id;
+        this.nick = nick;
+    }
 //	public String getNick() {
 //		return nick;
 //	}
@@ -111,5 +113,5 @@ public class UserInfo implements Serializable{
 //	public void setExtras(JSONObject extras) {
 //		this.extras = extras;
 //	}
-	
+
 }

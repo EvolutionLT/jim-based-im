@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common;
 
@@ -9,13 +9,13 @@ package cn.ideamake.components.im.common.common;
  * 作者: WChao 创建时间: 2017年8月3日 上午9:15:37
  */
 public class SessionContext {
-	private String id;
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 }

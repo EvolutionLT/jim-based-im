@@ -16,10 +16,10 @@ import java.util.Properties;
  */
 @Slf4j
 public class CommandConfigurationFactory {
-	
+
 
     private static final String DEFAULT_CLASSPATH_CONFIGURATION_FILE = "command.properties";
-    
+
     /**
      * Constructor.
      */
@@ -34,8 +34,8 @@ public class CommandConfigurationFactory {
         if (file == null) {
             throw new Exception("Attempt to configure command from null file.");
         }
-        log.debug("Configuring command from file: {}", file);
-        List<CommandConfiguration> configurations  = null;
+        log.debug("Configuring command from file: {}" , file);
+        List<CommandConfiguration> configurations = null;
         InputStream input = null;
         try {
             input = new BufferedInputStream(new FileInputStream(file));
@@ -53,11 +53,12 @@ public class CommandConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file available as an URL.
      */
     public static List<CommandConfiguration> parseConfiguration(final URL url) throws Exception {
-        log.debug("Configuring command from URL: {}", url);
+        log.debug("Configuring command from URL: {}" , url);
         List<CommandConfiguration> configurations;
         InputStream input = null;
         try {
@@ -76,6 +77,7 @@ public class CommandConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file in the classpath.
      */
@@ -86,19 +88,19 @@ public class CommandConfigurationFactory {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url == null) {
-        	url = CommandConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
+            url = CommandConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url != null) {
             log.debug("Configuring command from command.properties found in the classpath: " + url);
         } else {
             log.warn("No configuration found. Configuring command from command.properties "
-                    + " found in the classpath: {}", url);
+                    + " found in the classpath: {}" , url);
 
         }
         List<CommandConfiguration> configurations = parseConfiguration(url);
         return configurations;
     }
-    
+
     /**
      * Configures a bean from an property input stream.
      */
@@ -110,9 +112,9 @@ public class CommandConfigurationFactory {
         try {
             Properties props = new Properties();
             props.load(inputStream);
-			for(String key : props.stringPropertyNames()){
-    			configurations.add(new CommandConfiguration(key , props));
-    		}
+            for (String key : props.stringPropertyNames()) {
+                configurations.add(new CommandConfiguration(key, props));
+            }
         } catch (Exception e) {
             throw new Exception("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }

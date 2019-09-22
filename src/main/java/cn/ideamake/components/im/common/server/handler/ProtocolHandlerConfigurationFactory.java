@@ -16,10 +16,10 @@ import java.util.Properties;
  */
 @Slf4j
 public class ProtocolHandlerConfigurationFactory {
-	
+
 
     private static final String DEFAULT_CLASSPATH_CONFIGURATION_FILE = "protocol_handler.properties";
-    
+
     /**
      * Constructor.
      */
@@ -34,8 +34,8 @@ public class ProtocolHandlerConfigurationFactory {
         if (file == null) {
             throw new Exception("Attempt to configure server_handler from null file.");
         }
-        log.debug("Configuring server_handler from file: {}", file);
-        List<ProtocolHandlerConfiguration> configurations  = null;
+        log.debug("Configuring server_handler from file: {}" , file);
+        List<ProtocolHandlerConfiguration> configurations = null;
         InputStream input = null;
         try {
             input = new BufferedInputStream(new FileInputStream(file));
@@ -53,11 +53,12 @@ public class ProtocolHandlerConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file available as an URL.
      */
     public static List<ProtocolHandlerConfiguration> parseConfiguration(final URL url) throws Exception {
-        log.debug("Configuring server_handler from URL: {}", url);
+        log.debug("Configuring server_handler from URL: {}" , url);
         List<ProtocolHandlerConfiguration> configurations;
         InputStream input = null;
         try {
@@ -76,6 +77,7 @@ public class ProtocolHandlerConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file in the classpath.
      */
@@ -86,19 +88,19 @@ public class ProtocolHandlerConfigurationFactory {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url == null) {
-        	url = cn.ideamake.components.im.common.server.handler.ProtocolHandlerConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
+            url = cn.ideamake.components.im.common.server.handler.ProtocolHandlerConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url != null) {
             log.debug("Configuring server_handler from server_handler.properties found in the classpath: " + url);
         } else {
             log.warn("No configuration found. Configuring server_handler from server_handler.properties "
-                    + " found in the classpath: {}", url);
+                    + " found in the classpath: {}" , url);
 
         }
         List<ProtocolHandlerConfiguration> configurations = parseConfiguration(url);
         return configurations;
     }
-    
+
     /**
      * Configures a bean from an property input stream.
      */
@@ -110,9 +112,9 @@ public class ProtocolHandlerConfigurationFactory {
         try {
             Properties props = new Properties();
             props.load(inputStream);
-			for(String key : props.stringPropertyNames()){
-    			configurations.add(new ProtocolHandlerConfiguration(key , props));
-    		}
+            for (String key : props.stringPropertyNames()) {
+                configurations.add(new ProtocolHandlerConfiguration(key, props));
+            }
         } catch (Exception e) {
             throw new Exception("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }

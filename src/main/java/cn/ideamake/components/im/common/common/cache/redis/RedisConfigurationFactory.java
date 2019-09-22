@@ -14,11 +14,11 @@ import java.util.Properties;
  * @date 2018年3月9日 上午1:06:33
  */
 public class RedisConfigurationFactory {
-	
+
     private static final Logger LOG = LoggerFactory.getLogger(cn.ideamake.components.im.common.common.cache.redis.RedisConfigurationFactory.class.getName());
 
     private static final String DEFAULT_CLASSPATH_CONFIGURATION_FILE = "jim.properties";
-    
+
     /**
      * Constructor.
      */
@@ -33,7 +33,7 @@ public class RedisConfigurationFactory {
         if (file == null) {
             throw new Exception("Attempt to configure redis from null file.");
         }
-        LOG.debug("Configuring redis from file: {}", file);
+        LOG.debug("Configuring redis from file: {}" , file);
         RedisConfiguration configuration = null;
         InputStream input = null;
         try {
@@ -52,11 +52,12 @@ public class RedisConfigurationFactory {
         }
         return configuration;
     }
+
     /**
      * Configures a bean from an property file available as an URL.
      */
     public static RedisConfiguration parseConfiguration(final URL url) throws Exception {
-        LOG.debug("Configuring redis from URL: {}", url);
+        LOG.debug("Configuring redis from URL: {}" , url);
         RedisConfiguration configuration;
         InputStream input = null;
         try {
@@ -75,6 +76,7 @@ public class RedisConfigurationFactory {
         }
         return configuration;
     }
+
     /**
      * Configures a bean from an property file in the classpath.
      */
@@ -85,13 +87,13 @@ public class RedisConfigurationFactory {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url == null) {
-        	url = ImAio.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
+            url = ImAio.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url != null) {
             LOG.debug("Configuring redis from jim.properties found in the classpath: " + url);
         } else {
             LOG.warn("No configuration found. Configuring redis from jim.properties "
-                    + " found in the classpath: {}", url);
+                    + " found in the classpath: {}" , url);
 
         }
         RedisConfiguration configuration = parseConfiguration(url);
@@ -115,8 +117,8 @@ public class RedisConfigurationFactory {
         }
         return configuration;
     }
-    
-    public static void main(String[] args) throws Exception{
-		cn.ideamake.components.im.common.common.cache.redis.RedisConfigurationFactory.parseConfiguration();
-	}
+
+    public static void main(String[] args) throws Exception {
+        cn.ideamake.components.im.common.common.cache.redis.RedisConfigurationFactory.parseConfiguration();
+    }
 }

@@ -7,22 +7,22 @@ package cn.ideamake.components.im.common.common.exception;
  * @Date 2019/6/13 3:28
  * @Version 1.0
  **/
-public class ImException extends Exception{
+public class ImException extends Exception {
 
     /**
-     * @Author WChao
-     * @Description //TODO
      * @param []
      * @return
+     * @Author WChao
+     * @Description //TODO
      **/
     public ImException() {
     }
 
     /**
-     * @Author WChao
-     * @Description //TODO
      * @param [message]
      * @return
+     * @Author WChao
+     * @Description //TODO
      **/
     public ImException(String message) {
         super(message);
@@ -30,10 +30,10 @@ public class ImException extends Exception{
     }
 
     /**
-     * @Author WChao
-     * @Description //TODO
      * @param [message, cause]
      * @return
+     * @Author WChao
+     * @Description //TODO
      **/
     public ImException(String message, Throwable cause) {
         super(message, cause);
@@ -41,10 +41,10 @@ public class ImException extends Exception{
     }
 
     /**
-     * @Author WChao
-     * @Description //TODO
      * @param [message, cause, enableSuppression, writableStackTrace]
      * @return
+     * @Author WChao
+     * @Description //TODO
      **/
     public ImException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
@@ -52,10 +52,10 @@ public class ImException extends Exception{
     }
 
     /**
-     * @Author WChao
-     * @Description //TODO
      * @param [cause]
      * @return
+     * @Author WChao
+     * @Description //TODO
      **/
     public ImException(Throwable cause) {
         super(cause);

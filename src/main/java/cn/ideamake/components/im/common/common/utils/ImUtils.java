@@ -9,54 +9,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author wchao 
+ * @author wchao
  * 2017年5月5日 下午5:35:02
  */
 public class ImUtils {
 
-	/**
-	 * 设置Client对象到ImSessionContext中
-	 * @param channelContext
-	 * @return
-	 * @author: wchao
-	 */
-	public static Client setClient(ChannelContext channelContext) {
-		ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
-		Client client = imSessionContext.getClient();
-		if (client == null) {
-			client = new Client();
-			client.setId(channelContext.getId());
-			client.setIp(channelContext.getClientNode().getIp());
-			client.setPort(channelContext.getClientNode().getPort());
-			imSessionContext.setClient(client);
-		}
+    /**
+     * 设置Client对象到ImSessionContext中
+     *
+     * @param channelContext
+     * @return
+     * @author: wchao
+     */
+    public static Client setClient(ChannelContext channelContext) {
+        ImSessionContext imSessionContext = (ImSessionContext) channelContext.getAttribute();
+        Client client = imSessionContext.getClient();
+        if (client == null) {
+            client = new Client();
+            client.setId(channelContext.getId());
+            client.setIp(channelContext.getClientNode().getIp());
+            client.setPort(channelContext.getClientNode().getPort());
+            imSessionContext.setClient(client);
+        }
 
-		return client;
-	}
+        return client;
+    }
 
-	public static String formatRegion(String region) {
-		if (StringUtils.isBlank(region)) {
-			return "";
-		}
+    public static String formatRegion(String region) {
+        if (StringUtils.isBlank(region)) {
+            return "";
+        }
 
-		String[] arr = StringUtils.split(region, "|");//.split("|");
-		List<String> validArr = new ArrayList<>();
-		for (int i = 0; i < arr.length; i++) {
-			String e = arr[i];
-			if (StringUtils.isNotBlank(e) && !"0".equals(e)) {
-				validArr.add(e);
-			}
-		}
-		if (validArr.size() == 0) {
-			return "";
-		} else if (validArr.size() == 1) {
-			return validArr.get(0);
-		} else {
-			return validArr.get(validArr.size() - 2) + validArr.get(validArr.size() - 1);
-		}
-	}
-	
-	public static String formatUserAgent(ChannelContext channelContext) {
+        String[] arr = StringUtils.split(region, "|");//.split("|");
+        List<String> validArr = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            String e = arr[i];
+            if (StringUtils.isNotBlank(e) && !"0".equals(e)) {
+                validArr.add(e);
+            }
+        }
+        if (validArr.size() == 0) {
+            return "";
+        } else if (validArr.size() == 1) {
+            return validArr.get(0);
+        } else {
+            return validArr.get(validArr.size() - 2) + validArr.get(validArr.size() - 1);
+        }
+    }
+
+    public static String formatUserAgent(ChannelContext channelContext) {
 	/*	ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
 		HttpRequestPacket httpHandshakePacket = imSessionContext.getHandshakeRequestPacket();
 		
@@ -73,16 +74,17 @@ public class ImUtils {
 		} else {
 			return "";
 		}*/
-		
-		return null;
-	}
-	/**
-	 * @param args
-	 * @author: wchao
-	 */
-	public static void main(String[] args) {
-		String region = "中国|杭州|铁通";
-		String xx = formatRegion(region);
-		System.out.println(xx);
-	}
+
+        return null;
+    }
+
+    /**
+     * @param args
+     * @author: wchao
+     */
+    public static void main(String[] args) {
+        String region = "中国|杭州|铁通";
+        String xx = formatRegion(region);
+        System.out.println(xx);
+    }
 }

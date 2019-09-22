@@ -21,14 +21,14 @@ public class HTTPClient {
     private HTTPClient() {
     }
 
-    public String get(String url){
+    public String get(String url) {
         Request request = new Request.Builder().get().url(url).build();
         try {
             Response response = okHttpClient.newCall(request).execute();
-            if(response.isSuccessful()){
-                log.debug("response.code()=="+response.code());
-                log.debug("response.message()=="+response.message());
-                log.debug("res=="+response.body().string());
+            if (response.isSuccessful()) {
+                log.debug("response.code()==" + response.code());
+                log.debug("response.message()==" + response.message());
+                log.debug("res==" + response.body().string());
                 return response.body().toString();
             }
         } catch (IOException e) {
@@ -39,7 +39,6 @@ public class HTTPClient {
     }
 
 //    public String post(String url,)
-
 
 
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.packets;
 
@@ -11,16 +11,16 @@ import cn.ideamake.components.im.common.common.packets.Message;
  * 作者: WChao 创建时间: 2017年9月12日 下午2:49:49
  */
 public class AuthReqBody extends Message {
-	
-	private static final long serialVersionUID = -5687459633884615894L;
-	private String token;//token验证;
 
-	public String getToken() {
-		return token;
-	}
+    private static final long serialVersionUID = -5687459633884615894L;
+    private String token;//token验证;
 
-	public void setToken(String token) {
-		this.token = token;
-	}
-	
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
 }

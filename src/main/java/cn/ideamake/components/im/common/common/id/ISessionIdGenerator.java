@@ -8,11 +8,10 @@ import cn.ideamake.components.im.common.common.http.HttpConfig;
  */
 public interface ISessionIdGenerator {
 
-	/**
-	 *
-	 * @return
-	 * @author wchao
-	 */
-	String sessionId(HttpConfig httpConfig);
+    /**
+     * @return
+     * @author wchao
+     */
+    String sessionId(HttpConfig httpConfig);
 
 }

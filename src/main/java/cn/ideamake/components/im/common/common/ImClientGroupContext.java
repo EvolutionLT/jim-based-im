@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common;
 
@@ -15,18 +15,18 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author WChao
  *
  */
-public class ImClientGroupContext extends ClientGroupContext{
+public class ImClientGroupContext extends ClientGroupContext {
 
-	public ImClientGroupContext(ClientAioHandler aioHandler,ClientAioListener aioListener) {
-		super(aioHandler, aioListener);
-	}
+    public ImClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener) {
+        super(aioHandler, aioListener);
+    }
 
-	public ImClientGroupContext(ClientAioHandler aioHandler,ClientAioListener aioListener, ReconnConf reconnConf,SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		super(aioHandler, aioListener, reconnConf, tioExecutor, groupExecutor);
-	}
+    public ImClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+        super(aioHandler, aioListener, reconnConf, tioExecutor, groupExecutor);
+    }
 
-	public ImClientGroupContext(ClientAioHandler aioHandler,ClientAioListener aioListener, ReconnConf reconnConf) {
-		super(aioHandler, aioListener, reconnConf);
-	}
+    public ImClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf) {
+        super(aioHandler, aioListener, reconnConf);
+    }
 
 }

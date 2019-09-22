@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.message;
 
@@ -12,13 +12,13 @@ import cn.ideamake.components.im.common.common.message.MessageHelper;
  *
  */
 public abstract class AbstractMessageHelper implements MessageHelper, ImConst {
-	protected ImConfig imConfig;
+    protected ImConfig imConfig;
 
-	public ImConfig getImConfig() {
-		return imConfig;
-	}
+    public ImConfig getImConfig() {
+        return imConfig;
+    }
 
-	public void setImConfig(ImConfig imConfig) {
-		this.imConfig = imConfig;
-	}
+    public void setImConfig(ImConfig imConfig) {
+        this.imConfig = imConfig;
+    }
 }

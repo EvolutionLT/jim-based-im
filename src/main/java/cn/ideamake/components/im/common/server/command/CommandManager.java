@@ -42,15 +42,15 @@ public class CommandManager {
 //			List<CommandConfiguration> configurations = CommandConfigurationFactory.parseConfiguration();
             //临时写死，后续优化#TODO
             List<CommandConfiguration> configurations = new ArrayList<CommandConfiguration>() {{
-                add(new CommandConfiguration("3", "cn.ideamake.components.im.common.server.command.handler.AuthReqHandler"));
-                add(new CommandConfiguration("11", "cn.ideamake.components.im.common.server.command.handler.ChatReqHandler,cn.ideamake.components.im.common.server.command.handler.processor.chat.DefaultAsyncChatMessageProcessor"));
-                add(new CommandConfiguration("14", "cn.ideamake.components.im.common.server.command.handler.CloseReqHandler"));
-                add(new CommandConfiguration("1", "cn.ideamake.components.im.common.server.command.handler.HandshakeReqHandler,cn.ideamake.components.im.common.server.command.handler.processor.handshake.TcpHandshakeProcessor,cn.ideamake.components.im.common.server.command.handler.processor.handshake.WsHandshakeProcessor"));
-                add(new CommandConfiguration("13", "cn.ideamake.components.im.common.server.command.handler.HeartbeatReqHandler"));
-                add(new CommandConfiguration("7", "cn.ideamake.components.im.common.server.command.handler.JoinGroupReqHandler"));
-                add(new CommandConfiguration("5", "cn.ideamake.components.im.common.server.command.handler.LoginReqHandler"));
-                add(new CommandConfiguration("17", "cn.ideamake.components.im.common.server.command.handler.UserReqHandler"));
-                add(new CommandConfiguration("19", "cn.ideamake.components.im.common.server.command.handler.MessageReqHandler"));
+                add(new CommandConfiguration("3" , "cn.ideamake.components.im.common.server.command.handler.AuthReqHandler"));
+                add(new CommandConfiguration("11" , "cn.ideamake.components.im.common.server.command.handler.ChatReqHandler,cn.ideamake.components.im.common.server.command.handler.processor.chat.DefaultAsyncChatMessageProcessor"));
+                add(new CommandConfiguration("14" , "cn.ideamake.components.im.common.server.command.handler.CloseReqHandler"));
+                add(new CommandConfiguration("1" , "cn.ideamake.components.im.common.server.command.handler.HandshakeReqHandler,cn.ideamake.components.im.common.server.command.handler.processor.handshake.TcpHandshakeProcessor,cn.ideamake.components.im.common.server.command.handler.processor.handshake.WsHandshakeProcessor"));
+                add(new CommandConfiguration("13" , "cn.ideamake.components.im.common.server.command.handler.HeartbeatReqHandler"));
+                add(new CommandConfiguration("7" , "cn.ideamake.components.im.common.server.command.handler.JoinGroupReqHandler"));
+                add(new CommandConfiguration("5" , "cn.ideamake.components.im.common.server.command.handler.LoginReqHandler"));
+                add(new CommandConfiguration("17" , "cn.ideamake.components.im.common.server.command.handler.UserReqHandler"));
+                add(new CommandConfiguration("19" , "cn.ideamake.components.im.common.server.command.handler.MessageReqHandler"));
             }};
             init(configurations);
         } catch (Exception e) {

@@ -6,6 +6,7 @@ public interface Constants {
 
         String GET_USER_INFO = "ws.server:8082/app/period/im-login";
         String USER_LOGIN = "http://shidaijia.ideamake.cn/api/authorization/information";
+        String VANKE_CUS_LOGIN_URL = "http://localhost:30009/wkcs/login/userInfo";
     }
 
     interface RESULT_STATUS {

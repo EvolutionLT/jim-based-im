@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.ws;
 
@@ -26,47 +26,46 @@ import java.nio.ByteBuffer;
  */
 public class WsProtocol extends AbProtocol {
 
-	@Override
-	public String name() {
-		return Protocol.WEBSOCKET;
-	}
-	
-	@Override
-	public boolean isProtocolByBuffer(ByteBuffer buffer,ChannelContext channelContext) throws Throwable {
-		ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
-		if(imSessionContext != null && imSessionContext instanceof WsSessionContext) {
-			return true;
-		}
-		//第一次连接;
-		if(buffer != null){
-			HttpRequest request = HttpRequestDecoder.decode(buffer, channelContext,false);
-			if(request.getHeaders().get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key) != null)
-			{
-				channelContext.setAttribute(new WsSessionContext());
-				ImUtils.setClient(channelContext);
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public String name() {
+        return Protocol.WEBSOCKET;
+    }
 
-	@Override
-	public IConvertProtocolPacket converter() {
-		return new WsConvertPacket();
-	}
-	
-	@Override
-	public boolean isProtocol(ImPacket imPacket, ChannelContext channelContext) throws Throwable {
-		if(imPacket == null) {
-			return false;
-		}
-		if(imPacket instanceof WsPacket){
-			Object sessionContext = channelContext.getAttribute();
-			if(sessionContext == null){
-				channelContext.setAttribute(new WsSessionContext());
-			}
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean isProtocolByBuffer(ByteBuffer buffer, ChannelContext channelContext) throws Throwable {
+        ImSessionContext imSessionContext = (ImSessionContext) channelContext.getAttribute();
+        if (imSessionContext != null && imSessionContext instanceof WsSessionContext) {
+            return true;
+        }
+        //第一次连接;
+        if (buffer != null) {
+            HttpRequest request = HttpRequestDecoder.decode(buffer, channelContext, false);
+            if (request.getHeaders().get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key) != null) {
+                channelContext.setAttribute(new WsSessionContext());
+                ImUtils.setClient(channelContext);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public IConvertProtocolPacket converter() {
+        return new WsConvertPacket();
+    }
+
+    @Override
+    public boolean isProtocol(ImPacket imPacket, ChannelContext channelContext) throws Throwable {
+        if (imPacket == null) {
+            return false;
+        }
+        if (imPacket instanceof WsPacket) {
+            Object sessionContext = channelContext.getAttribute();
+            if (sessionContext == null) {
+                channelContext.setAttribute(new WsSessionContext());
+            }
+            return true;
+        }
+        return false;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.http;
 
@@ -19,26 +19,26 @@ import org.tio.core.ChannelContext;
  */
 public class HttpConvertPacket implements IConvertProtocolPacket {
 
-	/**
-	 * 转HTTP协议响应包;
-	 */
-	@Override
-	public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
-		Object sessionContext = channelContext.getAttribute();
-		if(sessionContext instanceof HttpSession){
-			HttpRequest request = (HttpRequest)channelContext.getAttribute(ImConst.HTTP_REQUEST);
-			HttpResponse response = new HttpResponse(request,request.getHttpConfig());
-			response.setBody(body, request);
-			response.setCommand(command);
-			return response;
-		}
-		return null;
-	}
+    /**
+     * 转HTTP协议响应包;
+     */
+    @Override
+    public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
+        Object sessionContext = channelContext.getAttribute();
+        if (sessionContext instanceof HttpSession) {
+            HttpRequest request = (HttpRequest) channelContext.getAttribute(ImConst.HTTP_REQUEST);
+            HttpResponse response = new HttpResponse(request, request.getHttpConfig());
+            response.setBody(body, request);
+            response.setCommand(command);
+            return response;
+        }
+        return null;
+    }
 
-	@Override
-	public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
-		
-		return null;
-	}
+    @Override
+    public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
+
+        return null;
+    }
 
 }

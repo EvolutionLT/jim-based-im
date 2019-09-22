@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.packets;
 
@@ -13,22 +13,25 @@ import cn.ideamake.components.im.common.common.packets.User;
  */
 public class JoinGroupNotifyRespBody extends Message {
 
-	private static final long serialVersionUID = 3828976681110713803L;
-	private User user;
-	private String group;
+    private static final long serialVersionUID = 3828976681110713803L;
+    private User user;
+    private String group;
 
-	public User getUser() {
-		return user;
-	}
-	public cn.ideamake.components.im.common.common.packets.JoinGroupNotifyRespBody setUser(User user) {
-		this.user = user;
-		return this;
-	}
-	public String getGroup() {
-		return group;
-	}
-	public cn.ideamake.components.im.common.common.packets.JoinGroupNotifyRespBody setGroup(String group) {
-		this.group = group;
-		return this;
-	}
+    public User getUser() {
+        return user;
+    }
+
+    public cn.ideamake.components.im.common.common.packets.JoinGroupNotifyRespBody setUser(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public cn.ideamake.components.im.common.common.packets.JoinGroupNotifyRespBody setGroup(String group) {
+        this.group = group;
+        return this;
+    }
 }

@@ -15,16 +15,15 @@ import cn.ideamake.components.im.common.server.command.handler.processor.CmdProc
 import org.tio.core.ChannelContext;
 
 /**
- *
  * 聊天消息异步业务处理器
  *
  * @author WChao
  * @date 2018/11/18 上午1:36
- *
  */
 public interface AsyncChatMessageProcessor extends CmdProcessor {
     /**
      * 聊天消息异步业务处理器执行方法;
+     *
      * @param chatBody
      * @param channelContext
      * @throws Exception

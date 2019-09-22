@@ -7,9 +7,13 @@ import lombok.Getter;
 @Getter
 public abstract class AbstractException extends RuntimeException {
 
-    /** 响应码 */
+    /**
+     * 响应码
+     */
     protected final int code;
-    /** 响应消息 */
+    /**
+     * 响应消息
+     */
     protected final String msg;
 
     protected AbstractException(RestEnum restEnum, Exception e) {
@@ -23,11 +27,13 @@ public abstract class AbstractException extends RuntimeException {
         this.code = restEnum.getCode();
         this.msg = restEnum.getMsg();
     }
+
     protected AbstractException(String errorMsg) {
         super(errorMsg);
         this.code = 10086;
         this.msg = errorMsg;
     }
+
     protected AbstractException(String errorMsg, Exception e) {
         super(errorMsg, e);
         this.code = 10086;

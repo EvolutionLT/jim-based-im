@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class PeriodConfig {
 
     @Bean
-    public PeriodService periodService(){
+    public PeriodService periodService() {
         return new PeriodServiceImpl();
     }
 }

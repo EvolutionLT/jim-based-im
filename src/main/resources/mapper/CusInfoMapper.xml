@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.CusInfoMapper">
+
+    <select id="selectByIdAndToken" resultType="cn.ideamake.components.im.pojo.entity.CusInfo">
+        select * from wk_cus_info where uu_id = #{userId} and login_token = #{token}
+    </select>
+
+    <select id="userIsValid" resultType="boolean">
+        select 1 from wk_cus_info where uu_id = #{userId} and login_token = #{token}
+    </select>
+</mapper>

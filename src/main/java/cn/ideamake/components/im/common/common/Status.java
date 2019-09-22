@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common;
 
@@ -9,8 +9,8 @@ package cn.ideamake.components.im.common.common;
  * 作者: WChao 创建时间: 2017年7月26日 下午4:09:41
  */
 public interface Status {
-	
-	public int getCode();
-	
-	public String getMsg();
+
+    public int getCode();
+
+    public String getMsg();
 }
