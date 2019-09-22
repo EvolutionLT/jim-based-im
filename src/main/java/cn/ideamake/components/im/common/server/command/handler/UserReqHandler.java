@@ -24,6 +24,7 @@ import org.tio.core.ChannelContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 版本: [1.0]
@@ -48,7 +49,7 @@ public class UserReqHandler extends AbstractCmdHandler {
 		Collection<User> users = null;
 		RespBody resPacket = null;
 
-		String userId = userReqBody.getUserid();
+		String userId = Objects.requireNonNull(userReqBody).getUserid();
 		if (StringUtils.isEmpty(userId)) {
 			return ImKit.ConvertRespPacket(new RespBody(Command.COMMAND_GET_USER_RESP, ImStatus.C10004), channelContext);
 		}
@@ -68,7 +69,7 @@ public class UserReqHandler extends AbstractCmdHandler {
 			}
 			//返回详细好友列表
 			if(type == 2){
-				userDetailVO = imConfig.getMessageHelper().initLoginUserInfo(userId);
+				userDetailVO = imConfig.getMessageHelper().initLoginUserInfo(userReqBody);
 				resPacket.setData(userDetailVO);
 			}
 

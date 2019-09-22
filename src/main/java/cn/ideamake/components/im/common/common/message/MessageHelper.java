@@ -1,10 +1,7 @@
 package cn.ideamake.components.im.common.common.message;
 
 import cn.ideamake.components.im.common.common.listener.ImBindListener;
-import cn.ideamake.components.im.common.common.packets.ChatBody;
-import cn.ideamake.components.im.common.common.packets.Group;
-import cn.ideamake.components.im.common.common.packets.User;
-import cn.ideamake.components.im.common.common.packets.UserMessageData;
+import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 
@@ -186,6 +183,6 @@ public interface MessageHelper {
 
     public Group getGroupInfo(String groupId);
 
-    UserDetailVO initLoginUserInfo(String userId);
+    UserDetailVO initLoginUserInfo(UserReqBody userReqBody);
 
 }

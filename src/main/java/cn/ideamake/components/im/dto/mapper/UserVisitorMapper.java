@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @author ideamake
  * @since 2019-07-10
  */
-@Mapper
 public interface UserVisitorMapper extends BaseMapper<UserVisitor> {
     String selectUserId(String visitorCode);
 }

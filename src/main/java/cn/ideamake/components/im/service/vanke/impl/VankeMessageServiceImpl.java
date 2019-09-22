@@ -1,12 +1,8 @@
 package cn.ideamake.components.im.service.vanke.impl;
 
-import cn.ideamake.components.im.common.common.ImConst;
-import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.Command;
-import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.utils.Md5;
-import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.dto.mapper.CusChatMemberMapper;
 import cn.ideamake.components.im.dto.mapper.CusChatMessageMapper;
 import cn.ideamake.components.im.dto.mapper.CusChatRoomMapper;
@@ -19,11 +15,12 @@ import cn.ideamake.components.im.pojo.entity.CusChatRoom;
 import cn.ideamake.components.im.pojo.entity.CusChatRoomRelate;
 import cn.ideamake.components.im.service.vanke.VankeMessageService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,9 +48,13 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void writeMessage(ChatBody chatBody, int cmd) {
-        //成功聊天中
-        if(Command.COMMAND_CHAT_RESP.getNumber() == cmd && chatBody != null) {
-            addChatRecord(chatBody);
+        //发起聊天
+        if(Command.COMMAND_CHAT_REQ.getNumber() == cmd && chatBody != null) {
+            try {
+                addChatRecord(chatBody);
+            } catch (Exception e) {
+                throw e;
+            }
         }
 
     }
@@ -67,18 +68,6 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         CusChatMember member = cusChatMemberMapper.selectByUserId(userId);
         //上线操作
         if(op == VankeChatStaus.ON_LINE.getStatus()) {
-            if(Objects.isNull(member)) {
-                //不存在，初始化
-                VankeLoginDTO dto = RedisCacheManager.getCache(ImConst.USER).get(userId + ":" + Constants.USER.VANKE_USER_PREFIX, VankeLoginDTO.class);
-                CusChatMember entity = new CusChatMember();
-                entity.setUserId(userId);
-                entity.setType(NumberUtils.toInt(dto.getTerminal()));
-                entity.setToken(dto.getToken());
-                entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
-                entity.setCreateAt(new Date());
-                cusChatMemberMapper.insert(entity);
-                return ;
-            }
             Integer status = member.getStatus();
             if(VankeChatStaus.ON_LINE.getStatus().intValue() == status){
                 return ;
@@ -94,8 +83,36 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             //修改聊天房间相关数据为下线状态
             cusChatRoomRelateMapper.updateStatus(member.getId(),  VankeChatStaus.OFF_LINE.getStatus());
         }
+    }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void initChatInfo(VankeLoginDTO dto) {
+        @NotBlank String senderId = dto.getSenderId();
+        @NotBlank String receiverId = dto.getReceiverId();
+        @NotNull Integer type = dto.getType();
+        initMember(dto);
+        //创建聊天房间
+        String uniqueCode = Md5.getMD5(senderId + receiverId);
+        CusChatRoom cusChatRoom = new CusChatRoom();
+        cusChatRoom.setStatus(1);
+        cusChatRoom.setUniqueCode(uniqueCode);
+        cusChatRoom.setCreateAt(new Date());
+        cusChatRoomMapper.insert(cusChatRoom);
+        Integer roomId = cusChatRoom.getId();
+        insertRelate(roomId, senderId, type);
+        insertRelate(roomId, receiverId, type);
+    }
 
+    @Override
+    public void initMember(VankeLoginDTO dto) {
+        CusChatMember entity = new CusChatMember();
+        entity.setUserId(dto.getSenderId());
+        entity.setType(dto.getType());
+        entity.setToken(dto.getToken());
+        entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
+        entity.setCreateAt(new Date());
+        cusChatMemberMapper.insert(entity);
     }
 
     private void addChatRecord(ChatBody chatBody) {
@@ -111,8 +128,8 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             cusChatRoom.setCreateAt(new Date());
             cusChatRoomMapper.insert(cusChatRoom);
             roomId = cusChatRoom.getId();
-            insertRelate(roomId, chatBody.getFrom(), RedisCacheManager.getCache(ImConst.USER).get(sender + ":" + Constants.USER.VANKE_USER_PREFIX + ":" + Constants.USER.INFO, VankeLoginDTO.class).getType());
-            insertRelate(roomId, chatBody.getTo(), RedisCacheManager.getCache(ImConst.USER).get(receiver + ":" + Constants.USER.VANKE_USER_PREFIX + ":" + Constants.USER.INFO, VankeLoginDTO.class).getType());
+            insertRelate(roomId, chatBody.getFrom(), 1);
+            insertRelate(roomId, chatBody.getTo(), 2);
         }
         insertMessage(chatBody, sender, receiver, roomId);
 
@@ -138,10 +155,14 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     private void insertRelate(Integer roomId, String userId, Integer type) {
         CusChatRoomRelate roomRelate = new CusChatRoomRelate();
         roomRelate.setChatRoomId(roomId);
-        roomRelate.setChatMemberId(userId);
+        roomRelate.setUserId(userId);
         roomRelate.setType(type);
         roomRelate.setStatus(VankeChatStaus.ON_LINE.getStatus());
         roomRelate.setCreateAt(new Date());
+        Integer memberId = Optional.ofNullable(cusChatMemberMapper.selectByUserId(userId)).map(CusChatMember::getId).orElseThrow(
+                () -> new IllegalArgumentException("userId 没有初始化到member表中， userId：" + userId)
+        );
+        roomRelate.setChatMemberId(memberId);
         cusChatRoomRelateMapper.insert(roomRelate);
 
     }

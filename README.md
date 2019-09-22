@@ -9,6 +9,81 @@
 8. count: 显示消息数量，类似limit 0,10中的10,非必填
 9. type: 消息类型（0:离线消息，1:历史消息）
 
+## http接口
+## 注册信息
+```
+http://127.0.0.1:8082/im/vanke/initUser
+```
+入参
+```
+{
+//发送人userId
+"senderId":"098f64aa0ac8ad53",
+//接收人userId(可为空)
+"receiverId":"",
+//头像
+"avatar":"ggggfff",
+//昵称
+"nick"："测试"
+//终端
+"terminal":"pc",
+//登录token
+"token": "b92cecbf47a4f04f3",
+//身份类型,0=客服,1=访客, 2置业顾问
+"type":0
+}
+
+```
+返回值
+```
+{
+    "code": 200,
+    "msg": "success",
+    "data": null
+}
+```
+
+##注册信息，并且返回聊天对象信息
+```
+http://127.0.0.1:8082/im/vanke/getReceiver
+```
+入参
+```
+{
+//发送人userId
+"senderId":"098f64aa0ac8ad53",
+//接收人userId,访客可为null
+"receiverId":"",
+"nick":"测试客服",
+//头像
+"avatar":"ggggfff",
+//终端
+"terminal":"pc",
+//登录token
+"token": "b92cecbf47a4f04f3",
+//身份类型,0=客服,1=访客, 2置业顾问
+"type":0
+}
+
+```
+返回值
+```
+{
+    "code": 200,
+    "msg": "success",
+    "data": {
+        "id": "098f64aa0ac8ad55",
+        "nick": "测试客服",
+        "avatar": "ggggfff",
+        "status": null,
+        "sign": null,
+        "terminal": "pc",
+        "friends": null,
+        "groups": null,
+        "extras": null
+    }
+}
+```
 
 ## 连接
 ```
@@ -177,13 +252,16 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
 
 ---
 #### 7.拉取用户详细信息
-包含用户好友、好友消息前10条、未读消息数量、好友的基本信息
+包含用户好友、好友消息前10条、未读消息数量、好友的基本信息,
+extras中的参数，pullType=1全部联系人，2待回复联系人，3拉取最近两天联系人列表,
+searchKey用户昵称精准搜索
 > 请求内容
 ```json
 {
   "cmd": 17,
   "type":"2",
-  "userId":"asdfghjkl"
+  "userId":"asdfghjkl",
+  "extras":{"pullType":1, "searchKey":""}
 }
 ```
 > 响应内容

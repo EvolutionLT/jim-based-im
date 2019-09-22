@@ -52,7 +52,7 @@ public class VankeController {
         try {
             User info = validAuthorService.getReceiverInfo(dto);
             log.info("VankeController-getReceiverInfo(), result: {}" , JSON.toJSONString(info));
-            return Rest.okObj(info);
+            return info == null ? Rest.error("当前客服繁忙，建议您电话咨询!") : Rest.okObj(info);
         } catch (Exception e) {
             log.error("VankeController-getReceiverInfo(), is error, error: ", e);
             return Rest.error("当前客服繁忙，建议您电话咨询!");

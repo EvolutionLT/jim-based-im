@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
  * @author ideamake
  * @since 2019-08-15
  */
-@Repository
 public interface CusInfoMapper extends BaseMapper<CusInfo> {
 
     /**
@@ -25,5 +24,12 @@ public interface CusInfoMapper extends BaseMapper<CusInfo> {
     */
     CusInfo selectByIdAndToken(@Param("userId") String id, @Param("token") String token);
 
+    /**
+    * @description: 校验用户是否存在
+    * @param: [id, token]
+    * @return: java.lang.Boolean
+    * @author: apollo
+    * @date: 2019-09-19
+    */
     Boolean userIsValid(@Param("userId") String id, @Param("token") String token);
 }

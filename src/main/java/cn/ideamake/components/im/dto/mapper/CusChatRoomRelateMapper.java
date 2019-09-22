@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-@Mapper
 public interface CusChatRoomRelateMapper extends BaseMapper<CusChatRoomRelate>{
     /**
     * @description: 修改所有数据为下线状态

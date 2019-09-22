@@ -32,6 +32,5 @@ public interface Constants {
         String INFO = "info";
         String FRIENDS = "friends";
         String GROUP = "group";
-        String VANKE_USER_PREFIX = "vanke:user:id";
     }
 }

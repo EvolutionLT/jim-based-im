@@ -16,7 +16,6 @@ import java.util.List;
  * @author ideamake
  * @since 2019-07-10
  */
-@Mapper
 public interface UserMapper extends BaseMapper<User> {
     Boolean userIsValid(@Param("userId") String id, @Param("token") String token);
 }

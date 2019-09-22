@@ -3,6 +3,6 @@
 <mapper namespace="cn.ideamake.components.im.dto.mapper.UserVisitorMapper">
 
     <select id="selectUserId" resultType="string">
-        select user_uuid from wk_user_visitor where visitor_code = #{visitorCode} limit 1
+        select user_uuid from wk_user_visitor where open_id = #{visitorCode} limit 1
     </select>
 </mapper>

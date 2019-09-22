@@ -14,10 +14,18 @@ import java.util.List;
 public class User implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
+
+	protected long createTime =System.currentTimeMillis();
 	/**
 	 * 用户id;
 	 */
 	private String id;
+
+	/**
+	 * 身份类型 0=客服 1=访客 2=置业顾问
+	 */
+	private Integer type;
+
 	/**
 	 * user nick
 	 */

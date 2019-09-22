@@ -45,7 +45,7 @@ public class CusChatRoomRelate implements Serializable {
     /**
      * chat_member_id主键
      */
-    private String chatMemberId;
+    private Integer chatMemberId;
 
 
     /**

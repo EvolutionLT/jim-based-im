@@ -14,7 +14,6 @@ import org.apache.ibatis.annotations.Param;
  * @author ideamake
  * @since 2019-07-11
  */
-@Mapper
 public interface VisitorMapper extends BaseMapper<Visitor> {
 
     Boolean userIsValid(@Param("userId") String id, @Param("token") String token);

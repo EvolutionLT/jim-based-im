@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Mapper
 public interface CusChatMemberMapper extends BaseMapper<CusChatMember>{
     /**
     * @description: 根据聊天成员userId查询
@@ -37,4 +36,13 @@ public interface CusChatMemberMapper extends BaseMapper<CusChatMember>{
     * @date: 2019-09-19
     */
     List<CusChatMember> selectCustomer();
+
+    /**
+    * @description: 根据用户id修改繁忙状态
+    * @param: [userId]
+    * @return: void
+    * @author: apollo
+    * @date: 2019-09-20
+    */
+    void updateIsBusy(@Param("userId") String userId, @Param("busy") Integer isBusy);
 }

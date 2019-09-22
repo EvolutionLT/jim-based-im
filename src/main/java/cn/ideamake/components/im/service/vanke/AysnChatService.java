@@ -2,7 +2,7 @@ package cn.ideamake.components.im.service.vanke;
 
 import cn.ideamake.components.im.common.common.packets.ChatBody;
 
-public interface CusChatMemberService {
+public interface AysnChatService {
     /**
     * @description: 异步记录聊天记录
     * @param: [chatBody, command]

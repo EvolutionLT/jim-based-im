@@ -14,7 +14,7 @@ import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
-import cn.ideamake.components.im.service.vanke.CusChatMemberService;
+import cn.ideamake.components.im.service.vanke.AysnChatService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ public class ImServerAioListener implements ServerAioListener {
     private ImConfig imConfig;
 
     @Resource
-    private CusChatMemberService cusChatMemberService;
+    private AysnChatService aysnChatService;
 
 //    static RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
 
@@ -58,7 +58,7 @@ public class ImServerAioListener implements ServerAioListener {
     @Override
     public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) {
         //异步修改成员在线状态
-        cusChatMemberService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.ON_LINE.getStatus());
+        aysnChatService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.ON_LINE.getStatus());
     }
 
     /**
@@ -105,7 +105,7 @@ public class ImServerAioListener implements ServerAioListener {
             }
             messageHelper.getBindListener().initUserTerminal(channelContext, onlineUser.getTerminal(), ImConst.OFFLINE);
             //异步修改成员在线状态
-            cusChatMemberService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.OFF_LINE.getStatus());
+            aysnChatService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.OFF_LINE.getStatus());
         }
     }
 
@@ -150,6 +150,7 @@ public class ImServerAioListener implements ServerAioListener {
         ChatBody chatBody = ChatKit.toChatBody(imPacket.getBody(), channelContext);
         //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录
         if (chatBody != null && !StringUtils.isEmpty(chatBody.getFrom()) && !StringUtils.isEmpty(chatBody.getTo())) {
+            aysnChatService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
             String keySender = chatBody.getFrom() + ":" + Constants.USER.INFO;
 //            log.info(keySender);
             User sender = RedisCacheManager.getCache(ImConst.USER).get(keySender,User.class);
@@ -184,7 +185,6 @@ public class ImServerAioListener implements ServerAioListener {
         		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
         		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
             }
-            cusChatMemberService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
 //            log.info(chatBody.toString());
         }
     }

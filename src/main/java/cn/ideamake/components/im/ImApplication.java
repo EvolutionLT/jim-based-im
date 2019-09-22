@@ -1,19 +1,13 @@
 package cn.ideamake.components.im;
 
-import cn.ideamake.components.im.common.Rest;
-import cn.ideamake.components.im.service.PeriodService;
-import cn.ideamake.components.im.web.PeriodController;
+
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;

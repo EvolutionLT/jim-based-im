@@ -7,10 +7,10 @@ package cn.ideamake.components.im.pojo.constant;
  * @create: 2019/09/18 18:09
  */
 public enum  TermianlType {
-    //身份类型,0=客服,1=访客, 2置业顾问
-    CUSTOMER(0, "客服"),
-    VISITOR(2, "访客"),
-    ESTATE_AGENT(3, "置业顾问")
+    //身份类型,1=客服,0=访客, 2置业顾问
+    VISITOR(0, "访客"),
+    CUSTOMER(1, "客服"),
+    ESTATE_AGENT(2, "置业顾问")
     ;
 
     private Integer type;
