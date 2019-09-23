@@ -34,7 +34,10 @@ import org.tio.core.ChannelContext;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
@@ -77,6 +80,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public void initUserInfo(VankeLoginDTO dto) {
+
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
@@ -167,7 +171,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             //最近联系人
             User user = friendsOfSender.values().stream().min(Comparator.comparing(User::getType, Comparator.reverseOrder()).thenComparing(User::getCreateTime, Comparator.reverseOrder())).get();
             //判断最近联系人是否在职
-
 
 
         }
