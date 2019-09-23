@@ -1149,19 +1149,29 @@ public  class JedisTemplate implements  Serializable{
     * @param min score最小值 
     * @return 指定区间内，带有 score 值(可选)的有序集成员的列表 
     */  
-   public Set<String> revrangeByScoreWithSortedSet(final String key, final double max, final double min) {  
-       return new Executor<Set<String>>(jedisPool) {  
- 
-           @Override  
-           Set<String> execute() {  
-               return jedis.zrevrangeByScore(key, max, min);  
-           }  
-       }.getResult();  
-   }  
- 
-   
- 
-   /** 
+   public Set<String> revrangeByScoreWithSortedSet(final String key, final double max, final double min) {
+        return new Executor<Set<String>>(jedisPool) {
+
+            @Override
+            Set<String> execute() {
+                return jedis.zrevrangeByScore(key, max, min);
+            }
+        }.getResult();
+    }
+
+    public Set<String> revrangeByScoreWithSortedSet(final String key, final double max, final double min, final int offset, final int count ) {
+        return new Executor<Set<String>>(jedisPool) {
+
+            @Override
+            Set<String> execute() {
+                return jedis.zrevrangeByScore(key, max, min, offset,count);
+            }
+        }.getResult();
+    }
+
+
+
+    /**
     * 构造Pair键值对 
     * @param key key 
     * @param value value 

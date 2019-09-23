@@ -59,10 +59,12 @@ public class MessageReqHandler extends AbstractCmdHandler {
 		if(StringUtils.isEmpty(userId) || (0 != type && 1 != type && 2 != type) || !ImConst.ON.equals(imConfig.getIsStore())){
 			return getMessageFailedPacket(channelContext);
 		}
-		if(type == 0 || type == 2){
+		if(type == 0 ){
 			resPacket = new RespBody(Command.COMMAND_GET_MESSAGE_RESP, ImStatus.C10016);
-		}else{
+		}else if(type == 1){
 			resPacket = new RespBody(Command.COMMAND_GET_MESSAGE_RESP, ImStatus.C10018);
+		}else if(type ==2) {
+			resPacket = new RespBody(Command.COMMAND_GET_MESSAGE_RESP, ImStatus.C10022);
 		}
 		//群组ID不为空获取用户该群组消息;
 		if(!StringUtils.isEmpty(groupId)){

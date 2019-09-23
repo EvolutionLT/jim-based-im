@@ -15,7 +15,7 @@ public class UserFriendsVO {
     private String userId;
     private String nickname;
     private String avatar;
-    private String lastMessageTime;
+    private long lastMessageTime;
     /**
      * 未读消息数量
      */

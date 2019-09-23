@@ -145,7 +145,7 @@ public class ImServerAioListener implements ServerAioListener {
      */
     @Override
     public void onAfterHandled(ChannelContext channelContext, Packet packet, long cost) throws Exception {
-        log.info("onAfter");
+//        log.info("onAfter");
         ImPacket imPacket = (ImPacket) packet;
         ChatBody chatBody = ChatKit.toChatBody(imPacket.getBody(), channelContext);
         //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录

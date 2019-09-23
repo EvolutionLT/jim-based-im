@@ -34,6 +34,7 @@ public enum ImStatus implements Status {
 	C10018(10018,"get user message ok!","获取历史消息成功!"),
 	C10020(10020,"Invalid verification!","不合法校验"),
 	C10021(10021,"close ok!","关闭成功"),
+	C10022(10022,"ok!","拉取离线消息成功!"),
 	C200(200,"success","");
 	
 	private int status;
