@@ -94,25 +94,18 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         initMember(dto);
         //创建聊天房间
         String uniqueCode = Md5.getMD5(senderId + receiverId);
-        CusChatRoom chatRoom = cusChatRoomMapper.selectByUniqueCode(uniqueCode);
-        if(Objects.isNull(chatRoom)) {
-            CusChatRoom cusChatRoom = new CusChatRoom();
-            cusChatRoom.setStatus(1);
-            cusChatRoom.setUniqueCode(uniqueCode);
-            cusChatRoom.setCreateAt(new Date());
-            cusChatRoomMapper.insert(cusChatRoom);
-            Integer roomId = cusChatRoom.getId();
-            insertRelate(roomId, senderId, type);
-            insertRelate(roomId, receiverId, type);
-        }
+        CusChatRoom cusChatRoom = new CusChatRoom();
+        cusChatRoom.setStatus(1);
+        cusChatRoom.setUniqueCode(uniqueCode);
+        cusChatRoom.setCreateAt(new Date());
+        cusChatRoomMapper.insert(cusChatRoom);
+        Integer roomId = cusChatRoom.getId();
+        insertRelate(roomId, senderId, type);
+        insertRelate(roomId, receiverId, type);
     }
 
     @Override
     public void initMember(VankeLoginDTO dto) {
-        CusChatMember member = cusChatMemberMapper.selectByUserId(dto.getSenderId());
-        if(member != null) {
-            return ;
-        }
         CusChatMember entity = new CusChatMember();
         entity.setUserId(dto.getSenderId());
         entity.setType(dto.getType());

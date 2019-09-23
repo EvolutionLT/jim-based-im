@@ -7,10 +7,6 @@
     </select>
 
     <select id="userIsValid" resultType="boolean">
-        select 1 from wk_cus_info where uu_id = #{userId} and login_token = #{token} and status = 1 limit 1
-    </select>
-
-    <select id="userIsValidById" resultType="boolean">
-        select 1 from wk_cus_info where uu_id = #{userId} and status = 1 limit 1
+        select 1 from wk_cus_info where uu_id = #{userId} and login_token = #{token}
     </select>
 </mapper>
