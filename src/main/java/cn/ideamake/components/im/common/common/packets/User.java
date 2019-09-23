@@ -15,7 +15,6 @@ public class User implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
-	protected long createTime =System.currentTimeMillis();
 	/**
 	 * 用户id;
 	 */

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.CusVisitorMapper">
+
+    <select id="selectCusInfoByVisitor" resultType="cn.ideamake.components.im.pojo.entity.CusInfo">
+        select
+            a.*
+        from
+            wk_cus_info a
+            inner join wk_cus_visitor b on a.uu_id = b.cus_id
+        where
+            a.status = 1
+            and b.status = 1
+            and b.visitor_id = #{visitorId}
+    </select>
+
+</mapper>

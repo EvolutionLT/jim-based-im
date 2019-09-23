@@ -43,6 +43,11 @@ public class UserDetailVO {
     private Integer allContactsNum;
 
     /**
+     * 聊天列表类型
+     */
+    private Integer pullType;
+
+    /**
      * 用户好友，返回历史消息和未读消息数量，以及用户的基本信息
      */
     private List<UserFriendsVO> friends;

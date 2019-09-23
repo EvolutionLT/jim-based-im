@@ -189,94 +189,21 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
   "count":2
 }
 ```
-> 返回结果
-```json
-{
-  "code": 10022,
-  "command": 20,
-  "data": {
-    "friends": {
-      "oqRgw5U2o6siu0viOo2MQJIBafcw": [{
-        "chatType": 2,
-        "cmd": 11,
-        "content": "h哈asdfasdfasdf  fcw",
-        "createTime": 1568699903881,
-        "from": "asdfghjkl",
-        "id": "a953dd0c0ca9416491966c86aab75e44",
-        "msgType": 0,
-        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-      }, {
-        "chatType": 2,
-        "cmd": 11,
-        "content": "h哈asdfasdfasdf  fcw",
-        "createTime": 1568701001275,
-        "from": "asdfghjkl",
-        "id": "ef809dc856054402b532ad2362787315",
-        "msgType": 0,
-        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-      }]
-    },
-    "groups": {},
-    "userid": "asdfghjkl"
-  },
-  "msg": "get user message ok! 获取历史消息成功!"
-}
-```
+> 返回接口结果同上
 
 -------------------------------------------------------------
 #### 4.拉取对于某人的历史消息，后台服务存储的用户聊天记录，可作为辅助接口，消息内容可以前端存储
 ```json
 {
   "cmd": 19,
-  "type":"1",
+  "type":"2",
   "userId":"asdfghjkl",
   "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
   "offset":1,
   "count":2
 }
 ```
-> 返回结果
-```json
-{
-  "code": 10018,
-  "command": 20,
-  "data": {
-    "friends": {
-      "asdfghjkl": [{
-        "chatType": 2,
-        "cmd": 11,
-        "content": "{\"asd\":\"hell,你1好\"}",
-        "createTime": 1568012384,
-        "from": "asdfghjkl",
-        "id": "2d225ad13d3c4c6e803baf3b46473310",
-        "msgType": 0,
-        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-      }, {
-        "chatType": 2,
-        "cmd": 11,
-        "content": "{\"asd\":\"hell,你1好\"}",
-        "createTime": 1568012384,
-        "from": "asdfghjkl",
-        "id": "3b8f380e2b3a45579130735e9845a737",
-        "msgType": 0,
-        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-      }, {
-        "chatType": 2,
-        "cmd": 11,
-        "content": "{\"asd\":\"hell,你1好\"}",
-        "createTime": 1568012384,
-        "from": "asdfghjkl",
-        "id": "7928fbc809b2458eb01cf7f6eac4e569",
-        "msgType": 0,
-        "to": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-      }]
-    },
-    "groups": {},
-    "userid": "oqRgw5U2o6siu0viOo2MQJIBafcw"
-  },
-  "msg": "get user message ok! 获取历史消息成功!"
-}
-```
+返回接口同上
 
 -------------------------------------------------------------
 #### 5.获取好友列表
@@ -326,17 +253,14 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
 ---
 #### 7.拉取用户详细信息
 包含用户好友、好友消息前10条、未读消息数量、好友的基本信息
+pullType=1全部列表，2待回复列表，3最近两天联系人
 > 请求内容
 ```json
 {
-   "cmd": 17,
-   "type":"2",
-   "userId":"asdfghjkl"
- }
   "cmd": 17,
   "type":"2",
   "userId":"asdfghjkl",
-  "extras":{"pullType":1, "searchKey":""}
+  "extras": {"pullType": 1,"searchKey": ""}
 }
 ```
 > 响应内容

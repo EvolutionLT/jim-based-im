@@ -186,6 +186,6 @@ public interface MessageHelper {
 
     UserDetailVO initLoginUserInfo(UserReqBody userReqBody);
 
-    UserFriendsVO getUserFriendSingle(String userId,String friendId);
+    default UserFriendsVO getUserFriendSingle(String userId,String friendId) { return null;};
 
 }
