@@ -15,11 +15,11 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface CusVisitorMapper extends BaseMapper<CusVisitor> {
     /**
-    * @description: 根据访客Id查询客服信息
-    * @param: [visitorId]
-    * @return: cn.ideamake.components.im.pojo.entity.CusVisitor
-    * @author: apollo
-    * @date: 2019-09-23
-    */
+     * @description: 根据访客Id查询客服信息
+     * @param: [visitorId]
+     * @return: cn.ideamake.components.im.pojo.entity.CusVisitor
+     * @author: apollo
+     * @date: 2019-09-23
+     */
     CusInfo selectCusInfoByVisitor(String visitorId);
 }

@@ -34,6 +34,11 @@ public class CusVisitor implements Serializable {
      */
     private String visitorId;
 
+    /**
+     * 项目id
+     */
+    private Integer projectId;
+
 
     /**
      * 状态, 0=无效, 1=有效

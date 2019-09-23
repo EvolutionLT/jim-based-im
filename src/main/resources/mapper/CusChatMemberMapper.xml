@@ -11,7 +11,7 @@
     </update>
 
     <select id="selectCustomer" resultType="cn.ideamake.components.im.pojo.entity.CusChatMember">
-        select * from wk_cus_chat_member where status = 1 and type = 0 and is_busy = 0
+        select * from wk_cus_chat_member where status = 1 and type = 1 and is_busy = 0
     </select>
 
     <update id="updateIsBusy">
