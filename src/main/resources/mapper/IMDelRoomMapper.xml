@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.IMDelRoomMapper">
+    <select id="getDelRoomInfo" resultType="cn.ideamake.components.im.pojo.entity.IMDelRoom">
+        select idr.id,idr.room_id,idr.create_user,idr.create_at from im_del_room idr where idr.room_id=#{roomId}
+    </select>
+
+    <delete id="deleteDelRoomInfo">
+        delete from im_del_room where room_id =#{roomId}
+    </delete>
+
+</mapper>

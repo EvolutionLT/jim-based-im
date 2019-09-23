@@ -13,6 +13,7 @@ import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.durables.DurableUtils;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import lombok.Setter;
@@ -38,6 +39,7 @@ public class ImServerAioListener implements ServerAioListener {
     private AysnChatService aysnChatService;
 
 //    static RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
+private static DurableUtils durableUtils= DurableUtils.getInstance();
 
     public ImServerAioListener() {
     }
@@ -148,45 +150,53 @@ public class ImServerAioListener implements ServerAioListener {
 //        log.info("onAfter");
         ImPacket imPacket = (ImPacket) packet;
         ChatBody chatBody = ChatKit.toChatBody(imPacket.getBody(), channelContext);
-        //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录
-        if (chatBody != null && !StringUtils.isEmpty(chatBody.getFrom()) && !StringUtils.isEmpty(chatBody.getTo())) {
-            aysnChatService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
-            String keySender = chatBody.getFrom() + ":" + Constants.USER.INFO;
+        //进入IM业务逻辑
+        if(chatBody!=null && chatBody.getRoomId()!=null){
+            durableUtils.insertMsgData(chatBody);
+        }else{
+            //进入客服业务逻辑
+            //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录
+            if (chatBody != null && !StringUtils.isEmpty(chatBody.getFrom()) && !StringUtils.isEmpty(chatBody.getTo())) {
+                aysnChatService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
+                String keySender = chatBody.getFrom() + ":" + Constants.USER.INFO;
 //            log.info(keySender);
-            User sender = RedisCacheManager.getCache(ImConst.USER).get(keySender,User.class);
+                User sender = RedisCacheManager.getCache(ImConst.USER).get(keySender,User.class);
 //            User sender = (User) RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + chatBody.getFrom() + Constants.USER.INFO);
-            //发送者信息未被初始化,正常情况下应用和im双方用户数据需要打通，暂不考虑发送方不存在的情况，会被记录，但是不纪录用户列表
-            if (sender == null) {
-                log.error("发送者{}信息未被初始化", chatBody.getFrom());
-                //此处后续可以向三方服务器拉取用户信息
-                return;
-            }
-            String keyReceiver = chatBody.getFrom() + ":" + Constants.USER.INFO;
-            User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
-            if (receiver == null) {
-                log.error("接收者{}信息未被初始化", chatBody.getTo());
-                return;
-            }
-            //当发送者和接收者信息都不为空时对双方的好友列表做存储,暂时不考虑组！！！！！
-            RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getFrom() + ":" + Constants.USER.FRIENDS);
+                //发送者信息未被初始化,正常情况下应用和im双方用户数据需要打通，暂不考虑发送方不存在的情况，会被记录，但是不纪录用户列表
+                if (sender == null) {
+                    log.error("发送者{}信息未被初始化", chatBody.getFrom());
+                    //此处后续可以向三方服务器拉取用户信息
+                    return;
+                }
+                String keyReceiver = chatBody.getFrom() + ":" + Constants.USER.INFO;
+                User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
+                if (receiver == null) {
+                    log.error("接收者{}信息未被初始化", chatBody.getTo());
+                    return;
+                }
+                //当发送者和接收者信息都不为空时对双方的好友列表做存储,暂时不考虑组！！！！！
+                RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getFrom() + ":" + Constants.USER.FRIENDS);
 
-            //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
+                //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
 //            List<User>
-            //发送者好友列表没有接收者时，将接收者添加到其好友列表
-            if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(chatBody.getTo())) {
-                log.info("发送者[{}]好友列表中不存在[{}],做追加操作",sender.getNick(),receiver.getNick());
-        		User receiverSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
-        		friendsOfSender.put(chatBody.getTo(),receiverSimple);
-            }
-            RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getTo() + ":" + Constants.USER.FRIENDS);
-            //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
-            if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(chatBody.getFrom())) {
-                log.info("接收者[{}]好友列表中不存在[{}],做追加操作",receiver.getNick(),sender.getNick());
-        		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
-        		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
-            }
+                //发送者好友列表没有接收者时，将接收者添加到其好友列表
+                if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(chatBody.getTo())) {
+                    log.info("发送者[{}]好友列表中不存在[{}],做追加操作",sender.getNick(),receiver.getNick());
+                    User receiverSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
+                    friendsOfSender.put(chatBody.getTo(),receiverSimple);
+                }
+                RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getTo() + ":" + Constants.USER.FRIENDS);
+                //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
+                if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(chatBody.getFrom())) {
+                    log.info("接收者[{}]好友列表中不存在[{}],做追加操作",receiver.getNick(),sender.getNick());
+                    User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
+                    friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
+                }
 //            log.info(chatBody.toString());
+            }
         }
+
+
     }
 
 

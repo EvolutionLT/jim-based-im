@@ -18,6 +18,43 @@ public class LoginReqBody {
 
     private String token;
 
+    public String getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(String capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    private String capacity;
+    private String nick;
+    private String avatar;
+    private String channel;
+
     /**
      * 消息cmd命令码
      */
@@ -40,6 +77,15 @@ public class LoginReqBody {
     public LoginReqBody(String userId, String password, String token) {
         this(userId, password);
         this.token = token;
+    }
+
+    public LoginReqBody(String loginname, String password, String token, String avatar, String channel, String nick, String capacity) {
+        this(loginname, password);
+        this.token = token;
+        this.avatar = avatar;
+        this.channel = channel;
+        this.nick = nick;
+        this.capacity = capacity;
     }
 
     public String getUserId() {
