@@ -29,7 +29,7 @@ http://127.0.0.1:8082/im/vanke/initUser
 "terminal":"pc",
 //登录token
 "token": "b92cecbf47a4f04f3",
-//身份类型,0=客服,1=访客, 2置业顾问
+//身份类型,0=访客,1=客服, 2置业顾问
 "type":0
 }
 
@@ -61,7 +61,7 @@ http://127.0.0.1:8082/im/vanke/getReceiver
 "terminal":"pc",
 //登录token
 "token": "b92cecbf47a4f04f3",
-//身份类型,0=客服,1=访客, 2置业顾问
+//身份类型,0=访客,1=客服, 2置业顾问
 "type":0
 }
 

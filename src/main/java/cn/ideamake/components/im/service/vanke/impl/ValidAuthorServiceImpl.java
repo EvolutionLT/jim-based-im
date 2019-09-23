@@ -63,15 +63,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     private UserVisitorMapper userVisitorMapper;
 
     @Resource
-    private CusChatRoomRelateMapper cusChatRoomRelateMapper;
-
-    @Resource
     private AysnChatService aysnChatService;
 
     @Resource
     private VankeMessageService vankeMessageService;
 
-    private static final int EXPIRE_TIME = 10 * 60;
+    private static final int EXPIRE_TIME = 7 *24 * 60;
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
@@ -80,12 +77,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
-        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
+        User user =  (User)RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN).get(token);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
+            vankeMessageService.initMember(dto);
             //初始化数据
             cacheUserInfo(dto);
-            vankeMessageService.initMember(dto);
             return;
         }
         if (!Objects.equals(user.getId(), dto.getSenderId())) {
@@ -164,18 +161,13 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         //缓存好友中有就直接返回
         RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         if (MapUtils.isNotEmpty(friendsOfSender)) {
-            //最近联系人
-            User user = friendsOfSender.values().stream().min(Comparator.comparing(User::getType, Comparator.reverseOrder()).thenComparing(User::getCreateTime, Comparator.reverseOrder())).get();
-            //判断最近联系人是否在职
-
-
-
-        }
-        List<CusChatRoomRelate> roomRelates = cusChatRoomRelateMapper.selectReleates(senderId);
-        if (CollectionUtils.isNotEmpty(roomRelates)) {
-            //匹配到了之前联系的客服
-            String id = roomRelates.stream().filter(e -> e.getType() != TermianlType.CUSTOMER.getType().intValue()).max(Comparator.comparing(CusChatRoomRelate::getId)).map(CusChatRoomRelate::getUserId).get();
-            return RedisCacheManager.getCache(ImConst.USER).get(id + ":" + Constants.USER.INFO, User.class);
+            //最近联系的客服
+            User user = friendsOfSender.values().stream().filter(e -> e.getType() == TermianlType.CUSTOMER.getType().intValue()).max(Comparator.comparing(User::getCreateTime)).get();
+            //判断最近联系客服是否在职，如果不在职重新匹配在职客服
+            Boolean isExisted = Optional.ofNullable(cusInfoMapper.userIsValidById(user.getId())).orElse(Boolean.FALSE);
+            if(isExisted) {
+                return user;
+            }
         }
         //白客，则匹配空闲客服
         //TODO 暂时随机分配
