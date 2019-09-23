@@ -1,7 +1,15 @@
 package cn.ideamake.components.im.common.server.helper.redis;
 
+import cn.ideamake.components.im.common.common.ImConfig;
+import cn.ideamake.components.im.common.common.cache.redis.JedisTemplate;
+import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
+import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.common.listener.ImBindListener;
+import cn.ideamake.components.im.common.common.message.AbstractMessageHelper;
 import cn.ideamake.components.im.common.common.packets.*;
+import cn.ideamake.components.im.common.common.utils.ChatKit;
+import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.IMException;
@@ -13,14 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import cn.ideamake.components.im.common.common.ImConfig;
-import cn.ideamake.components.im.common.common.cache.redis.JedisTemplate;
-import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
-import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
-import cn.ideamake.components.im.common.common.listener.ImBindListener;
-import cn.ideamake.components.im.common.common.message.AbstractMessageHelper;
-import cn.ideamake.components.im.common.common.utils.ChatKit;
-import cn.ideamake.components.im.common.common.utils.JsonKit;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.redisson.api.RMapCache;
 import org.springframework.beans.BeanUtils;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -612,7 +611,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 
 
     /**
-     * 此接口暂时用于快速开发，用户量不大时处理,且冗余万科相关业务
+     * 此接口暂时用于快速开发，用户量不大时处理,冗余万科相关业务
      *
      * @param userId
      * @return
@@ -622,7 +621,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         long now = System.currentTimeMillis() / 1000;
         String userId = userReqBody.getUserid();
         JSONObject extras = userReqBody.getExtras();
-        if (MapUtils.isEmpty(extras) || Objects.isNull(extras.get("pullType"))) {
+        if (MapUtils.isEmpty(extras) ||  Objects.isNull(extras.get("pullType"))) {
             return null;
         }
         //是否是待回复好友
@@ -631,7 +630,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         boolean isLastedFriend = false;
         //是否需要搜索
         Object searchKey = extras.get("searchKey");
-        boolean isSearch =  searchKey == null || StringUtils.isBlank(searchKey.toString());
+        boolean isSearch = searchKey == null || StringUtils.isBlank(searchKey.toString());
         // 1=全部联系人 2=待回复联系人 3=最近联系人
         Integer pullType = NumberUtils.toInt(extras.get("pullType").toString(), 1);
         UserDetailVO userDetailVO = new UserDetailVO();
@@ -648,7 +647,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 
         //初始化用户群组信息
         RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
-        if(MapUtils.isEmpty(friendsIds)) {
+        if (MapUtils.isEmpty(friendsIds)) {
             return userDetailVO;
         }
         //统计待回复信息数量
@@ -666,7 +665,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             User userFriend = userCache.get(friendId + SUBFIX + INFO, User.class);
             String nickName = userFriend.getNick() == null ? "" : userFriend.getNick();
             //根据搜索关键字过滤
-            if(!isSearch && StringUtils.isNotBlank(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())){
+            if (!isSearch && StringUtils.isNotBlank(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
                 continue;
             }
             userFriendsVO.setNickname(nickName);
@@ -714,52 +713,11 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             //拉取全部
             friendsVOS.add(userFriendsVO);
         }
-//		friendsIds.forEach((friendId,friend)->{
-//			//次数存储取第一次存储的用户数据，后续实时更新可存id，拉取时遍历获取
-//			UserFriendsVO userFriendsVO = new UserFriendsVO();
-//			//每次取最新的，后续将好友存在改成id
-//			User userFriend = userCache.get(friendId+SUBFIX+INFO,User.class);
-//			userFriendsVO.setNickname(userFriend.getNick()==null?"":userFriend.getNick());
-//			userFriendsVO.setUserId(friendId);
-//			userFriendsVO.setAvatar(userFriend.getAvatar()==null?"":userFriend.getAvatar());
-//
-//			String sessionId = ChatKit.sessionId(userId, friendId);
-//			String key = USER+SUBFIX+sessionId;
-//			//取10条聊天纪录
-//			List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE,0,10);
-//			if(!messages.isEmpty()){
-//				List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
-//				userFriendsVO.setHistoryMessage(chatBodyList);
-//				//最后一条聊天记录的时间
-//				long contactTime = chatBodyList.get(chatBodyList.size() - 1).getCreateTime().longValue();
-//				if(now - contactTime <= LASTED_CONTACT_TIME) {
-//					lastedContactsNum.incrementAndGet();
-//				}
-//			}else{
-//				userFriendsVO.setHistoryMessage(new ArrayList<>(0));
-//			}
-//			//统计未读信息
-//			String keyPushUnread = USER+SUBFIX+userId+SUBFIX+friendId;
-//			List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
-//			if(messageList.isEmpty()){
-//				userFriendsVO.setUnReadNum(0);
-//			}else {
-//				pendingReplyNum.getAndIncrement();
-//				userFriendsVO.setUnReadNum(messageList.size());
-//			}
-////			List<ChatBody> datas = JsonKit.toArray(messageList, ChatBody.class);
-//
-////			UserMessageData userMessageData = getFriendsOfflineMessageWithoutRemove(userId, friendId);
-////			if(userMessageData != null && !userMessageData.getFriends().isEmpty()){
-////				userFriendsVO.setUnReadNum(userMessageData.getFriends());
-////			}
-//			friendsVOS.add(userFriendsVO);
-
-//		});
         userDetailVO.setFriends(friendsVOS);
         userDetailVO.setPendingReplyNum(pendingReplyNum);
         userDetailVO.setLastedContactsNum(lastedContactsNum);
         userDetailVO.setAllContactsNum(isSearch ? friendsIds.size() : friendsVOS.size());
+        userDetailVO.setPullType(pullType);
         return userDetailVO;
     }
 
@@ -801,4 +759,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
 //			}
         }
     }
+
 }
+
+

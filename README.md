@@ -253,12 +253,14 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
 ---
 #### 7.拉取用户详细信息
 包含用户好友、好友消息前10条、未读消息数量、好友的基本信息
+pullType=1全部列表，2待回复列表，3最近两天联系人
 > 请求内容
 ```json
 {
   "cmd": 17,
   "type":"2",
-  "userId":"asdfghjkl"
+  "userId":"asdfghjkl",
+  "extras": {"pullType": 1,"searchKey": ""}
 }
 ```
 > 响应内容
