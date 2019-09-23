@@ -3,16 +3,11 @@ package cn.ideamake.components.im.service.vanke.impl;
 import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.Command;
 import cn.ideamake.components.im.common.common.utils.Md5;
-import cn.ideamake.components.im.dto.mapper.CusChatMemberMapper;
-import cn.ideamake.components.im.dto.mapper.CusChatMessageMapper;
-import cn.ideamake.components.im.dto.mapper.CusChatRoomMapper;
-import cn.ideamake.components.im.dto.mapper.CusChatRoomRelateMapper;
+import cn.ideamake.components.im.dto.mapper.*;
+import cn.ideamake.components.im.pojo.constant.TermianlType;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
-import cn.ideamake.components.im.pojo.entity.CusChatMember;
-import cn.ideamake.components.im.pojo.entity.CusChatMessage;
-import cn.ideamake.components.im.pojo.entity.CusChatRoom;
-import cn.ideamake.components.im.pojo.entity.CusChatRoomRelate;
+import cn.ideamake.components.im.pojo.entity.*;
 import cn.ideamake.components.im.service.vanke.VankeMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -44,6 +39,9 @@ public class VankeMessageServiceImpl implements VankeMessageService {
 
     @Resource
     private CusChatRoomRelateMapper cusChatRoomRelateMapper;
+
+    @Resource
+    private CusVisitorMapper cusVisitorMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -91,50 +89,55 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String receiverId = dto.getReceiverId();
         @NotNull Integer type = dto.getType();
-        initMember(dto);
-        //创建聊天房间
-        String uniqueCode = Md5.getMD5(senderId + receiverId);
-        CusChatRoom cusChatRoom = new CusChatRoom();
-        cusChatRoom.setStatus(1);
-        cusChatRoom.setUniqueCode(uniqueCode);
-        cusChatRoom.setCreateAt(new Date());
-        cusChatRoomMapper.insert(cusChatRoom);
-        Integer roomId = cusChatRoom.getId();
-        insertRelate(roomId, senderId, type);
-        insertRelate(roomId, receiverId, type);
+        Date date = new Date();
+        //初始化访客信息
+        if(initMember(dto) && type == TermianlType.VISITOR.getType().intValue()) {
+            //初始化聊天房间
+            String uniqueCode = Md5.getMD5(senderId + receiverId);
+            CusChatRoom cusChatRoom = new CusChatRoom();
+            cusChatRoom.setStatus(1);
+            cusChatRoom.setUniqueCode(uniqueCode);
+            cusChatRoom.setCreateAt(date);
+            cusChatRoomMapper.insert(cusChatRoom);
+            //初始化聊天关系表
+            Integer roomId = cusChatRoom.getId();
+            insertRelate(roomId, senderId, type);
+            insertRelate(roomId, receiverId, type);
+            //初始化wk_cus_visitor表
+            CusVisitor cusVisitor = new CusVisitor();
+            cusVisitor.setCusId(receiverId);
+            cusVisitor.setVisitorId(senderId);
+            cusVisitor.setStatus(1);
+            cusVisitor.setCreateBy("0");
+            cusVisitor.setUpdateBy("0");
+            cusVisitor.setCreateAt(date);
+            cusVisitorMapper.insert(cusVisitor);
+            //把客服状态修改为繁忙 0=空闲， 1=繁忙
+            cusChatMemberMapper.updateIsBusy(receiverId, 1);
+        }
     }
 
     @Override
-    public void initMember(VankeLoginDTO dto) {
-        CusChatMember entity = new CusChatMember();
-        entity.setUserId(dto.getSenderId());
-        entity.setType(dto.getType());
-        entity.setToken(dto.getToken());
-        entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
-        entity.setCreateAt(new Date());
-        cusChatMemberMapper.insert(entity);
+    public boolean initMember(VankeLoginDTO dto) {
+        CusChatMember cusChatMember = cusChatMemberMapper.selectByUserId(dto.getSenderId());
+        if(Objects.isNull(cusChatMember)) {
+            CusChatMember entity = new CusChatMember();
+            entity.setUserId(dto.getSenderId());
+            entity.setType(dto.getType());
+            entity.setToken(dto.getToken());
+            entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
+            entity.setCreateAt(new Date());
+            return 1 == cusChatMemberMapper.insert(entity);
+        }
+        return false;
     }
 
     private void addChatRecord(ChatBody chatBody) {
         String sender = chatBody.getFrom();
         String receiver = chatBody.getTo();
         String uniqueCode = Md5.getMD5(sender + receiver);
-        Integer roomId = Optional.ofNullable(cusChatRoomMapper.selectByUniqueCode(uniqueCode)).map(CusChatRoom::getId).orElse(null);
-        if(Objects.isNull(roomId)) {
-            //创建聊天房间
-            CusChatRoom cusChatRoom = new CusChatRoom();
-            cusChatRoom.setStatus(1);
-            cusChatRoom.setUniqueCode(uniqueCode);
-            cusChatRoom.setCreateAt(new Date());
-            cusChatRoomMapper.insert(cusChatRoom);
-            roomId = cusChatRoom.getId();
-            insertRelate(roomId, chatBody.getFrom(), 1);
-            insertRelate(roomId, chatBody.getTo(), 2);
-        }
+        Integer roomId = Optional.ofNullable(cusChatRoomMapper.selectByUniqueCode(uniqueCode)).map(CusChatRoom::getId).orElse(-1);
         insertMessage(chatBody, sender, receiver, roomId);
-
-        //缓存房间信息
-
     }
 
     private void insertMessage(ChatBody chatBody, String sender, String receiver, Integer roomId) {

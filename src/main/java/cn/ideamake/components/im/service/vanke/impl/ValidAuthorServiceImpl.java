@@ -16,14 +16,11 @@ import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.CusChatMember;
-import cn.ideamake.components.im.pojo.entity.CusChatRoomRelate;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
-import cn.ideamake.components.im.service.vanke.VankeMessageService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -34,7 +31,6 @@ import org.tio.core.ChannelContext;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -66,13 +62,10 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     private UserVisitorMapper userVisitorMapper;
 
     @Resource
-    private CusChatRoomRelateMapper cusChatRoomRelateMapper;
+    private CusVisitorMapper cusVisitorMapper;
 
     @Resource
     private AysnChatService aysnChatService;
-
-    @Resource
-    private VankeMessageService vankeMessageService;
 
     private static final int EXPIRE_TIME = 10 * 60;
 
@@ -89,7 +82,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             valid(senderId, token, type);
             //初始化数据
             cacheUserInfo(dto);
-            vankeMessageService.initMember(dto);
+            aysnChatService.synInitChatMember(dto);
             return;
         }
         if (!Objects.equals(user.getId(), dto.getSenderId())) {
@@ -145,10 +138,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
                 throw new BusinessException(500, "正在努力帮您联系客服，请耐心等待!");
             }
             //查询接收人信息
-            User receiver = getReceiver(token, senderId);
-            dto.setReceiverId(receiver.getId());
-            vankeMessageService.initChatInfo(dto);
-            return receiver;
+            return getReceiver(dto);
         } catch (InterruptedException e) {
             log.error("ValidAuthorService-getReceiverInfo(), try lock is error, error: ", e);
             return null;
@@ -157,39 +147,39 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         }
     }
 
-    private User getReceiver(String token, @NotBlank String senderId) {
+    private User getReceiver(VankeLoginDTO dto) {
+        @NotBlank String senderId = dto.getSenderId();
         //访客类型,需要匹配聊天对象
         //判断有没有绑定置业顾问
         String userId = userVisitorMapper.selectUserId(senderId);
         if (StringUtils.isNotBlank(userId)) {
-            return RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
+            dto.setReceiverId(userId);
+            return cacheFriend(dto);
         }
-        //判断有没有绑定客服, 匹配客服
-        //缓存好友中有就直接返回
-        RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
-        if (MapUtils.isNotEmpty(friendsOfSender)) {
-            //最近联系人
-            User user = friendsOfSender.values().stream().min(Comparator.comparing(User::getType, Comparator.reverseOrder()).thenComparing(User::getCreateTime, Comparator.reverseOrder())).get();
-            //判断最近联系人是否在职
+        //判断有没有绑定客服, 没有绑定则匹配空闲客服
+        return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
+            dto.setReceiverId(e.getUuId());
+            return cacheFriend(dto);
+        }).orElse(getRandomCustomer(dto));
+    }
 
-
-        }
-        List<CusChatRoomRelate> roomRelates = cusChatRoomRelateMapper.selectReleates(senderId);
-        if (CollectionUtils.isNotEmpty(roomRelates)) {
-            //匹配到了之前联系的客服
-            String id = roomRelates.stream().filter(e -> e.getType() != TermianlType.CUSTOMER.getType().intValue()).max(Comparator.comparing(CusChatRoomRelate::getId)).map(CusChatRoomRelate::getUserId).get();
-            return RedisCacheManager.getCache(ImConst.USER).get(id + ":" + Constants.USER.INFO, User.class);
-        }
-        //白客，则匹配空闲客服
-        //TODO 暂时随机分配
+    private User getRandomCustomer(VankeLoginDTO dto) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
-        if (CollectionUtils.isEmpty(members)) {
-            throw new IllegalArgumentException("没有空闲客服!");
+        if (CollectionUtils.isNotEmpty(members)) {
+            int random = RandomUtils.nextInt(0, members.size());
+            String to = members.get(random).getUserId();
+            dto.setReceiverId(to);
+            return cacheFriend(dto);
         }
-        int random = RandomUtils.nextInt(0, members.size());
-        String to = members.get(random).getUserId();
+        return null;
+    }
+
+    private User cacheFriend(VankeLoginDTO dto) {
+        @NotBlank String senderId = dto.getSenderId();
+        @NotBlank String to = dto.getReceiverId();
         User friend = RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class);
         //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
+        RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         //发送者好友列表没有接收者时，将接收者添加到其好友列表
         if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(senderId)) {
             friendsOfSender.put(to, friend);
@@ -199,9 +189,8 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(to)) {
             friendsOfReceiver.put(senderId, RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class));
         }
-
-        //把客服状态修改为繁忙 0=空闲， 1=繁忙
-        cusChatMemberMapper.updateIsBusy(to, 1);
+        dto.setReceiverId(friend.getId());
+        aysnChatService.synInitChatInfo(dto);
         return friend;
     }
 

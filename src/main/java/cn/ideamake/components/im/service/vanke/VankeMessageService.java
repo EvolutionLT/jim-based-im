@@ -38,5 +38,5 @@ public interface VankeMessageService {
     * @author: apollo
     * @date: 2019-09-21
     */
-    void initMember(VankeLoginDTO dto);
+    boolean initMember(VankeLoginDTO dto);
 }

@@ -1,12 +1,14 @@
 package cn.ideamake.components.im.service.vanke.impl;
 
 import cn.ideamake.components.im.common.common.packets.ChatBody;
+import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.VankeMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -37,5 +39,19 @@ public class AsynChatServiceImpl implements AysnChatService {
             return;
         }
         CompletableFuture.runAsync(() -> vankeMessageService.updateChatMember(userId, op), vankeExecutor);
+    }
+
+    @Override
+    public void synInitChatMember(VankeLoginDTO dto) {
+        if(!Objects.isNull(dto)) {
+            CompletableFuture.runAsync(() -> vankeMessageService.initMember(dto), vankeExecutor);
+        }
+    }
+
+    @Override
+    public void synInitChatInfo(VankeLoginDTO dto) {
+        if(!Objects.isNull(dto)) {
+            CompletableFuture.runAsync(() -> vankeMessageService.initChatInfo(dto), vankeExecutor);
+        }
     }
 }
