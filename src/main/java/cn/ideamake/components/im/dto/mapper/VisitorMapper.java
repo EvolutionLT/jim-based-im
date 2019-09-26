@@ -18,4 +18,13 @@ public interface VisitorMapper extends BaseMapper<Visitor> {
 
     Boolean userIsValid(@Param("userId") String id, @Param("token") String token);
 
+    /**
+    * @description: 查询访客信息
+    * @param: [openId]
+    * @return: cn.ideamake.components.im.pojo.entity.Visitor
+    * @author: apollo
+    * @date: 2019-09-26
+    */
+    Visitor selectByOpenId(String openId);
+
 }

@@ -4,4 +4,8 @@
     <select id="userIsValid" resultType="boolean">
         select 1 from wk_visitor where openid = #{userId} and openid = #{token}
     </select>
+
+    <select id="selectByOpenId" resultType="cn.ideamake.components.im.pojo.entity.Visitor">
+        select * from wk_visitor where openid = #{openId} limit 1
+    </select>
 </mapper>
