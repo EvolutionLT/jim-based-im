@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
  * @author evolution
  * @since 2019-08-31
  */
-@Repository
 public interface IMDelRoomMapper extends BaseMapper<IMDelRoom> {
 
     IMDelRoom getDelRoomInfo(@Param("roomId") String roomId);

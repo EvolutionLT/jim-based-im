@@ -19,12 +19,12 @@ import java.util.List;
  * @author evolution
  * @since 2019-07-07
  */
-@Repository
+
 public interface IMChatRoomMapper extends BaseMapper<IMChatRoom> {
     /**
      * 根据用户ID查询已经聊天用户对话列表
      */
-    List getAllChatUserList(IPage page, @Param("query") ChatUserListDTO chatUserListQuery);
+    List<ChatUserListVO> getAllChatUserList(IPage page, @Param("query") ChatUserListDTO chatUserListQuery);
 
     /**
      * 查询单个用户房间信息

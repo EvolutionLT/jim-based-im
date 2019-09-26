@@ -67,8 +67,10 @@ public class IMIMChatRecordServiceImpl extends ServiceImpl<IMChatRecordMapper, I
     @Override
     public Result getUserMsgNotRead(ChatMsgListDTO chatMsgListQuery) {
         Result apiResponse = Result.ok();
-        int notRead = chatRecordMapper.getUserMsgNotRead(chatMsgListQuery.getRoomId(),"0",chatMsgListQuery.getId());
-        apiResponse.setData(notRead);
+        if(chatMsgListQuery.getId()!=null) {
+            int notRead = chatRecordMapper.getUserMsgNotRead(chatMsgListQuery.getRoomId(), "0", chatMsgListQuery.getId());
+            apiResponse.setData(notRead);
+        }
         return apiResponse;
     }
 }

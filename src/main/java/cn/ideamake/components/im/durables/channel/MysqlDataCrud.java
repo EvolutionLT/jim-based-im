@@ -4,6 +4,7 @@ import cn.ideamake.common.exception.BusinessException;
 import cn.ideamake.common.util.LocalDateTimeUtils;
 
 import cn.ideamake.components.im.common.common.packets.ChatBody;
+import cn.ideamake.components.im.common.utils.SpringContextUtil;
 import cn.ideamake.components.im.dto.mapper.IMChatRecordMapper;
 import cn.ideamake.components.im.dto.mapper.IMChatRoomMapper;
 import cn.ideamake.components.im.dto.mapper.IMDelRoomMapper;
@@ -17,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -34,17 +36,20 @@ import java.util.UUID;
  */
 @DataWay(1)
 @Slf4j
+@Component
 public class MysqlDataCrud implements DataCrudStrategy {
 
    // private  RedisUtil redisUtil = (RedisUtil)SpringContextUtil.getBean("redisUtil");
 
-  //  private  ChatRecordMapper chatRecordMapper = (ChatRecordMapper)SpringContextUtil.getBean("chatRecordMapper");
-   // private  ChatRoomMapper chatRoomMapper= (ChatRoomMapper)SpringContextUtil.getBean("chatRoomMapper");
-   // private  DelRoomMapper   delRoomMapper= (DelRoomMapper)SpringContextUtil.getBean("delRoomMapper");
+  //  private  IMChatRecordMapper chatRecordMapper = (IMChatRecordMapper) SpringContextUtil.getBean("imChatRecordMapper");
+  //  private  IMChatRoomMapper chatRoomMapper= (IMChatRoomMapper)SpringContextUtil.getBean("imChatRoomMapper");
+  //  private  IMDelRoomMapper   delRoomMapper= (IMDelRoomMapper)SpringContextUtil.getBean("imDelRoomMapper");
     /*private  IMDelRoomService  delRoomService= (IMDelRoomService)SpringContextUtil.getBean("delRoomService");*/
     @Autowired
     private IMChatRecordMapper chatRecordMapper;
+    @Autowired
     private IMChatRoomMapper chatRoomMapper;
+    @Autowired
     private IMDelRoomMapper delRoomMapper;
 
 

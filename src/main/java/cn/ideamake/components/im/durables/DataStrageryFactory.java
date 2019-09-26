@@ -32,7 +32,7 @@ public class DataStrageryFactory {
      */
     static {
         //根据注解解析出来  存放至Map中 key 就是注解的值  value 就是全路径类名
-        Reflections reflections = new Reflections("cn.ideamake.im.durables.channel");
+        Reflections reflections = new Reflections("cn.ideamake.components.im.durables.channel");
         Set<Class<?>> classList=reflections.getTypesAnnotatedWith(DataWay.class);
         for(Class clazz : classList){
             DataWay t=(DataWay)clazz.getAnnotation(DataWay.class);

@@ -14,12 +14,14 @@ import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.common.utils.ImKit;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.durables.DurableUtils;
+import cn.ideamake.components.im.durables.channel.MysqlDataCrud;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
 import org.tio.core.intf.Packet;
@@ -39,7 +41,10 @@ public class ImServerAioListener implements ServerAioListener {
     private AysnChatService aysnChatService;
 
 //    static RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
-private static DurableUtils durableUtils= DurableUtils.getInstance();
+//private static DurableUtils durableUtils= DurableUtils.getInstance();
+    @Autowired
+    private MysqlDataCrud mysqlDataCrud;
+
 
     public ImServerAioListener() {
     }
@@ -152,7 +157,7 @@ private static DurableUtils durableUtils= DurableUtils.getInstance();
         ChatBody chatBody = ChatKit.toChatBody(imPacket.getBody(), channelContext);
         //进入IM业务逻辑
         if(chatBody!=null && chatBody.getRoomId()!=null){
-            durableUtils.insertMsgData(chatBody);
+            mysqlDataCrud.insertMsgData(chatBody);
         }else{
             //进入客服业务逻辑
             //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录

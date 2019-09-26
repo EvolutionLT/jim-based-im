@@ -4,6 +4,7 @@ package cn.ideamake.components.im.service.vanke.impl;
 import cn.ideamake.common.response.IdeamakePage;
 import cn.ideamake.common.response.Result;
 
+import cn.ideamake.components.im.common.utils.BasicConstants;
 import cn.ideamake.components.im.dto.mapper.IMChatRecordMapper;
 import cn.ideamake.components.im.dto.mapper.IMChatRoomMapper;
 import cn.ideamake.components.im.dto.mapper.IMDelRoomMapper;
@@ -56,31 +57,33 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
     @Override
     public Result getAllChatUserList(ChatUserListDTO chatUserListQuery) {
         Result apiResponse =Result.ok();
-        IdeamakePage ideamakePage = new IdeamakePage(chatUserListQuery.getPage(),chatUserListQuery.getLimit());
-        List<ChatUserListVO> list =chatRoomMapper.getAllChatUserList(ideamakePage,chatUserListQuery);
-        ChatMsgListDTO chatMsgListQuery = new ChatMsgListDTO();
-        //遍历出来查询最近消息
-        for(ChatUserListVO chatUserListVO : list){
-            chatMsgListQuery.setLimit(1);
-            chatMsgListQuery.setPage(1);
-            ideamakePage= new IdeamakePage(chatMsgListQuery.getPage(),chatMsgListQuery.getLimit());
-            chatMsgListQuery.setRoomId(chatUserListVO.getRoomId());
-            List<ChatMsgListVO> chatMsgListVO= chatRecordMapper.getMsgList(ideamakePage,chatMsgListQuery);
-            if(chatMsgListVO.size()>0){
-                chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
-                chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
+        if(chatUserListQuery.getUuid()!=null && !chatUserListQuery.getUuid().equals("undefined")){
+            IdeamakePage ideamakePage = new IdeamakePage(chatUserListQuery.getPage(),chatUserListQuery.getLimit());
+            List<ChatUserListVO> list =chatRoomMapper.getAllChatUserList(ideamakePage,chatUserListQuery);
+            ChatMsgListDTO chatMsgListQuery = new ChatMsgListDTO();
+            //遍历出来查询最近消息
+            for(ChatUserListVO chatUserListVO : list){
+//                chatMsgListQuery.setLimit(1);
+//                chatMsgListQuery.setPage(1);
+                ideamakePage= new IdeamakePage(1,1);
+                chatMsgListQuery.setRoomId(chatUserListVO.getRoomId());
+                List<ChatMsgListVO> chatMsgListVO= chatRecordMapper.getMsgList(ideamakePage,chatMsgListQuery);
+                if(chatMsgListVO.size()>0){
+                    chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
+                    chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
 
-           }
-            //查询当前房间是否有未读信息
-            int num =chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(),"1",chatUserListVO.getUserId());
+                }
+                //查询当前房间是否有未读信息
+                int num =chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(),"1",chatUserListQuery.getUuid());
                 chatUserListVO.setNotRead(num+"");
-            //从redis中取出数据看是否在线
-           // chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
+                //从redis中取出数据看是否在线
+                //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
+            }
+            ideamakePage.setList(list);
+            //ideamakePage.setDesc("date");
+            apiResponse.setData(ideamakePage);
         }
 
-        ideamakePage.setList(list);
-        //ideamakePage.setDesc("date");
-        apiResponse.setData(ideamakePage);
         return apiResponse;
     }
 

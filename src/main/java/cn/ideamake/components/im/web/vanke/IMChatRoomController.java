@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -57,8 +58,8 @@ public class IMChatRoomController {
         chatRoom.setId(id);
         chatRoom.setCreateUserId(chatUserListQuery.getFrom());
         chatRoom.setUserId(chatUserListQuery.getTo());
-        chatRoom.setCreatedAt(new Date());
-        chatRoom.setUpdatedAt(new Date());
+        chatRoom.setCreatedAt(LocalDateTime.now());
+        chatRoom.setUpdatedAt(LocalDateTime.now());
         return  chatRoomService.insertChatRoom(chatRoom);
     }
 

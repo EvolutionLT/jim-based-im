@@ -1,5 +1,6 @@
 package cn.ideamake.components.im.dto.mapper;
 
+import cn.ideamake.components.im.common.common.packets.LoginReqBody;
 import cn.ideamake.components.im.pojo.dto.ChatUserListDTO;
 import cn.ideamake.components.im.pojo.entity.IMUsers;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -17,7 +18,6 @@ import java.util.List;
  * @since 2019-07-02
  */
 
-@Repository
 public interface IMUserMapper extends BaseMapper<IMUsers> {
     /**
      * 根据ID查询用户信息
@@ -47,5 +47,10 @@ public interface IMUserMapper extends BaseMapper<IMUsers> {
     void updateUserDegree(@Param("degree") int degree, @Param("id") String id);
 
     List<IMUsers> getAllUser(@Param("query") ChatUserListDTO chatUserListQuery);
+
+    /**
+     * 修改用户信息
+     */
+    void updateUserInfo(@Param("query") LoginReqBody loginReqBody);
 
 }

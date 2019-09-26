@@ -1,6 +1,8 @@
 package cn.ideamake.components.im.durables;
 
 import cn.ideamake.components.im.common.common.packets.ChatBody;
+import cn.ideamake.components.im.durables.channel.MysqlDataCrud;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,6 +20,7 @@ public class DurableUtils {
     private static DurableUtils durableUtils;
     private DataCrudStrategy dataCrudStrategy;
 
+
     //@Value("${ideamake.data.channelId}")
     private int channelId=1;
     /**
@@ -34,6 +37,7 @@ public class DurableUtils {
         try {
             //传入配置文件中的持久化类型
             dataCrudStrategy = dataStrageryFactory.create(channelId);
+         //   dataCrudStrategy = dataStrageryFactory.create(channelId);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {

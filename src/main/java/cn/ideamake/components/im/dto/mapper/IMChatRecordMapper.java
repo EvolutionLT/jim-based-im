@@ -18,7 +18,7 @@ import java.util.List;
  * @author evolution
  * @since 2019-07-07
  */
-@Repository
+
 public interface IMChatRecordMapper extends BaseMapper<IMChatRecord> {
     /**
      * 根据roomid获取聊天信息

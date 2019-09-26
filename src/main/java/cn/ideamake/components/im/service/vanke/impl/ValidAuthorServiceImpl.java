@@ -212,7 +212,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        if(loginReqBody.getChannel().equals("wkww")){
+        if(loginReqBody.getChannel()!="" && loginReqBody.getChannel().equals("wkww")){
              User user=null;
              LoginRespBody loginRespBody;
                 //获取用户信息
