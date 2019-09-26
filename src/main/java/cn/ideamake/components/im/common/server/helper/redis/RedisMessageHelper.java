@@ -694,8 +694,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
             //在线离线未读消息
-            String onlineUnReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId);
-            int onlineUnReadNum = cache.get(onlineUnReadNumKey, Long.class).intValue();
+            int onlineUnReadNum = Optional.ofNullable(cache.get(String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId), Long.class)).orElse(0L).intValue();
             String keyPushUnread = USER + SUBFIX + userId + SUBFIX + friendId;
             //统计离线未读信息
             List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);

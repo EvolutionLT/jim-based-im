@@ -52,7 +52,7 @@ public class VankeLoginDTO implements Serializable {
     private String terminal;
 
     /**
-     * 发送人身份类型,0=客服,1=访客, 2置业顾问
+     * 发送人身份类型,1=客服,0=访客, 2置业顾问
      */
     @NotNull
     private Integer type;

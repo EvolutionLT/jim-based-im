@@ -17,12 +17,12 @@ public interface CusInfoMapper extends BaseMapper<CusInfo> {
 
     /**
     * @description: 根据userId和token查询
-    * @param: [id, token]
+    * @param: [id]
     * @return: cn.ideamake.components.im.pojo.entity.CusInfo
     * @author: apollo
     * @date: 2019-09-18
     */
-    CusInfo selectByIdAndToken(@Param("userId") String id, @Param("token") String token);
+    CusInfo selectById(@Param("userId") String id);
 
     /**
     * @description: 校验用户是否存在
