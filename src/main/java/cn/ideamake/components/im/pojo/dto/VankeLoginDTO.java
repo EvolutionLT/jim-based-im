@@ -62,4 +62,9 @@ public class VankeLoginDTO implements Serializable {
      */
     private String sign;
 
+    /**
+     * 项目code
+     */
+    private String projectCode;
+
 }

@@ -65,7 +65,9 @@ public class ImServerAioListener implements ServerAioListener {
     @Override
     public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) {
         //异步修改成员在线状态
-        aysnChatService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.ON_LINE.getStatus());
+        if(isConnected) {
+            aysnChatService.synUpdateMember(channelContext.getUserid(), VankeChatStaus.ON_LINE.getStatus());
+        }
     }
 
     /**
@@ -79,6 +81,8 @@ public class ImServerAioListener implements ServerAioListener {
      */
     @Override
     public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess) {
+        //TODO userId 为空
+
     }
 
     /**

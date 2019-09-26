@@ -7,6 +7,7 @@ import cn.ideamake.components.im.common.common.cache.redis.JedisTemplate.Pair;
 import cn.ideamake.components.im.common.common.cache.redis.JedisTemplate.PairEx;
 import cn.ideamake.components.im.common.common.cache.redis.RedisExpireUpdateTask;
 import cn.ideamake.components.im.common.common.utils.JsonKit;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.utils.SystemTimer;
@@ -267,7 +268,35 @@ public class RedisCache implements ICache {
 			log.error(e.toString(),e);
 		}
 	}
-	
+
+	@Override
+	public Long incr(String key) {
+		Long value =null;
+		if (StringUtils.isBlank(key)) {
+			return value;
+		}
+		try {
+			value =  JedisTemplate.me().incr(cacheKey(cacheName, key), 1L);
+		} catch (Exception e) {
+			log.error(e.toString(),e);
+		}
+		return value;
+	}
+
+	@Override
+	public Long decr(String key) {
+		Long value =null;
+		if (StringUtils.isBlank(key)) {
+			return value;
+		}
+		try {
+			value = JedisTemplate.me().decr(cacheKey(cacheName, key), 1L);
+		} catch (Exception e) {
+			log.error(e.toString(),e);
+		}
+		return value;
+	}
+
 	public String getCacheName() {
 		return cacheName;
 	}

@@ -94,6 +94,7 @@ token为应用服务认证后im服务生成的连接token
 ## 通信使用样例:
 #### 1.消息发送
 oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
+msgType: 0=text,1=沙盘连接， 2=文章连接
 > 请求内容
 ```json
 {
@@ -103,6 +104,10 @@ oqRgw5U2o6siu0viOo2MQJIBafcw向asdfghjkl发送消息
 	"createTime":1568012384,
 	"msgType":0,
 	"chatType":2,
+	"extras": {	
+	        "nickName" : "昵称",
+         	"headImg": "http://jjjj.img"
+         	},
 	"content":{"asd":"hell,你2好"}
 }
 ```
