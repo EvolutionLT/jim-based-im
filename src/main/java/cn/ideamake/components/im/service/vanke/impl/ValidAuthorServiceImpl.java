@@ -78,7 +78,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
-        User user = getUserByToken(token);
+        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
@@ -91,10 +91,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         }
     }
 
-    private User getUserByToken(String token) {
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        return mapCache.get(token);
-    }
 
     private void valid(@NotBlank String senderId, @NotBlank String token, @NotNull Integer type) {
         Boolean isValid = false;
@@ -123,7 +119,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
         //校验发送人合法性
-        User user = getUserByToken(token);
+        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
@@ -210,7 +206,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             log.info(logStr + "token is null!");
             return null;
         }
-        User user = getUserByToken(token);
+        User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
         log.info(logStr + "result: {}", JSON.toJSONString(user));
         return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
     }
@@ -240,10 +236,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         user.setSign(dto.getSign());
         user.setType(dto.getType());
         user.setTerminal(dto.getTerminal());
-        String key1 = dto.getSenderId() + ":" + Constants.USER.INFO;
-        RedisCacheManager.getCache(ImConst.USER).put(key1, user);
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        mapCache.put(dto.getToken(), user, EXPIRE_TIME, TimeUnit.MINUTES);
+        RedisCacheManager.getCache(ImConst.USER).put(dto.getSenderId() + ":" + Constants.USER.INFO, user);
+//        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
+//        mapCache.put(dto.getToken(), user, EXPIRE_TIME, TimeUnit.MINUTES);
     }
 
 }

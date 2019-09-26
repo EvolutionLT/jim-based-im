@@ -33,14 +33,14 @@ public class ChatInfoVO implements Serializable {
     private Long unReadNum;
 
     /**
-     * 接收方id
+     * 访客id
      */
-    private String to;
+    private String visitorId;
 
     /**
-     * 发送方id
+     * 客服id
      */
-    private String from;
+    private String cusId;
 
 
 }

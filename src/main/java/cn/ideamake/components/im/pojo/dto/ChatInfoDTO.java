@@ -15,10 +15,10 @@ import java.io.Serializable;
 @Data
 public class ChatInfoDTO implements Serializable {
     @NotBlank
-    private String to;
+    private String visitorId;
 
     @NotBlank
-    private String from;
+    private String cusId;
 
     /**
      * 操作 1=增加 2删除

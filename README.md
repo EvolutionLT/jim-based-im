@@ -95,10 +95,10 @@ http://127.0.0.1:8082/im/vanke/chatInfo
 入参
 ```
 {
-//接收人userId,访客可为null
-"to":"098f64aa0ac8ad53",
-//发送人userId
-"from":"098f64aa0ac8ad53",
+//访客id
+"visitorId":"098f64aa0ac8ad53",
+//客服id
+"cusId":"098f64aa0ac8ad53",
 //操作 1=增加(有推送消息) 2删除(点击聊天列表进入聊天框)
 "op": 1,
 //是否是新成员 0=好友，1=新人
@@ -114,10 +114,8 @@ http://127.0.0.1:8082/im/vanke/chatInfo
     "code": 200,
     "msg": "success",
     "data": {
-        //接收人userId,访客可为null
-        "to":"098f64aa0ac8ad53",
-        //发送人userId
-        "from":"098f64aa0ac8ad53",
+        "visitorId":"098f64aa0ac8ad53",
+        "cusId":"098f64aa0ac8ad53",
         //待回复数量
         "pendingReplyNum": 10,
         //最近联系人数量
@@ -145,7 +143,6 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 	"to":"oqRgw5U2o6siu0viOo2MQJIBafcw",
 	"from":"asdfghjkl",
 	"cmd":"11",
-	"createTime":1568012384,
 	"msgType":0,
 	"chatType":2,
 	"extras": {	
