@@ -13,7 +13,7 @@
 		icr.msg_id,
     icr.is_online
     FROM
-    im_im_record icr  where  icr.room_id=#{query.roomId} and `status` =0
+    wk_im_im_record icr  where  icr.room_id=#{query.roomId} and `status` =0
     order by icr.created_at desc
 </select>
 
@@ -22,7 +22,7 @@
     SELECT
 count(icr.id) notreads
 FROM
-	im_im_record icr
+	wk_im_im_record icr
 	<where>
         and icr.is_read=0  and `status` =0
         <if test="type!=null ">
@@ -38,7 +38,7 @@ FROM
 </select>
 
     <update id="updateChatRecordStatus">
-        update im_im_record set is_read=1
+        update wk_im_im_record set is_read=1
          <where>
              room_id=#{query.roomId} and is_read=0
              <if test="query.id !=null and query.id!=''">
@@ -49,7 +49,7 @@ FROM
     </update>
 
     <update id="deletechatRecord">
-          update im_im_record  set `status` =1  where room_id=#{roomId}
+          update wk_im_im_record  set `status` =1  where room_id=#{roomId}
     </update>
 
 </mapper>

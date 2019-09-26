@@ -12,7 +12,7 @@
     iu.recovery_speed,
     iu.service_count,
     iu.uuid,
-    iu.sign from im_user iu
+    iu.sign from wk_im_user iu
   <where>
       <if test="id !=null and id !=null">
           and iu.uuid=#{id}
@@ -22,11 +22,11 @@
 </select>
 
     <select id="getUserList" resultType="cn.ideamake.components.im.pojo.entity.IMUsers">
-        select iu.uuid id from im_user iu
+        select iu.uuid id from wk_im_user iu
     </select>
 
 <update id="updateServiceCount" >
- update  im_user set service_count=#{serviceCount}  where uuid=#{id}
+ update  wk_im_user set service_count=#{serviceCount}  where uuid=#{id}
 </update>
 
     <select id="getAllUser" resultType="cn.ideamake.components.im.pojo.entity.IMUsers">
@@ -42,7 +42,7 @@
  iu.service_count,
  iu.uuid,
  iu.sign
-from im_user iu
+from wk_im_user iu
 <where>
    <if test="query.userType!=null and query.userType!=''">
        and iu.capacity=#{query.userType}
@@ -56,9 +56,23 @@ from im_user iu
   </select>
 
     <update id="updateUserDegree" >
- update  im_user set degree=#{degree}  where uuid=#{id}
+ update  wk_im_user set degree=#{degree}  where uuid=#{id}
 </update>
 
+    <update id="updateUserInfo" >
+        update  wk_im_user
 
+        <if test="query.nick !=null and query.avatar==null ">
+            set nick=#{query.nick}
+        </if>
+
+        <if test="query.avatar !=null and query.nick==null ">
+            set avatar=#{query.avatar}
+        </if>
+        <if test="query.nick !=null and query.avatar!=null ">
+            set nick=#{query.nick}, avatar=#{query.avatar}
+        </if>
+        <where>uuid=#{query.loginname}</where>
+    </update>
 
 </mapper>

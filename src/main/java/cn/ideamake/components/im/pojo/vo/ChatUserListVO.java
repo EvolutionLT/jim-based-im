@@ -59,5 +59,11 @@ public class ChatUserListVO {
      */
     private String notRead;
 
+    /**
+     * 用户类型 0=客服 1=访客 2=置业顾问
+     */
+    private int userType;
+
+
 
 }

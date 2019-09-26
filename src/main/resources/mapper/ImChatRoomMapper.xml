@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.IMChatRoomMapper">
+<select id="getAllChatUserList" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
+select ir.user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.create_user_id=#{query.uuid} and iu.uuid=ir.user_id and ir.`status` =0 and ir.id not in(select room_id from wk_im_del_room where create_user = #{query.uuid})
+UNION
+select ir.create_user_id  user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.user_id=#{query.uuid} and iu.uuid=ir.create_user_id and ir.`status` =0 and ir.id not in(select room_id from wk_im_del_room where create_user = #{query.uuid})
+</select>
+
+
+    <select id="getChatRoomInfo" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
+select ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.create_user_id=#{id} and ir.user_id=#{to}
+UNION
+select ir.id room_id from wk_im_chat_room ir where ir.create_user_id=#{to} and ir.user_id=#{id} group by ir.id
+
+</select>
+
+    <select id="getAllChatUserLists" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
+select ir.user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.create_user_id=#{id} and iu.uuid=ir.user_id and ir.`status` =0
+UNION
+select ir.create_user_id  user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.user_id=#{id} and iu.uuid=ir.create_user_id and ir.`status` =0
+limit 100
+</select>
+
+    <select id="getUserServiceCount" resultType="java.lang.Integer">
+select (select count(ir.id) from wk_im_chat_room ir where ir.user_id=iu.id) service_count  from wk_im_user iu  where iu.uuid=#{id}
+</select>
+
+    <select id="getIsRoom" resultType="java.lang.String">
+select ir.id room_id from wk_im_chat_room ir  where ir.create_user_id=#{id} and ir.user_id=#{user_id} and ir.`status` =0
+UNION
+select ir.id room_id from wk_im_chat_room ir where ir.create_user_id=#{user_id} and ir.user_id=#{id} and ir.`status` =0
+</select>
+
+<update id="deleteRoom">
+    update wk_im_chat_room   set `status` =1  where id=#{roomId}
+</update>
+
+</mapper>

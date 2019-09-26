@@ -4,6 +4,10 @@ package cn.ideamake.components.im.service.vanke.impl;
 import cn.ideamake.common.response.IdeamakePage;
 import cn.ideamake.common.response.Result;
 
+import cn.ideamake.components.im.common.common.ImConst;
+import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
+import cn.ideamake.components.im.common.common.packets.User;
+import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.utils.BasicConstants;
 import cn.ideamake.components.im.dto.mapper.IMChatRecordMapper;
 import cn.ideamake.components.im.dto.mapper.IMChatRoomMapper;
@@ -76,9 +80,21 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 //查询当前房间是否有未读信息
                 int num =chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(),"1",chatUserListQuery.getUuid());
                 chatUserListVO.setNotRead(num+"");
+                chatUserListVO.setUserType(2);
                 //从redis中取出数据看是否在线
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }
+            //查询用户已绑定客服
+            User friend = RedisCacheManager.getCache(ImConst.USER).get(chatUserListQuery.getUuid() + ":" + Constants.USER.INFO, User.class);
+     /*      if(friend!=null){
+               ChatUserListVO cusInfo=new ChatUserListVO();
+               cusInfo.setAvatar(friend.getAvatar());
+               cusInfo.setUserType(friend.getType()==null? 0:friend.getType());
+               cusInfo.setUserId(friend.getId());
+               cusInfo.setNick(friend.getNick());
+               cusInfo.setNotRead("0");
+               list.add(cusInfo);
+           }*/
             ideamakePage.setList(list);
             //ideamakePage.setDesc("date");
             apiResponse.setData(ideamakePage);
