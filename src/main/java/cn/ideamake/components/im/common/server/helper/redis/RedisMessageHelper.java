@@ -1,6 +1,7 @@
 package cn.ideamake.components.im.common.server.helper.redis;
 
 import cn.ideamake.components.im.common.common.ImConfig;
+import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.cache.redis.JedisTemplate;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
@@ -13,6 +14,7 @@ import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.IMException;
+import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import cn.ideamake.components.im.pojo.vo.UserFriendsVO;
@@ -650,11 +652,12 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         if (MapUtils.isEmpty(friendsIds)) {
             return userDetailVO;
         }
-        //统计待回复信息数量
-        int pendingReplyNum = 0;
         //最近联系人
         int lastedContactsNum = 0;
         List<UserFriendsVO> friendsVOS = new ArrayList<>();
+        RedisCache cache = RedisCacheManager.getCache(ImConst.USER);
+        String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, userId);
+        RMapCache<String, Long> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(pendingReplyNumKey);
         //次数先做遍历初始化，默认用户不会特别多，后续再优化内容结构
         for (Map.Entry<String, User> entry : friendsIds.entrySet()) {
             String friendId = entry.getKey();
@@ -674,7 +677,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             String sessionId = ChatKit.sessionId(userId, friendId);
             String key = USER + SUBFIX + sessionId;
             //取10条聊天纪录
-            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
+//            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
+            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
             if (!messages.isEmpty()) {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
                 userFriendsVO.setHistoryMessage(chatBodyList);
@@ -687,15 +691,23 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             } else {
                 userFriendsVO.setHistoryMessage(new ArrayList<>(0));
             }
-            //统计未读信息
+            //在线离线未读消息
+            String onlineUnReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId);
+            int onlineUnReadNum = cache.get(onlineUnReadNumKey, Long.class).intValue();
             String keyPushUnread = USER + SUBFIX + userId + SUBFIX + friendId;
+            //统计离线未读信息
             List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
             if (messageList.isEmpty()) {
                 userFriendsVO.setUnReadNum(0);
             } else {
-                pendingReplyNum++;
+                //判断离线未读消息是否已经统计在待回复消息里面
+                if (!mapCache.containsKey(friendId)) {
+                    mapCache.put(friendId, 1L);
+                }
                 isReplyFriend = true;
-                userFriendsVO.setUnReadNum(messageList.size());
+                //在线未读消息+离线未读消息
+                userFriendsVO.setUnReadNum(onlineUnReadNum + messageList.size());
+
             }
             //拉取待回复列表
             if (pullType == 2) {
@@ -713,8 +725,11 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             //拉取全部
             friendsVOS.add(userFriendsVO);
         }
+        //重置最近联系人
+        String lastedContactNum = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, userId);
+        cache.put(lastedContactNum, lastedContactsNum);
         userDetailVO.setFriends(friendsVOS);
-        userDetailVO.setPendingReplyNum(pendingReplyNum);
+        userDetailVO.setPendingReplyNum(mapCache.size());
         userDetailVO.setLastedContactsNum(lastedContactsNum);
         userDetailVO.setAllContactsNum(isSearch ? friendsIds.size() : friendsVOS.size());
         userDetailVO.setPullType(pullType);

@@ -62,4 +62,16 @@ public interface ICache {
 	 * @param value
 	 */
 	void putTemporary(String key, Serializable value);
+
+	/**
+	 * 原子增加，返回最新值
+	 * @param key
+	 */
+	long incr(String key);
+
+	/**
+	 * 原子减少，返回最新值
+	 * @param key
+	 */
+	long decr(String key);
 }

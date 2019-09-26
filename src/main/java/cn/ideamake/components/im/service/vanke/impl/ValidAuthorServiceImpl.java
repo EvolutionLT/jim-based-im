@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
 import org.springframework.stereotype.Service;
+import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
 
 import javax.annotation.Resource;
@@ -67,17 +68,17 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Resource
     private AysnChatService aysnChatService;
 
-    private static final int EXPIRE_TIME = 10 * 60;
+
+    private static final int EXPIRE_TIME = 7 * 24 * 60;
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
     @Override
     public void initUserInfo(VankeLoginDTO dto) {
-
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
-        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
+        User user = getUserByToken(token);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
@@ -88,6 +89,11 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         if (!Objects.equals(user.getId(), dto.getSenderId())) {
             throw new IllegalArgumentException("VankeLoginService-validToken(), userId is error, userId:" + user.getId());
         }
+    }
+
+    private User getUserByToken(String token) {
+        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
+        return mapCache.get(token);
     }
 
     private void valid(@NotBlank String senderId, @NotBlank String token, @NotNull Integer type) {
@@ -117,8 +123,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
         //校验发送人合法性
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        User user = mapCache.get(token);
+        User user = getUserByToken(token);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
@@ -151,16 +156,17 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         //访客类型,需要匹配聊天对象
         //判断有没有绑定置业顾问
-        String userId = userVisitorMapper.selectUserId(senderId);
+        String userId = userVisitorMapper.selectUserId(senderId, dto.getProjectCode());
         if (StringUtils.isNotBlank(userId)) {
             dto.setReceiverId(userId);
             return cacheFriend(dto);
         }
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
-        return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
+        User user = Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
             dto.setReceiverId(e.getUuId());
             return cacheFriend(dto);
-        }).orElse(getRandomCustomer(dto));
+        }).orElse(null);
+        return Objects.isNull(user) ? getRandomCustomer(dto) : user;
     }
 
     private User getRandomCustomer(VankeLoginDTO dto) {
@@ -204,8 +210,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             log.info(logStr + "token is null!");
             return null;
         }
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        User user = mapCache.get(token);
+        User user = getUserByToken(token);
         log.info(logStr + "result: {}", JSON.toJSONString(user));
         return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
     }
