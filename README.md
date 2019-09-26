@@ -29,7 +29,7 @@ http://127.0.0.1:8082/im/vanke/initUser
 "terminal":"pc",
 //登录token
 "token": "b92cecbf47a4f04f3",
-//身份类型,0=客服,1=访客, 2置业顾问
+//身份类型,0=访客,1=客服, 2置业顾问
 "type":0
 }
 
@@ -61,7 +61,7 @@ http://127.0.0.1:8082/im/vanke/getReceiver
 "terminal":"pc",
 //登录token
 "token": "b92cecbf47a4f04f3",
-//身份类型,0=客服,1=访客, 2置业顾问
+//身份类型,0=访客,1=客服, 2置业顾问
 "type":0
 }
 
@@ -85,6 +85,48 @@ http://127.0.0.1:8082/im/vanke/getReceiver
 }
 ```
 
+
+##维护聊天列表相关信息-所有联系人数量，待回复数量， 最近联系人数量， 某个对象未读消息数量
+包含在线未读消息和离线未读消息
+```
+```
+http://127.0.0.1:8082/im/vanke/chatInfo
+```
+入参
+```
+{
+//访客id
+"visitorId":"098f64aa0ac8ad53",
+//客服id
+"cusId":"098f64aa0ac8ad53",
+//操作 1=增加(有推送消息) 2删除(点击聊天列表进入聊天框)
+"op": 1,
+//是否是新成员 0=好友，1=新人
+"isNewMember" :1,
+//是否是当前聊天成员 0=不是 1=是
+"isConcurrent"：1
+}
+
+```
+返回值
+```
+{
+    "code": 200,
+    "msg": "success",
+    "data": {
+        "visitorId":"098f64aa0ac8ad53",
+        "cusId":"098f64aa0ac8ad53",
+        //待回复数量
+        "pendingReplyNum": 10,
+        //最近联系人数量
+        "lastedContactsNum":10,
+        //所有人联系人数量
+        "allContactsNum":10,
+        //未读数量
+        "unReadNum":10
+    }
+}
+
 ## 连接
 ```
 ws://127.0.0.1:8889/?token=7a552681e17b4f6e95d52d9b06e3e1fb
@@ -101,7 +143,6 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 	"to":"oqRgw5U2o6siu0viOo2MQJIBafcw",
 	"from":"asdfghjkl",
 	"cmd":"11",
-	"createTime":1568012384,
 	"msgType":0,
 	"chatType":2,
 	"extras": {	

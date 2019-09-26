@@ -623,7 +623,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         long now = System.currentTimeMillis() / 1000;
         String userId = userReqBody.getUserid();
         JSONObject extras = userReqBody.getExtras();
-        if (MapUtils.isEmpty(extras) ||  Objects.isNull(extras.get("pullType"))) {
+        if (MapUtils.isEmpty(extras) || Objects.isNull(extras.get("pullType"))) {
             return null;
         }
         //是否是待回复好友
@@ -652,6 +652,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         if (MapUtils.isEmpty(friendsIds)) {
             return userDetailVO;
         }
+        //统计待回复信息数量
+        int pendingReplyNum = 0;
         //最近联系人
         int lastedContactsNum = 0;
         List<UserFriendsVO> friendsVOS = new ArrayList<>();
@@ -689,7 +691,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     isLastedFriend = true;
                 }
             } else {
-                userFriendsVO.setHistoryMessage(new ArrayList<>(0));
+                userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
             //在线离线未读消息
             String onlineUnReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId);
@@ -709,6 +711,11 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 userFriendsVO.setUnReadNum(onlineUnReadNum + messageList.size());
 
             }
+            //统计根据关键字搜索时，待回复消息数量
+            if (mapCache.containsKey(friendId)) {
+                pendingReplyNum++;
+            }
+
             //拉取待回复列表
             if (pullType == 2) {
                 if (isReplyFriend) {
@@ -725,13 +732,15 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             //拉取全部
             friendsVOS.add(userFriendsVO);
         }
-        //重置最近联系人
-        String lastedContactNum = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, userId);
-        cache.put(lastedContactNum, lastedContactsNum);
+        if (pullType == 1) {
+            //重置最近联系人
+            String lastedContactNum = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, userId);
+            cache.put(lastedContactNum, lastedContactsNum);
+        }
         userDetailVO.setFriends(friendsVOS);
-        userDetailVO.setPendingReplyNum(mapCache.size());
+        userDetailVO.setPendingReplyNum(isSearch ? mapCache.size() : pendingReplyNum);
         userDetailVO.setLastedContactsNum(lastedContactsNum);
-        userDetailVO.setAllContactsNum(isSearch ? friendsIds.size() : friendsVOS.size());
+        userDetailVO.setAllContactsNum(friendsVOS.size());
         userDetailVO.setPullType(pullType);
         return userDetailVO;
     }

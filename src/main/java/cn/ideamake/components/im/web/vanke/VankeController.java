@@ -71,22 +71,24 @@ public class VankeController {
 
     @PostMapping("/chatInfo")
     public Rest<ChatInfoVO> getChatInfo(@RequestBody ChatInfoDTO dto) {
-        @NotBlank String from = dto.getFrom();
-        @NotBlank String to = dto.getTo();
+        @NotBlank String visitorId = dto.getVisitorId();
+        @NotBlank String cusId = dto.getCusId();
         // 是否是新成员 0=好友，1=新人
         @NotNull Integer isNewMember = dto.getIsNewMember();
         //操作 1=增加 2删除
         @NotNull Integer op = dto.getOp();
         //是否是当前聊天成员 0=不是 1=是
         @NotNull Integer isConcurrent = dto.getIsConcurrent();
-        Objects.requireNonNull(to, "VankeController-getChatInfo(), to is null!");
-        Objects.requireNonNull(from, "VankeController-getChatInfo(), from is null!");
+        Objects.requireNonNull(visitorId, "VankeController-getChatInfo(), visitorId is null!");
+        Objects.requireNonNull(cusId, "VankeController-getChatInfo(), cusId is null!");
         ChatInfoVO vo = new ChatInfoVO();
-        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, from);
-        String unReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, from, to);
-        String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, from);
-        String lastedContactNumKey = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, from);
+        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, cusId);
+        String unReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, cusId, visitorId);
+        String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, cusId);
+        String lastedContactNumKey = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, cusId);
         RedisCache cache = RedisCacheManager.getCache(ImConst.USER);
+        RMapCache<String, Long> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(pendingReplyNumKey);
+
         // 监听到消息
         if (op == 1) {
             //刚分配的新访客
@@ -97,14 +99,12 @@ public class VankeController {
             //不是当前聊天访客
             if (isConcurrent == 0) {
                 vo.setUnReadNum(cache.incr(unReadNumKey));
-                RMapCache<String, Long> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(pendingReplyNumKey);
-                if (mapCache.containsKey(to)) {
+                if (mapCache.containsKey(visitorId)) {
                     vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
                 } else {
-                    mapCache.put(to, 1L);
+                    mapCache.put(visitorId, 1L);
                     vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
                 }
-
             }
         }
 
@@ -112,12 +112,27 @@ public class VankeController {
         if (op == 2 && isConcurrent == 1) {
             cache.remove(unReadNumKey);
             vo.setUnReadNum(0L);
-            RMapCache<String, Long> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(pendingReplyNumKey);
-            mapCache.remove(to);
+            mapCache.remove(visitorId);
             vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
         }
-        vo.setTo(to);
-        vo.setFrom(from);
+
+        if(Objects.isNull(vo.getAllContactsNum())) {
+            vo.setAllContactsNum(cache.get(allCountKey, Long.class));
+        }
+
+        if(Objects.isNull(vo.getPendingReplyNum())) {
+            vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
+        }
+
+        if(Objects.isNull(vo.getLastedContactsNum())) {
+            vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
+        }
+
+        if(Objects.isNull(vo.getUnReadNum())) {
+            vo.setUnReadNum(cache.get(unReadNumKey, Long.class));
+        }
+        vo.setVisitorId(visitorId);
+        vo.setCusId(cusId);
         return Rest.okObj(vo);
     }
 
