@@ -270,8 +270,8 @@ public class RedisCache implements ICache {
 	}
 
 	@Override
-	public long incr(String key) {
-		long value = 0L;
+	public Long incr(String key) {
+		Long value =null;
 		if (StringUtils.isBlank(key)) {
 			return value;
 		}
@@ -284,8 +284,8 @@ public class RedisCache implements ICache {
 	}
 
 	@Override
-	public long decr(String key) {
-		long value = 0L;
+	public Long decr(String key) {
+		Long value =null;
 		if (StringUtils.isBlank(key)) {
 			return value;
 		}
