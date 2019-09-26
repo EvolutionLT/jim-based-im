@@ -219,20 +219,8 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        if(loginReqBody.getChannel()!="" && loginReqBody.getChannel().equals("wkww")){
-             User user=null;
-             LoginRespBody loginRespBody;
-                //获取用户信息
-                user = getUserInfo(loginReqBody.getUserId(),loginReqBody);
-
-            if(user == null){
-             return   loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
-            }else{
-                return  loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP,ImStatus.C10007,user);
-            }
-
-
-        }else{
+        log.info(loginReqBody.toString());
+        if(loginReqBody.getToken()!="" && loginReqBody.getToken()!=null){
             String logStr = "VankeLoginService-doLogin(), ";
             log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
             String token = loginReqBody.getToken();
@@ -244,6 +232,21 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             User user = mapCache.get(token);
             log.info(logStr + "result: {}", JSON.toJSONString(user));
             return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
+
+
+        }else{
+
+            User user=null;
+            LoginRespBody loginRespBody;
+            //获取用户信息
+            user = getUserInfo(loginReqBody.getUserId(),loginReqBody);
+
+            if(user == null){
+                return   loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
+            }else{
+                return  loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP,ImStatus.C10007,user);
+            }
+
         }
 
     }

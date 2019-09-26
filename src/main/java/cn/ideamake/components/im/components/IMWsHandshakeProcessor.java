@@ -46,9 +46,6 @@ public class IMWsHandshakeProcessor extends WsHandshakeProcessor {
         String channel = request.getParams().get("channel") == null ? null : (String)request.getParams().get("channel")[0];
         //身份
         String capacity = request.getParams().get("userType") == null ? null : (String)request.getParams().get("userType")[0];
-        if(avatar.equals("null")){
-            avatar=null;
-        }
         LoginReqBody loginBody = new LoginReqBody(username, password, token,avatar,channel,nick,capacity);
         byte[] loginBytes = JsonKit.toJsonBytes(loginBody);
         request.setBody(loginBytes);
