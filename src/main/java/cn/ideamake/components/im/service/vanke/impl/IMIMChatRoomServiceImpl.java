@@ -6,6 +6,7 @@ import cn.ideamake.common.response.Result;
 
 import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
+import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.utils.BasicConstants;
@@ -20,11 +21,14 @@ import cn.ideamake.components.im.pojo.vo.ChatMsgListVO;
 import cn.ideamake.components.im.pojo.vo.ChatUserListVO;
 import cn.ideamake.components.im.service.vanke.IMChatRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.redisson.api.RMapCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -63,19 +67,17 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
         Result apiResponse =Result.ok();
         if(chatUserListQuery.getUuid()!=null && !chatUserListQuery.getUuid().equals("undefined")){
             IdeamakePage ideamakePage = new IdeamakePage(chatUserListQuery.getPage(),chatUserListQuery.getLimit());
-            List<ChatUserListVO> list =chatRoomMapper.getAllChatUserList(ideamakePage,chatUserListQuery);
+            List<ChatUserListVO> list = new ArrayList<>();
+            list=chatRoomMapper.getAllChatUserList(ideamakePage,chatUserListQuery);
             ChatMsgListDTO chatMsgListQuery = new ChatMsgListDTO();
             //遍历出来查询最近消息
             for(ChatUserListVO chatUserListVO : list){
-//                chatMsgListQuery.setLimit(1);
-//                chatMsgListQuery.setPage(1);
                 ideamakePage= new IdeamakePage(1,1);
                 chatMsgListQuery.setRoomId(chatUserListVO.getRoomId());
                 List<ChatMsgListVO> chatMsgListVO= chatRecordMapper.getMsgList(ideamakePage,chatMsgListQuery);
                 if(chatMsgListVO.size()>0){
                     chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
                     chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
-
                 }
                 //查询当前房间是否有未读信息
                 int num =chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(),"1",chatUserListQuery.getUuid());
@@ -84,18 +86,23 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 //从redis中取出数据看是否在线
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }
+            List<ChatUserListVO> lista = new ArrayList<>();
             //查询用户已绑定客服
-            User friend = RedisCacheManager.getCache(ImConst.USER).get(chatUserListQuery.getUuid() + ":" + Constants.USER.INFO, User.class);
-     /*      if(friend!=null){
+            RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatUserListQuery.getUuid() + ":" + Constants.USER.FRIENDS);
+           if(friendsOfSender.size()>0){
                ChatUserListVO cusInfo=new ChatUserListVO();
-               cusInfo.setAvatar(friend.getAvatar());
-               cusInfo.setUserType(friend.getType()==null? 0:friend.getType());
-               cusInfo.setUserId(friend.getId());
-               cusInfo.setNick(friend.getNick());
-               cusInfo.setNotRead("0");
-               list.add(cusInfo);
-           }*/
-            ideamakePage.setList(list);
+               for (String key :friendsOfSender.keySet()){
+                   User user = friendsOfSender.get(key);
+                   cusInfo.setAvatar(user.getAvatar());
+                   cusInfo.setUserType(user.getType()==null? 0:user.getType());
+                   cusInfo.setUserId(user.getId());
+                   cusInfo.setNick(user.getNick());
+                   cusInfo.setNotRead("0");
+                   lista.add(cusInfo);
+               }
+
+           }
+           ideamakePage.setList(lista);
             //ideamakePage.setDesc("date");
             apiResponse.setData(ideamakePage);
         }
