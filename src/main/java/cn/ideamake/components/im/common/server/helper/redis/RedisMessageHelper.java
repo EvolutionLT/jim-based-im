@@ -668,9 +668,9 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             UserFriendsVO userFriendsVO = new UserFriendsVO();
             //每次取最新的，后续将好友存在改成id
             User userFriend = userCache.get(friendId + SUBFIX + INFO, User.class);
-            String nickName = userFriend.getNick() == null ? "" : userFriend.getNick();
+            String nickName = userFriend.getNick();
             //根据搜索关键字过滤
-            if (!isSearch && StringUtils.isNotBlank(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
+            if (!isSearch && StringUtils.isNotEmpty(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
                 continue;
             }
             userFriendsVO.setNickname(nickName);
