@@ -637,16 +637,11 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         Integer pullType = NumberUtils.toInt(extras.get("pullType").toString(), 1);
         UserDetailVO userDetailVO = new UserDetailVO();
         //获取登录人的基本信息
-        User user = userCache.get(userId + SUBFIX + INFO, User.class);
-        if (user == null) {
-            throw new IMException(RestEnum.USER_NOT_FOUND);
-        }
-
+        User user = Optional.ofNullable(userCache.get(userId + SUBFIX + INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
         //初始化用户基本信息
         userDetailVO.setNickname(user.getNick() == null ? "" : user.getNick());
         userDetailVO.setUserId(user.getId());
         userDetailVO.setAvatar(user.getAvatar() == null ? "" : user.getAvatar());
-
         //初始化用户群组信息
         RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
         if (MapUtils.isEmpty(friendsIds)) {

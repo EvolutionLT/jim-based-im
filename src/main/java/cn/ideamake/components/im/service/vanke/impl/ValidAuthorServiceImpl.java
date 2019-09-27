@@ -10,6 +10,8 @@ import cn.ideamake.components.im.common.common.packets.LoginReqBody;
 import cn.ideamake.components.im.common.common.packets.LoginRespBody;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.common.enums.RestEnum;
+import cn.ideamake.components.im.common.exception.IMException;
 import cn.ideamake.components.im.dto.mapper.*;
 import cn.ideamake.components.im.pojo.constant.TermianlType;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
@@ -179,7 +181,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     private User cacheFriend(VankeLoginDTO dto) {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String to = dto.getReceiverId();
-        User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new BusinessException(0, "客服注册失败！"));
+        User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
         //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
         RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         //发送者好友列表没有接收者时，将接收者添加到其好友列表
@@ -189,7 +191,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + to + ":" + Constants.USER.FRIENDS);
         //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
         if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(to)) {
-            User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new BusinessException(0, "访客注册失败！"));
+            User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
             friendsOfReceiver.put(senderId, user);
         }
         dto.setReceiverId(friend.getId());
