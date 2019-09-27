@@ -187,13 +187,13 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     private User getRandomCustomer(VankeLoginDTO dto) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
-        if (CollectionUtils.isNotEmpty(members)) {
-            int random = RandomUtils.nextInt(0, members.size());
-            String to = members.get(random).getUserId();
-            dto.setReceiverId(to);
-            return cacheFriend(dto);
+        if (CollectionUtils.isEmpty(members)) {
+            throw new IllegalArgumentException("没有空闲客服，建议您电话咨询!");
         }
-        return null;
+        int random = RandomUtils.nextInt(0, members.size());
+        String to = members.get(random).getUserId();
+        dto.setReceiverId(to);
+        return cacheFriend(dto);
     }
 
     private User cacheFriend(VankeLoginDTO dto) {

@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
  * @since 2019-08-15
  */
 public interface CusVisitorMapper extends BaseMapper<CusVisitor> {
+
     /**
      * @description: 根据访客Id查询客服信息
      * @param: [visitorId]

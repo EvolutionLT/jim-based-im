@@ -97,7 +97,7 @@ http://127.0.0.1:8082/im/vanke/chatInfo
 {
 //访客id
 "visitorId":"098f64aa0ac8ad53",
-//客服id
+//发送人userId
 "cusId":"098f64aa0ac8ad53",
 //操作 1=增加(有推送消息) 2删除(点击聊天列表进入聊天框)
 "op": 1,

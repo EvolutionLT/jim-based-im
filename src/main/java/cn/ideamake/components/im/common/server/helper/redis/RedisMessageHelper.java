@@ -693,7 +693,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             } else {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
-            //在线离线未读消息
+            //在线未读消息
             int onlineUnReadNum = Optional.ofNullable(cache.get(String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId), Long.class)).orElse(0L).intValue();
             String keyPushUnread = USER + SUBFIX + userId + SUBFIX + friendId;
             //统计离线未读信息
@@ -739,7 +739,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         userDetailVO.setFriends(friendsVOS);
         userDetailVO.setPendingReplyNum(isSearch ? mapCache.size() : pendingReplyNum);
         userDetailVO.setLastedContactsNum(lastedContactsNum);
-        userDetailVO.setAllContactsNum(friendsVOS.size());
+        userDetailVO.setAllContactsNum(isSearch ? friendsIds.size() : friendsVOS.size());
         userDetailVO.setPullType(pullType);
         return userDetailVO;
     }

@@ -13,5 +13,4 @@
             and b.status = 1
             and b.visitor_id = #{visitorId}
     </select>
-
 </mapper>
