@@ -163,32 +163,32 @@ public class ImServerAioListener implements ServerAioListener {
             if (sender == null) {
                 log.error("发送者{}信息未被初始化", chatBody.getFrom());
                 //此处后续可以向三方服务器拉取用户信息
-                return;
+//                return;
             }
-            String keyReceiver = chatBody.getFrom() + ":" + Constants.USER.INFO;
-            User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
-            if (receiver == null) {
-                log.error("接收者{}信息未被初始化", chatBody.getTo());
-                return;
-            }
-            //当发送者和接收者信息都不为空时对双方的好友列表做存储,暂时不考虑组！！！！！
-            RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getFrom() + ":" + Constants.USER.FRIENDS);
-
-            //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
-//            List<User>
-            //发送者好友列表没有接收者时，将接收者添加到其好友列表
-            if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(chatBody.getTo())) {
-                log.info("发送者[{}]好友列表中不存在[{}],做追加操作",sender.getNick(),receiver.getNick());
-        		User receiverSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
-        		friendsOfSender.put(chatBody.getTo(),receiverSimple);
-            }
-            RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getTo() + ":" + Constants.USER.FRIENDS);
-            //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
-            if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(chatBody.getFrom())) {
-                log.info("接收者[{}]好友列表中不存在[{}],做追加操作",receiver.getNick(),sender.getNick());
-        		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
-        		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
-            }
+//            String keyReceiver = chatBody.getFrom() + ":" + Constants.USER.INFO;
+//            User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
+//            if (receiver == null) {
+//                log.error("接收者{}信息未被初始化", chatBody.getTo());
+//                return;
+//            }
+//            //当发送者和接收者信息都不为空时对双方的好友列表做存储,暂时不考虑组！！！！！
+//            RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getFrom() + ":" + Constants.USER.FRIENDS);
+//
+//            //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
+////            List<User>
+//            //发送者好友列表没有接收者时，将接收者添加到其好友列表
+//            if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(chatBody.getTo())) {
+//                log.info("发送者[{}]好友列表中不存在[{}],做追加操作",sender.getNick(),receiver.getNick());
+//        		User receiverSimple = ImKit.copyUserWithoutFriendsGroups(receiver);
+//        		friendsOfSender.put(chatBody.getTo(),receiverSimple);
+//            }
+//            RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatBody.getTo() + ":" + Constants.USER.FRIENDS);
+//            //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
+//            if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(chatBody.getFrom())) {
+//                log.info("接收者[{}]好友列表中不存在[{}],做追加操作",receiver.getNick(),sender.getNick());
+//        		User senderSimple = ImKit.copyUserWithoutFriendsGroups(sender);
+//        		friendsOfReceiver.put(chatBody.getFrom(),senderSimple);
+//            }
 //            log.info(chatBody.toString());
         }
     }
