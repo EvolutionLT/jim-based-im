@@ -10,17 +10,15 @@ import cn.ideamake.components.im.common.common.packets.LoginReqBody;
 import cn.ideamake.components.im.common.common.packets.LoginRespBody;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.constants.Constants;
-import cn.ideamake.components.im.common.utils.BasicConstants;
+import cn.ideamake.components.im.common.enums.RestEnum;
+import cn.ideamake.components.im.common.exception.IMException;
 import cn.ideamake.components.im.dto.mapper.*;
 import cn.ideamake.components.im.pojo.constant.TermianlType;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.CusChatMember;
-import cn.ideamake.components.im.pojo.entity.CusChatRoomRelate;
-import cn.ideamake.components.im.pojo.entity.IMUsers;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
-import cn.ideamake.components.im.service.vanke.IMUserService;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +27,6 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
@@ -78,22 +75,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
-
-    /**
-     * IM客服新需求
-     * @param dto
-     */
-    @Autowired
-    private IMUserService userService;
-
-
     @Override
     public void initUserInfo(VankeLoginDTO dto) {
-
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
-        User user = getUserByToken(token);
+        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
@@ -106,10 +93,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         }
     }
 
-    private User getUserByToken(String token) {
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        return mapCache.get(token);
-    }
 
     private void valid(@NotBlank String senderId, @NotBlank String token, @NotNull Integer type) {
         Boolean isValid = false;
@@ -138,13 +121,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
         //校验发送人合法性
-        User user = getUserByToken(token);
+        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
             cacheUserInfo(dto);
         }
-
         //校验接收人合法性
         if (StringUtils.isNotBlank(receiverId)) {
             return Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(dto.getToken() + ":" + Constants.USER.INFO, User.class)).orElseThrow(
@@ -199,7 +181,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     private User cacheFriend(VankeLoginDTO dto) {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String to = dto.getReceiverId();
-        User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new BusinessException(0, "客服注册失败！"));
+        User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
         //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
         RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         //发送者好友列表没有接收者时，将接收者添加到其好友列表
@@ -209,7 +191,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + to + ":" + Constants.USER.FRIENDS);
         //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
         if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(to)) {
-            User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new BusinessException(0, "访客注册失败！"));
+            User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
             friendsOfReceiver.put(senderId, user);
         }
         dto.setReceiverId(friend.getId());
@@ -219,36 +201,16 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        log.info(loginReqBody.toString());
-        if(loginReqBody.getToken()!="" && loginReqBody.getToken()!=null){
-            String logStr = "VankeLoginService-doLogin(), ";
-            log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
-            String token = loginReqBody.getToken();
-            if (StringUtils.isBlank(token)) {
-                log.info(logStr + "token is null!");
-                return null;
-            }
-            RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-            User user = mapCache.get(token);
-            log.info(logStr + "result: {}", JSON.toJSONString(user));
-            return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
-
-
-        }else{
-
-            User user=null;
-            LoginRespBody loginRespBody;
-            //获取用户信息
-            user = getUserInfo(loginReqBody.getUserId(),loginReqBody);
-
-            if(user == null){
-                return   loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
-            }else{
-                return  loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP,ImStatus.C10007,user);
-            }
-
+        String logStr = "VankeLoginService-doLogin(), ";
+        log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
+        String token = loginReqBody.getToken();
+        if (StringUtils.isBlank(token)) {
+            log.info(logStr + "token is null!");
+            return null;
         }
-
+        User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
+        log.info(logStr + "result: {}", JSON.toJSONString(user));
+        return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
     }
 
     //TODO 登录成功回调方法
@@ -276,41 +238,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         user.setSign(dto.getSign());
         user.setType(dto.getType());
         user.setTerminal(dto.getTerminal());
-        String key1 = dto.getSenderId() + ":" + Constants.USER.INFO;
-        RedisCacheManager.getCache(ImConst.USER).put(key1, user);
-        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-        mapCache.put(dto.getToken(), user, EXPIRE_TIME, TimeUnit.MINUTES);
+        RedisCacheManager.getCache(ImConst.USER).put(dto.getSenderId() + ":" + Constants.USER.INFO, user);
+//        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
+//        mapCache.put(dto.getToken(), user, EXPIRE_TIME, TimeUnit.MINUTES);
     }
-
-
-
-
-    /**
-     * IM老版需求
-     * 根据Key查询缓存中是否存在用户信息 如果没有则查询数据库
-     * @param key
-     * @return
-     */
-    public User getUserInfo(String key,LoginReqBody loginReqBody) {
-        IMUsers imUser = new IMUsers();
-        User user = new User();
-        imUser = userService.getUserInfo(key);
-        if (imUser != null) {
-            user.setId(imUser.getUuid());
-            user.setNick(imUser.getNick());
-            user.setAvatar(imUser.getAvatar());
-        } else {
-            //如果数据库中没有该用户直接新建一个，后续采用调用第三方应用的接口进行查询
-            userService.addUser(loginReqBody);
-            user.setAvatar(loginReqBody.getAvatar());
-            user.setNick(loginReqBody.getNick());
-            user.setId(loginReqBody.getUserId());
-
-
-        }
-        return user;
-    }
-
-
 
 }
