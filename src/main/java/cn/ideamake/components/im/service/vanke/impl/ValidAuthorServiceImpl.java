@@ -189,7 +189,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + to + ":" + Constants.USER.FRIENDS);
         //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
         if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(to)) {
-            User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
+            User user = RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class);
             friendsOfReceiver.put(senderId, user);
         }
         dto.setReceiverId(friend.getId());

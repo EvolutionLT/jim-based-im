@@ -24,7 +24,6 @@ import org.tio.core.ChannelContext;
 @Slf4j
 public class IMWsHandshakeProcessor extends WsHandshakeProcessor {
 
-
 	@Override
 	public void onAfterHandshaked(ImPacket packet, ChannelContext channelContext) throws Exception {
 		log.info("握手阶段");
