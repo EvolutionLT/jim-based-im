@@ -670,7 +670,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             User userFriend = userCache.get(friendId + SUBFIX + INFO, User.class);
             String nickName = userFriend.getNick() == null ? "" : userFriend.getNick();
             //根据搜索关键字过滤
-            if (!isSearch && StringUtils.isNotBlank(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
+            if (!isSearch && StringUtils.isNotEmpty(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
                 continue;
             }
             userFriendsVO.setNickname(nickName);

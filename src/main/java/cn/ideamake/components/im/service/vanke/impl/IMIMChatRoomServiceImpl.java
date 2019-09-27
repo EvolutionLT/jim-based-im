@@ -21,6 +21,7 @@ import cn.ideamake.components.im.pojo.vo.ChatMsgListVO;
 import cn.ideamake.components.im.pojo.vo.ChatUserListVO;
 import cn.ideamake.components.im.service.vanke.IMChatRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.collections4.MapUtils;
 import org.redisson.api.RMapCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author evolution
@@ -46,63 +48,68 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
     @Autowired
     private IMChatRecordMapper chatRecordMapper;
     //@Autowired
-  //  private RedisUtil redisUtil;
+    //  private RedisUtil redisUtil;
     @Autowired
     private IMDelRoomMapper delRoomMapper;
 
 
     @Override
     public Result insertChatRoom(IMChatRoom chatRoom) {
-       String chatRoomInfo =chatRoomMapper.getIsRoom(chatRoom.getCreateUserId(),chatRoom.getUserId());
-        if(chatRoomInfo!=null){
+        String chatRoomInfo = chatRoomMapper.getIsRoom(chatRoom.getCreateUserId(), chatRoom.getUserId());
+        if (chatRoomInfo != null) {
             return Result.ok(chatRoomInfo);
-        }else{
-            int result =chatRoomMapper.insert(chatRoom);
+        } else {
+            int result = chatRoomMapper.insert(chatRoom);
             return Result.ok(chatRoom.getId());
         }
     }
 
     @Override
     public Result getAllChatUserList(ChatUserListDTO chatUserListQuery) {
-        Result apiResponse =Result.ok();
-        if(chatUserListQuery.getUuid()!=null && !chatUserListQuery.getUuid().equals("undefined")){
-            IdeamakePage ideamakePage = new IdeamakePage(chatUserListQuery.getPage(),chatUserListQuery.getLimit());
+        Result apiResponse = Result.ok();
+        if (chatUserListQuery.getUuid() != null && !chatUserListQuery.getUuid().equals("undefined")) {
+            IdeamakePage ideamakePage = new IdeamakePage(chatUserListQuery.getPage(), chatUserListQuery.getLimit());
             List<ChatUserListVO> list = new ArrayList<>();
-            list=chatRoomMapper.getAllChatUserList(ideamakePage,chatUserListQuery);
+
+            list.addAll(chatRoomMapper.getAllChatUserList(ideamakePage, chatUserListQuery));
             ChatMsgListDTO chatMsgListQuery = new ChatMsgListDTO();
+            List<ChatUserListVO> collect = new ArrayList<>();
             //遍历出来查询最近消息
-            for(ChatUserListVO chatUserListVO : list){
-                ideamakePage= new IdeamakePage(1,1);
+            for (ChatUserListVO chatUserListVO : list) {
+                ideamakePage = new IdeamakePage(1, 1);
                 chatMsgListQuery.setRoomId(chatUserListVO.getRoomId());
-                List<ChatMsgListVO> chatMsgListVO= chatRecordMapper.getMsgList(ideamakePage,chatMsgListQuery);
-                if(chatMsgListVO.size()>0){
+                List<ChatMsgListVO> chatMsgListVO = chatRecordMapper.getMsgList(ideamakePage, chatMsgListQuery);
+                if (chatMsgListVO.size() > 0) {
                     chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
                     chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
                 }
                 //查询当前房间是否有未读信息
-                int num =chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(),"1",chatUserListQuery.getUuid());
-                chatUserListVO.setNotRead(num+"");
+                int num = chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(), "1", chatUserListQuery.getUuid());
+                chatUserListVO.setNotRead(num + "");
                 chatUserListVO.setUserType(2);
                 //从redis中取出数据看是否在线
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }
-            List<ChatUserListVO> lista = new ArrayList<>();
-            //查询用户已绑定客服
-            RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatUserListQuery.getUuid() + ":" + Constants.USER.FRIENDS);
-           if(friendsOfSender.size()>0){
-               ChatUserListVO cusInfo=new ChatUserListVO();
-               for (String key :friendsOfSender.keySet()){
-                   User user = friendsOfSender.get(key);
-                   cusInfo.setAvatar(user.getAvatar());
-                   cusInfo.setUserType(user.getType()==null? 0:user.getType());
-                   cusInfo.setUserId(user.getId());
-                   cusInfo.setNick(user.getNick());
-                   cusInfo.setNotRead("0");
-                   lista.add(cusInfo);
-               }
+           // list.add(adlist);
+            if(chatMsgListQuery.getPage()==1){
 
-           }
-           ideamakePage.setList(lista);
+                //查询用户已绑定客服
+                RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatUserListQuery.getUuid() + ":" + Constants.USER.FRIENDS);
+                if (MapUtils.isNotEmpty(friendsOfSender)) {
+                    collect = friendsOfSender.entrySet().stream().map(e -> {
+                        User user = e.getValue();
+                        ChatUserListVO cusInfo = new ChatUserListVO();
+                        cusInfo.setAvatar(user.getAvatar());
+                        cusInfo.setUserType(user.getType() == null ? 0 : user.getType());
+                        cusInfo.setUserId(user.getId());
+                        cusInfo.setNick(user.getNick());
+                        cusInfo.setNotRead("0");
+                        return cusInfo;
+                    }).collect(Collectors.toList());
+                }
+                list.addAll(collect);
+            }
+                ideamakePage.setList(list);
             //ideamakePage.setDesc("date");
             apiResponse.setData(ideamakePage);
         }
@@ -112,15 +119,15 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
 
 
     @Override
-    public Result  getIsRoom(String id,String user_id) {
-      String chatRoom =chatRoomMapper.getIsRoom(id,user_id);
+    public Result getIsRoom(String id, String user_id) {
+        String chatRoom = chatRoomMapper.getIsRoom(id, user_id);
         return Result.ok(chatRoom);
     }
 
     @Override
     public Result deleteRoom(ChatUserListDTO chatUserListQuery) {
         //  int result =chatRoomMapper.deleteRoom(chatUserListQuery.getRoomId());
-       // chatRecordMapper.deletechatRecord(chatUserListQuery.getRoomId());
+        // chatRecordMapper.deletechatRecord(chatUserListQuery.getRoomId());
         IMDelRoom delRoom = new IMDelRoom();
         delRoom.setRoomId(chatUserListQuery.getRoomId());
         delRoom.setCreateUser(chatUserListQuery.getFrom());
