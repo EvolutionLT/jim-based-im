@@ -699,7 +699,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             //统计离线未读信息
             List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
             if (messageList.isEmpty()) {
-                userFriendsVO.setUnReadNum(0);
+                userFriendsVO.setUnReadNum(onlineUnReadNum);
             } else {
                 //判断离线未读消息是否已经统计在待回复消息里面
                 if (!mapCache.containsKey(friendId)) {
