@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * @program wk-ww-cs
- * @description: 客服访客
+ * @description: 客服信息
  * @author: apollo
  * @create: 2019/09/16 11:22
  */
