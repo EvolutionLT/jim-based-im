@@ -668,7 +668,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             UserFriendsVO userFriendsVO = new UserFriendsVO();
             //每次取最新的，后续将好友存在改成id
             User userFriend = userCache.get(friendId + SUBFIX + INFO, User.class);
-            String nickName = userFriend.getNick() == null ? "" : userFriend.getNick();
+            String nickName = userFriend.getNick();
             //根据搜索关键字过滤
             if (!isSearch && StringUtils.isNotEmpty(nickName) && !nickName.equalsIgnoreCase(searchKey.toString().trim())) {
                 continue;
@@ -699,7 +699,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             //统计离线未读信息
             List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
             if (messageList.isEmpty()) {
-                userFriendsVO.setUnReadNum(0);
+                userFriendsVO.setUnReadNum(onlineUnReadNum);
             } else {
                 //判断离线未读消息是否已经统计在待回复消息里面
                 if (!mapCache.containsKey(friendId)) {

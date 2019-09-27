@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package cn.ideamake.components.im.components;
 
