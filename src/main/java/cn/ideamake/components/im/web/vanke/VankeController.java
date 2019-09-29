@@ -91,11 +91,6 @@ public class VankeController {
 
         // 监听到消息
         if (op == 1) {
-            //刚分配的新访客
-            if (isNewMember == 1) {
-                vo.setAllContactsNum(cache.get(allCountKey, Long.class));
-                vo.setLastedContactsNum(cache.incr(lastedContactNumKey));
-            }
             //不是当前聊天访客
             if (isConcurrent == 0) {
                 vo.setUnReadNum(cache.incr(unReadNumKey));
@@ -116,16 +111,12 @@ public class VankeController {
             vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
         }
 
-        if(Objects.isNull(vo.getAllContactsNum())) {
-            vo.setAllContactsNum(cache.get(allCountKey, Long.class));
-        }
+        vo.setAllContactsNum(cache.get(allCountKey, Long.class));
+
+        vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
 
         if(Objects.isNull(vo.getPendingReplyNum())) {
             vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
-        }
-
-        if(Objects.isNull(vo.getLastedContactsNum())) {
-            vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
         }
 
         if(Objects.isNull(vo.getUnReadNum())) {
