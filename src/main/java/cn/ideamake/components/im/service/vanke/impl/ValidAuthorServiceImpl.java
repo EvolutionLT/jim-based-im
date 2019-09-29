@@ -176,7 +176,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         String to = members.get(random).getUserId();
         dto.setReceiverId(to);
         RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
-        RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, to), 1);
         return cacheFriend(dto);
     }
 

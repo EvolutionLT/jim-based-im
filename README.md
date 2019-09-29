@@ -242,11 +242,11 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 ```json
 {
   "cmd": 19,
-  "type":"2",
-  "userId":"asdfghjkl",
-  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
-  "offset":1,
-  "count":2
+  "type":"1",
+  "userId":"oqUK55XDoSGELEx_ni-hrTRlByqs",
+  "fromUserId":"obNA65A2G-Feg0kd8HOic8VmcMio2",
+  "offset":0,
+  "count":20
 }
 ```
 返回接口同上
@@ -298,7 +298,7 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 
 ---
 #### 7.拉取用户详细信息
-包含用户好友、好友消息前10条、未读消息数量、好友的基本信息
+包含用户好友、好友消息前1条、未读消息数量、好友的基本信息
 pullType=1全部列表，2待回复列表，3最近两天联系人
 > 请求内容
 ```json
