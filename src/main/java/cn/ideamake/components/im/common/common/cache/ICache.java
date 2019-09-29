@@ -67,7 +67,7 @@ public interface ICache {
 	 * 原子增加，返回最新值
 	 * @param key
 	 */
-	default Long incr(String key) {return null; }
+	default Long incr(String key, long num) {return null; }
 
 	/**
 	 * 原子减少，返回最新值

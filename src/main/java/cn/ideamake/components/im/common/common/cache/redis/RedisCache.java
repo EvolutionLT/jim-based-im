@@ -270,13 +270,13 @@ public class RedisCache implements ICache {
 	}
 
 	@Override
-	public Long incr(String key) {
+	public Long incr(String key, long num) {
 		Long value =null;
 		if (StringUtils.isBlank(key)) {
 			return value;
 		}
 		try {
-			value =  JedisTemplate.me().incr(cacheKey(cacheName, key), 1L);
+			value =  JedisTemplate.me().incr(cacheKey(cacheName, key), num);
 		} catch (Exception e) {
 			log.error(e.toString(),e);
 		}

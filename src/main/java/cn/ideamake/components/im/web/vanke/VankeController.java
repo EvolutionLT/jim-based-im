@@ -91,9 +91,13 @@ public class VankeController {
 
         // 监听到消息
         if (op == 1) {
+            //刚分配的新访客
+            if (isNewMember == 1) {
+                vo.setLastedContactsNum(cache.incr(lastedContactNumKey, 1));
+            }
             //不是当前聊天访客
             if (isConcurrent == 0) {
-                vo.setUnReadNum(cache.incr(unReadNumKey));
+                vo.setUnReadNum(cache.incr(unReadNumKey, 1));
                 if (mapCache.containsKey(visitorId)) {
                     vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
                 } else {

@@ -700,9 +700,11 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 if (!mapCache.containsKey(friendId)) {
                     mapCache.put(friendId, 1L);
                 }
+                int size = messageList.size();
+                cache.incr(String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId), size);
                 isReplyFriend = true;
                 //在线未读消息+离线未读消息
-                userFriendsVO.setUnReadNum(onlineUnReadNum + messageList.size());
+                userFriendsVO.setUnReadNum(onlineUnReadNum + size);
 
             }
             //统计根据关键字搜索时，待回复消息数量
