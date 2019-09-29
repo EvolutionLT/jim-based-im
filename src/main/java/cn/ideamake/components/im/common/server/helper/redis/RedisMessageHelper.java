@@ -689,7 +689,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
             //在线未读消息
-            int onlineUnReadNum = Optional.ofNullable(cache.get(String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId), Long.class)).orElse(0L).intValue();
+            String unReadKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId);
+            int onlineUnReadNum = Optional.ofNullable(cache.get(unReadKey, Integer.class)).orElse(0).intValue();
             String keyPushUnread = USER + SUBFIX + userId + SUBFIX + friendId;
             //统计离线未读信息
             List<String> messageList = pushCache.sortSetGetAll(keyPushUnread);
@@ -700,11 +701,16 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 if (!mapCache.containsKey(friendId)) {
                     mapCache.put(friendId, 1L);
                 }
-                isReplyFriend = true;
+                int size = messageList.size();
+                onlineUnReadNum = cache.incr(unReadKey, size).intValue();
                 //在线未读消息+离线未读消息
-                userFriendsVO.setUnReadNum(onlineUnReadNum + messageList.size());
-
+                userFriendsVO.setUnReadNum(onlineUnReadNum);
             }
+            if(onlineUnReadNum > 0) {
+                isReplyFriend = true;
+            }
+            //TODO 清除离线消息(原因有2， 1.未读消息是离线未读消息和在线未读消息一起统计，不清除离线未读消息会重复统计。ps：如果不想清除在线未读消息和离线未读消息分开统计。2，主要原因，其他地方没有删除离线未读消息，目前只调用了历史消息)
+            pushCache.remove(keyPushUnread);
             //统计根据关键字搜索时，待回复消息数量
             if (mapCache.containsKey(friendId)) {
                 pendingReplyNum++;
@@ -714,12 +720,14 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             if (pullType == 2) {
                 if (isReplyFriend) {
                     friendsVOS.add(userFriendsVO);
+                    isReplyFriend = false;
                 }
                 continue;
             } else if (pullType == 3) {
                 //拉取最近联系人
                 if (isLastedFriend) {
                     friendsVOS.add(userFriendsVO);
+                    isLastedFriend = false;
                 }
                 continue;
             }

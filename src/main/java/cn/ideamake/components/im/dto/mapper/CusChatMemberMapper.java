@@ -27,7 +27,7 @@ public interface CusChatMemberMapper extends BaseMapper<CusChatMember>{
     * @author: apollo
     * @date: 2019-09-18
     */
-    void updateStatus(@Param("id") Integer id, @Param("status") Integer status);
+    void updateStatus(@Param("id") Integer id, @Param("status") Integer status, @Param("isBusy") Integer isBusy);
 
     /**
     * @description: 查询空闲客服
