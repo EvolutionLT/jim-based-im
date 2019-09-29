@@ -702,10 +702,12 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     mapCache.put(friendId, 1L);
                 }
                 int size = messageList.size();
-                cache.incr(unReadKey, size);
-                isReplyFriend = true;
+                onlineUnReadNum = cache.incr(unReadKey, size).intValue();
                 //在线未读消息+离线未读消息
-                userFriendsVO.setUnReadNum(cache.get(unReadKey, Integer.class));
+                userFriendsVO.setUnReadNum(onlineUnReadNum);
+            }
+            if(onlineUnReadNum > 0) {
+                isReplyFriend = true;
             }
             //TODO 清除离线消息(原因有2， 1.未读消息是离线未读消息和在线未读消息一起统计，不清除离线未读消息会重复统计。ps：如果不想清除在线未读消息和离线未读消息分开统计。2，主要原因，其他地方没有删除离线未读消息，目前只调用了历史消息)
             pushCache.remove(keyPushUnread);
@@ -718,12 +720,14 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             if (pullType == 2) {
                 if (isReplyFriend) {
                     friendsVOS.add(userFriendsVO);
+                    isReplyFriend = false;
                 }
                 continue;
             } else if (pullType == 3) {
                 //拉取最近联系人
                 if (isLastedFriend) {
                     friendsVOS.add(userFriendsVO);
+                    isLastedFriend = false;
                 }
                 continue;
             }
