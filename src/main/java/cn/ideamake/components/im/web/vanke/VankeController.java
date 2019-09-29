@@ -93,7 +93,7 @@ public class VankeController {
         if (op == 1) {
             //刚分配的新访客
             if (isNewMember == 1) {
-                vo.setAllContactsNum(cache.incr(allCountKey));
+                vo.setAllContactsNum(cache.get(allCountKey, Long.class));
                 vo.setLastedContactsNum(cache.incr(lastedContactNumKey));
             }
             //不是当前聊天访客
