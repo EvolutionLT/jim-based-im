@@ -4,4 +4,6 @@
     <select id="userIsValid" resultType="boolean">
         select 1 from wk_user where uuid = #{userId} and uuid = #{token}
     </select>
+
+
 </mapper>

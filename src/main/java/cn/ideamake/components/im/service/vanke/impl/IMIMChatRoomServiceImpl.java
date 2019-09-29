@@ -4,8 +4,6 @@ package cn.ideamake.components.im.service.vanke.impl;
 import cn.ideamake.common.response.IdeamakePage;
 import cn.ideamake.common.response.Result;
 
-import cn.ideamake.components.im.common.common.ImConst;
-import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.constants.Constants;
@@ -53,6 +51,8 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
     private IMDelRoomMapper delRoomMapper;
 
 
+
+
     @Override
     public Result insertChatRoom(IMChatRoom chatRoom) {
         String chatRoomInfo = chatRoomMapper.getIsRoom(chatRoom.getCreateUserId(), chatRoom.getUserId());
@@ -92,7 +92,6 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
             }
            // list.add(adlist);
             if(chatMsgListQuery.getPage()==1){
-
                 //查询用户已绑定客服
                 RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatUserListQuery.getUuid() + ":" + Constants.USER.FRIENDS);
                 if (MapUtils.isNotEmpty(friendsOfSender)) {
@@ -106,8 +105,9 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                         cusInfo.setNotRead("0");
                         return cusInfo;
                     }).collect(Collectors.toList());
+                    list.addAll(collect);
                 }
-                list.addAll(collect);
+
             }
                 ideamakePage.setList(list);
             //ideamakePage.setDesc("date");

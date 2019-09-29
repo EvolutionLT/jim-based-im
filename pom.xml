@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.ideamake.components</groupId>
-    <artifactId>im</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>ideamake-im</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
     <name>im</name>
     <description>instance message</description>
 
@@ -234,16 +234,16 @@
     </dependencies>
 
     <build>
-        <resources>
+       <!-- <resources>
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.xml</include>
                 </includes>
-                <!-- 是否替换资源中的属性-->
+                &lt;!&ndash; 是否替换资源中的属性&ndash;&gt;
                 <filtering>false</filtering>
             </resource>
-        </resources>
+        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

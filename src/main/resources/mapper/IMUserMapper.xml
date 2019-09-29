@@ -72,7 +72,8 @@ from wk_im_user iu
         <if test="query.nick !=null and query.avatar!=null ">
             set nick=#{query.nick}, avatar=#{query.avatar}
         </if>
-        <where>uuid=#{query.loginname}</where>
+        ,capacity=#{query.capacity}
+        <where>uuid=#{query.userId}</where>
     </update>
 
 </mapper>

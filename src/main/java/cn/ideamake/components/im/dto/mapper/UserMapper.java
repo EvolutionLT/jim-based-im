@@ -1,6 +1,7 @@
 package cn.ideamake.components.im.dto.mapper;
 
 import cn.ideamake.common.response.IdeamakePage;
+import cn.ideamake.components.im.common.common.packets.LoginReqBody;
 import cn.ideamake.components.im.pojo.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -18,4 +19,5 @@ import java.util.List;
  */
 public interface UserMapper extends BaseMapper<User> {
     Boolean userIsValid(@Param("userId") String id, @Param("token") String token);
+
 }

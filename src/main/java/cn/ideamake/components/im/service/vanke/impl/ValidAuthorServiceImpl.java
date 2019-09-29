@@ -79,6 +79,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Resource
     private AysnChatService aysnChatService;
 
+    @Autowired
+    private IMUserMapper imUserMapper;
+
 
     private static final int EXPIRE_TIME = 7 * 24 * 60;
 
@@ -284,6 +287,8 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             user.setId(imUser.getUuid());
             user.setNick(imUser.getNick());
             user.setAvatar(imUser.getAvatar());
+            //修改用户信息
+            imUserMapper.updateUserInfo(loginReqBody);
         } else {
             //如果数据库中没有该用户直接新建一个，后续采用调用第三方应用的接口进行查询
             userService.addUser(loginReqBody);
