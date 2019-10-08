@@ -1,17 +1,19 @@
 package cn.ideamake.components.im.service.vanke.impl;
 
 import cn.ideamake.common.exception.BusinessException;
+import cn.ideamake.components.im.common.common.ImAio;
 import cn.ideamake.components.im.common.common.ImConst;
+import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImStatus;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
-import cn.ideamake.components.im.common.common.packets.Command;
-import cn.ideamake.components.im.common.common.packets.LoginReqBody;
-import cn.ideamake.components.im.common.common.packets.LoginRespBody;
-import cn.ideamake.components.im.common.common.packets.User;
+import cn.ideamake.components.im.common.common.message.MessageHelper;
+import cn.ideamake.components.im.common.common.packets.*;
+import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.common.enums.RestEnum;
 import cn.ideamake.components.im.common.exception.IMException;
+import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import cn.ideamake.components.im.dto.mapper.*;
 import cn.ideamake.components.im.pojo.constant.TermianlType;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
@@ -30,6 +32,7 @@ import org.redisson.api.RMapCache;
 import org.springframework.stereotype.Service;
 import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.utils.lock.SetWithLock;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
@@ -74,6 +77,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     private static final int EXPIRE_TIME = 7 * 24 * 60;
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
+
+    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"您的专属客服目前不在线，可给客服留言!\" }";
+
 
     @Override
     public void initUserInfo(VankeLoginDTO dto) {
@@ -164,13 +170,35 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             dto.setReceiverId(e.getUuId());
             return cacheFriend(dto);
         }).orElse(null);
-        return Objects.isNull(user) ? getRandomCustomer(dto) : user;
+        //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
+        return Objects.isNull(user) ? getRandomCustomer(dto) : sendMessage(user, senderId);
+    }
+
+    /**
+    * @description: 给客服推送消息“您的专属客服目前不在线，可给客服留言”
+    * @param: [user, receiverId]
+    * @return: cn.ideamake.components.im.common.common.packets.User
+    * @author: apollo
+    * @date: 2019-10-08
+    */
+    private User sendMessage(User user, String receiverId) {
+        String userId = user.getId();
+        if(StringUtils.isBlank(userId)) {
+            return user;
+        }
+        MessageHelper helper = new RedisMessageHelper();
+        if(!helper.isOnline(userId)) {
+            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar());
+            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ,new RespBody(Command.COMMAND_CHAT_REQ,ChatKit.toChatBody(body.getBytes())).toByte());
+            ImAio.sendToUser(receiverId, chatPacket);
+        }
+        return user;
     }
 
     private User getRandomCustomer(VankeLoginDTO dto) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
         if (CollectionUtils.isEmpty(members)) {
-            throw new IllegalArgumentException("没有空闲客服，建议您电话咨询!");
+            throw new IllegalArgumentException("当前客服繁忙，请耐心等待!");
         }
         int random = RandomUtils.nextInt(0, members.size());
         String to = members.get(random).getUserId();
@@ -240,8 +268,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         user.setType(dto.getType());
         user.setTerminal(dto.getTerminal());
         RedisCacheManager.getCache(ImConst.USER).put(dto.getSenderId() + ":" + Constants.USER.INFO, user);
-//        RMapCache<String, User> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.ITEM_LABEL.PERIOD + "::" + Constants.PEROID.USER_TOKEN);
-//        mapCache.put(dto.getToken(), user, EXPIRE_TIME, TimeUnit.MINUTES);
     }
 
 }

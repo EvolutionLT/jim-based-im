@@ -16,6 +16,8 @@ import cn.ideamake.components.im.common.common.packets.User;
 import org.tio.core.ChannelContext;
 import org.tio.utils.lock.SetWithLock;
 
+import java.util.Optional;
+
 /**
  * IM聊天命令工具类
  * @date 2018-09-05 23:29:30
@@ -34,13 +36,26 @@ public class ChatKit {
 	 */
 	public static ChatBody toChatBody(byte[] body, ChannelContext channelContext){
 		ChatBody chatReqBody = parseChatBody(body);
-		if(chatReqBody != null){
-			if(StringUtils.isEmpty(chatReqBody.getFrom())){
-				ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
+		return getChatBody(channelContext, chatReqBody);
+	}
+
+	/**
+	 * 转换为聊天消息结构;
+	 * @param body
+	 * @return
+	 */
+	public static ChatBody toChatBody(byte[] body){
+		return parseChatBody(body);
+	}
+
+	private static ChatBody getChatBody(ChannelContext channelContext, ChatBody chatReqBody) {
+		if (chatReqBody != null) {
+			if (StringUtils.isEmpty(chatReqBody.getFrom())) {
+				ImSessionContext imSessionContext = (ImSessionContext) channelContext.getAttribute();
 				User user = imSessionContext.getClient().getUser();
-				if(user != null){
+				if (user != null) {
 					chatReqBody.setFrom(user.getNick());
-				}else{
+				} else {
 					chatReqBody.setFrom(channelContext.getId());
 				}
 			}
@@ -85,12 +100,14 @@ public class ChatKit {
 		if(bodyStr == null) {
 			return null;
 		}
-		try {
-			return parseChatBody(bodyStr.getBytes(HttpConst.CHARSET_NAME));
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-		return null;
+		ChatBody chatReqBody = JsonKit.toBean(bodyStr, ChatBody.class);
+		return Optional.ofNullable(chatReqBody).map(e -> {
+			e.setCreateTime(System.currentTimeMillis());
+			if(StringUtils.isEmpty(chatReqBody.getId())){
+				chatReqBody.setId(UUIDSessionIdGenerator.instance.sessionId(null));
+			}
+			return e;
+		}).orElse(chatReqBody);
 	}
 
     /**

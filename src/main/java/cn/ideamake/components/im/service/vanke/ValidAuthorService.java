@@ -24,12 +24,4 @@ public interface ValidAuthorService extends LoginCmdProcessor {
     */
     User getReceiverInfo(VankeLoginDTO dto);
 
-    /**
-     * @description: 从缓存中获取user
-     * @param: [token]
-     * @return: cn.ideamake.components.im.common.common.packets.User
-     * @author: apollo
-     * @date: 2019-09-17
-     */
-//    User getUserInfoByToken(String token);
 }
