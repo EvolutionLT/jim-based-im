@@ -78,7 +78,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
-    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"您的专属客服目前不在线，可给客服留言!\" }";
+    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"%s\" }";
 
 
     @Override
@@ -160,39 +160,36 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         //访客类型,需要匹配聊天对象
         //判断有没有绑定置业顾问
-        String userId = userVisitorMapper.selectUserId(senderId, dto.getProjectCode());
-        if (StringUtils.isNotBlank(userId)) {
+        String projectCode = dto.getProjectCode();
+        String userId;
+        if (StringUtils.isNotBlank(projectCode) && StringUtils.isNotBlank(userId = userVisitorMapper.selectUserId(senderId, projectCode))) {
             dto.setReceiverId(userId);
             return cacheFriend(dto);
         }
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
-        User user = Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
+        return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
             dto.setReceiverId(e.getUuId());
-            return cacheFriend(dto);
-        }).orElse(null);
-        //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
-        return Objects.isNull(user) ? getRandomCustomer(dto) : sendMessage(user, senderId);
+            User cus = cacheFriend(dto);
+            //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
+            sendMessage(cus, senderId, "您的专属客服目前不在线，可给客服留言!");
+            return cus;
+        }).orElse(getRandomCustomer(dto));
     }
 
     /**
-    * @description: 给客服推送消息“您的专属客服目前不在线，可给客服留言”
-    * @param: [user, receiverId]
-    * @return: cn.ideamake.components.im.common.common.packets.User
-    * @author: apollo
-    * @date: 2019-10-08
-    */
-    private User sendMessage(User user, String receiverId) {
+     * @description: 给客服推送消息“您的专属客服目前不在线，可给客服留言”
+     * @param: [user, receiverId, message]
+     * @return: cn.ideamake.components.im.common.common.packets.User
+     * @author: apollo
+     * @date: 2019-10-08
+     */
+    private void sendMessage(User user, String receiverId, String message) {
         String userId = user.getId();
-        if(StringUtils.isBlank(userId)) {
-            return user;
-        }
-        MessageHelper helper = new RedisMessageHelper();
-        if(!helper.isOnline(userId)) {
-            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar());
-            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ,new RespBody(Command.COMMAND_CHAT_REQ,ChatKit.toChatBody(body.getBytes())).toByte());
+        if (!new RedisMessageHelper().isOnline(userId)) {
+            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar(), message);
+            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
             ImAio.sendToUser(receiverId, chatPacket);
         }
-        return user;
     }
 
     private User getRandomCustomer(VankeLoginDTO dto) {
