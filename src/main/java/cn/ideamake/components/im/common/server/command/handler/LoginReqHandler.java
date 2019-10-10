@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * 登录消息命令处理器
+ *
  * @author WChao
  * @date 2018年4月10日 下午2:40:07
  */
@@ -25,72 +26,73 @@ import java.util.List;
 
 public class LoginReqHandler extends AbstractCmdHandler {
 
-	@Override
-	public ImPacket handler(ImPacket packet, ChannelContext channelContext) throws Exception {
-		if (packet.getBody() == null) {
-			Aio.remove(channelContext, "body is null");
-			return null;
-		}
-		List<LoginCmdProcessor> loginProcessors = this.getProcessor(channelContext, LoginCmdProcessor.class);
-		if(CollectionUtils.isEmpty(loginProcessors)){
-			log.info("登录失败,没有登录命令业务处理器!");
-			Aio.remove(channelContext, "no login serviceHandler processor!");
-			return null;
-		}
-		LoginCmdProcessor loginServiceHandler = loginProcessors.get(0);
-		ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
-		LoginReqBody loginReqBody = JsonKit.toBean(packet.getBody(), LoginReqBody.class);
-		
-		LoginRespBody loginRespBody = loginServiceHandler.doLogin(loginReqBody,channelContext);
-		if (loginRespBody == null || loginRespBody.getUser() == null) {
-			log.info("登录失败, token:{}",loginReqBody.getToken());
-			if(loginRespBody == null){
-				loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
-			}
-			loginRespBody.clear();
-			ImPacket loginRespPacket = new ImPacket(Command.COMMAND_LOGIN_RESP, loginRespBody.toByte());
-			ImAio.bSend(channelContext,loginRespPacket);
-			ImAio.remove(channelContext, "loginName and token is incorrect");
-			return null;
-		}
-		User user = loginRespBody.getUser();
-		String userId = user.getId();
-		IProtocol protocol = ImKit.protocol(null, channelContext);
-		String terminal = protocol == null ? "" : protocol.name();
-		user.setTerminal(terminal);
-		imSessionContext.getClient().setUser(user);
-		ImAio.bindUser(channelContext,userId,imConfig.getMessageHelper().getBindListener());
-		//初始化绑定或者解绑群组;
-		bindUnbindGroup(channelContext, user);
-		loginServiceHandler.onSuccess(channelContext);
-		loginRespBody.clear();
-		ImPacket loginRespPacket = new ImPacket(Command.COMMAND_LOGIN_RESP, loginRespBody.toByte());
-		return loginRespPacket;
-	}
-	/**
-	 * 初始化绑定或者解绑群组;
-	 */
-	public void bindUnbindGroup(ChannelContext channelContext , User user)throws Exception{
-		String userId = user.getId();
-		MessageHelper messageHelper = imConfig.getMessageHelper();
-		List<String> groups = messageHelper.getGroups(userId);
-		if(!groups.isEmpty()){
-			groups.forEach(groupId->{
+    @Override
+    public ImPacket handler(ImPacket packet, ChannelContext channelContext) throws Exception {
+        if (packet.getBody() == null) {
+            Aio.remove(channelContext, "body is null");
+            return null;
+        }
+        List<LoginCmdProcessor> loginProcessors = this.getProcessor(channelContext, LoginCmdProcessor.class);
+        if (CollectionUtils.isEmpty(loginProcessors)) {
+            log.info("登录失败,没有登录命令业务处理器!");
+            Aio.remove(channelContext, "no login serviceHandler processor!");
+            return null;
+        }
+        LoginCmdProcessor loginServiceHandler = loginProcessors.get(0);
+        ImSessionContext imSessionContext = (ImSessionContext) channelContext.getAttribute();
+        LoginReqBody loginReqBody = JsonKit.toBean(packet.getBody(), LoginReqBody.class);
+
+        LoginRespBody loginRespBody = loginServiceHandler.doLogin(loginReqBody, channelContext);
+        if (loginRespBody == null || loginRespBody.getUser() == null) {
+            log.info("登录失败, token:{}", loginReqBody.getToken());
+            if (loginRespBody == null) {
+                loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
+            }
+            loginRespBody.clear();
+            ImPacket loginRespPacket = new ImPacket(Command.COMMAND_LOGIN_RESP, loginRespBody.toByte());
+            ImAio.bSend(channelContext, loginRespPacket);
+            ImAio.remove(channelContext, "loginName and token is incorrect");
+            return null;
+        }
+        User user = loginRespBody.getUser();
+        String userId = user.getId();
+        IProtocol protocol = ImKit.protocol(null, channelContext);
+        String terminal = protocol == null ? "" : protocol.name();
+        user.setTerminal(terminal);
+        imSessionContext.getClient().setUser(user);
+        ImAio.bindUser(channelContext, userId, imConfig.getMessageHelper().getBindListener());
+        //初始化绑定或者解绑群组;
+        bindUnbindGroup(channelContext, user);
+        loginServiceHandler.onSuccess(channelContext);
+        loginRespBody.clear();
+        ImPacket loginRespPacket = new ImPacket(Command.COMMAND_LOGIN_RESP, loginRespBody.toByte());
+        return loginRespPacket;
+    }
+
+    /**
+     * 初始化绑定或者解绑群组;
+     */
+    public void bindUnbindGroup(ChannelContext channelContext, User user) throws Exception {
+        String userId = user.getId();
+        MessageHelper messageHelper = imConfig.getMessageHelper();
+        List<String> groups = messageHelper.getGroups(userId);
+        if (!groups.isEmpty()) {
+            groups.forEach(groupId -> {
 //				groups.remove(groupId);
-				Group group = messageHelper.getGroupInfo(groupId);
-				ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ, JsonKit.toJsonBytes(group));
-				try {
-					//向群聊发进入通知
-					JoinGroupReqHandler joinGroupReqHandler = CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
-					joinGroupReqHandler.bindGroup(groupPacket, channelContext);
+                Group group = messageHelper.getGroupInfo(groupId);
+                ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ, JsonKit.toJsonBytes(group));
+                try {
+                    //向群聊发进入通知
+                    JoinGroupReqHandler joinGroupReqHandler = CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
+                    joinGroupReqHandler.bindGroup(groupPacket, channelContext);
 
-				} catch (Exception e) {
-					log.error(e.toString(),e);
-				}
+                } catch (Exception e) {
+                    log.error(e.toString(), e);
+                }
 
-			});
+            });
 
-		}
+        }
 
 //		if (!groups.isEmpty()) {
 //			for (String groupId : groups) {
@@ -129,9 +131,10 @@ public class LoginReqHandler extends AbstractCmdHandler {
 //				}
 //			}
 //		}
-	}
-	@Override
-	public Command command() {
-		return Command.COMMAND_LOGIN_REQ;
-	}
+    }
+
+    @Override
+    public Command command() {
+        return Command.COMMAND_LOGIN_REQ;
+    }
 }
