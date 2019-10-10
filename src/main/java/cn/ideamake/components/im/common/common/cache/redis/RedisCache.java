@@ -229,6 +229,38 @@ public class RedisCache implements ICache {
 		return null;
 	}
 
+	public List<String> sortReSetGetAll(String key){
+		if (StringUtils.isBlank(key)) {
+			return null;
+		}
+		try {
+			Set<String> dataSet = JedisTemplate.me().revrangeByScoreWithSortedSet(cacheKey(cacheName, key), Double.MIN_VALUE,Double.MAX_VALUE);
+			if(dataSet == null) {
+				return null;
+			}
+			return new ArrayList<String>(dataSet);
+		}catch (Exception e) {
+			log.error(e.toString(),e);
+		}
+		return null;
+	}
+
+	public List<String> sortReSetGetAll(String key,double min,double max){
+		if (StringUtils.isBlank(key)) {
+			return null;
+		}
+		try {
+			Set<String> dataSet = JedisTemplate.me().revrangeByScoreWithSortedSet(cacheKey(cacheName, key),max,min);
+			if(dataSet == null) {
+				return null;
+			}
+			return new ArrayList<String>(dataSet);
+		}catch (Exception e) {
+			log.error(e.toString(),e);
+		}
+		return null;
+	}
+
 	public List<String> sortReSetGetAll(String key,double min,double max,int offset ,int count){
 		if (StringUtils.isBlank(key)) {
 			return null;

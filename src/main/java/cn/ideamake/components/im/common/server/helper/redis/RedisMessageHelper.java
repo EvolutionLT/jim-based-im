@@ -213,16 +213,16 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         boolean isPage = (offset != null && count != null);
         //消息区间，不分页
         if (isTimeBetween && !isPage) {
-            messages = storeCache.sortSetGetAll(key, beginTime, endTime);
+            messages = storeCache.sortReSetGetAll(key, beginTime, endTime);
             //消息区间，并且分页;
         } else if (isTimeBetween && isPage) {
-            messages = storeCache.sortSetGetAll(key, beginTime, endTime, offset, count);
+            messages = storeCache.sortReSetGetAll(key, beginTime, endTime, offset, count);
             //所有消息，并且分页;
         } else if (!isTimeBetween && isPage) {
-            messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, offset, count);
+            messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, offset, count);
             //所有消息，不分页;
         } else {
-            messages = storeCache.sortSetGetAll(key);
+            messages = storeCache.sortReSetGetAll(key);
         }
         if (CollectionUtils.isEmpty(messages)) {
             return null;
