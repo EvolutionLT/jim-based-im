@@ -675,7 +675,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             String key = USER + SUBFIX + sessionId;
             //取10条聊天纪录
 //            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
-            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
+            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 1);
             if (!messages.isEmpty()) {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
                 userFriendsVO.setHistoryMessage(chatBodyList);
