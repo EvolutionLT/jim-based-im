@@ -73,7 +73,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Resource
     private AysnChatService aysnChatService;
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
+//    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
 
 
     private static final int EXPIRE_TIME = 7 * 24 * 60;
@@ -187,15 +187,15 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         // 模拟访客给客服发送消息
         ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
         // 模拟客服给访客发送消息
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                //TODO
-            }
-//            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
-            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
-        }, threadPoolExecutor);
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                //TODO
+//            }
+////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
+//            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
+//        }, threadPoolExecutor);
         return friend;
     }
 

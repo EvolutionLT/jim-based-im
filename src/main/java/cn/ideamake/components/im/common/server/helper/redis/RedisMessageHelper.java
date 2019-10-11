@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -679,7 +680,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             String key = USER + SUBFIX + sessionId;
             //取1条聊天纪录
 //            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
-            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 2);
+            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 5);
             if (!messages.isEmpty()) {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
                 //最后一条聊天记录的时间
@@ -688,12 +689,14 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     lastedContactsNum++;
                     isLastedFriend = true;
                 }
-                Object isAutoMessage = chatBodyList.get(chatBodyList.size() - 1).getExtras().get("isAutoMessage");
-                if(Objects.isNull(isAutoMessage) || isAutoMessage.equals("false")){
-                    userFriendsVO.setHistoryMessage(chatBodyList);
-                }else {
-                    userFriendsVO.setHistoryMessage(Lists.newArrayList(chatBodyList.get(0)));
-                }
+                List<ChatBody> collect = chatBodyList.stream().map(chatBody -> {
+                    Object isAutoMessage = chatBody.getExtras().get("isAutoMessage");
+                    if (Objects.isNull(isAutoMessage) || Objects.equals(isAutoMessage, "false")) {
+                        return chatBody;
+                    }
+                    return null;
+                }).filter(e -> e != null).collect(Collectors.toList());
+                userFriendsVO.setHistoryMessage(collect);
             } else {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
