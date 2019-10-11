@@ -6,11 +6,12 @@ import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.packets.User;
-import cn.ideamake.components.im.pojo.constant.TermianlType;
+import cn.ideamake.components.im.pojo.constant.UserType;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.ChatInfoDTO;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.vo.ChatInfoVO;
+import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,9 @@ public class VankeController {
     @Resource
     private ValidAuthorService validAuthorService;
 
+    @Resource
+    private AysnChatService aysnChatService;
+
     @PostMapping(value = "/initUser", produces = "application/json")
     public Rest login(@Valid @RequestBody VankeLoginDTO info) {
         log.info("VankeController-login(), input: {}", JSON.toJSONString(info));
@@ -56,7 +60,7 @@ public class VankeController {
         String receiverId = dto.getReceiverId();
         @NotNull Integer type = dto.getType();
         //置业顾问或者客服发送消息时，接收人不能为空
-        if (StringUtils.isBlank(receiverId) && type != TermianlType.VISITOR.getType().intValue()) {
+        if (StringUtils.isBlank(receiverId) && type != UserType.VISITOR.getType().intValue()) {
             throw new IllegalArgumentException("receiverId is null! input: {}" + JSON.toJSONString(dto));
         }
         try {
@@ -119,16 +123,31 @@ public class VankeController {
 
         vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
 
-        if(Objects.isNull(vo.getPendingReplyNum())) {
+        if (Objects.isNull(vo.getPendingReplyNum())) {
             vo.setPendingReplyNum((long) mapCache.size());
         }
 
-        if(Objects.isNull(vo.getUnReadNum())) {
+        if (Objects.isNull(vo.getUnReadNum())) {
             vo.setUnReadNum(cache.get(unReadNumKey, Long.class));
         }
         vo.setVisitorId(visitorId);
         vo.setCusId(cusId);
         return Rest.okObj(vo);
+    }
+
+    @GetMapping("/delFriend")
+    public Rest<Object> delFriend(String cusId, String friendId) {
+//        if(StringUtils.isBlank(cusId) || StringUtils.isBlank(friendId)) {
+//            return Rest.error("删除好友不能为空!");
+//        }
+//        RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + cusId + ":" + Constants.USER.FRIENDS);
+//        if(MapUtils.isEmpty(friendsIds)) {
+//            return Rest.error("您没有可删除好友!");
+//        }
+//        friendsIds.remove(friendId);
+//        aysnChatService.synDelFriend(cusId, friendId);
+//        return Rest.ok();
+        return null;
     }
 
 }

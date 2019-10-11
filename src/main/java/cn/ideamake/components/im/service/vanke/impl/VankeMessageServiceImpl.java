@@ -4,7 +4,7 @@ import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.Command;
 import cn.ideamake.components.im.common.common.utils.Md5;
 import cn.ideamake.components.im.dto.mapper.*;
-import cn.ideamake.components.im.pojo.constant.TermianlType;
+import cn.ideamake.components.im.pojo.constant.UserType;
 import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.*;
@@ -103,7 +103,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             Date date = new Date();
             //初始化访客信息
             CusChatMember member = initMember(dto);
-            if (Objects.nonNull(member) && type == TermianlType.VISITOR.getType().intValue()) {
+            if (Objects.nonNull(member) && type == UserType.VISITOR.getType().intValue()) {
                 //初始化聊天房间
                 String uniqueCode = Md5.getMD5(senderId + receiverId);
                 CusChatRoom cusChatRoom = new CusChatRoom();
@@ -160,6 +160,11 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             }
         }
         return null;
+    }
+
+    @Override
+    public void delFriend(String cusId, String friendId) {
+
     }
 
     private void addChatRecord(ChatBody chatBody) {

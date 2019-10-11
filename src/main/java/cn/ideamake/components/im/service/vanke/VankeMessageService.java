@@ -40,4 +40,13 @@ public interface VankeMessageService {
     * @date: 2019-09-21
     */
     CusChatMember initMember(VankeLoginDTO dto);
+
+    /**
+    * @description: 逻辑删除Mysql中的好友关系
+    * @param: [cusId, friendId]
+    * @return: void
+    * @author: apollo
+    * @date: 2019-10-11
+    */
+    void delFriend(String cusId, String friendId);
 }
