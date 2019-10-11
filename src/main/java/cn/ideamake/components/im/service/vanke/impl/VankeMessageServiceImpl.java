@@ -140,13 +140,13 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             entity.setHeadImgUrl(dto.getAvatar());
             entity.setNickName(dto.getNick());
             //发送人身份类型,1=客服,0=访客, 2置业顾问
-            String phone = "";
+            String phone = null;
             if (0 == type) {
                 phone = Optional.ofNullable(visitorMapper.selectByOpenId(dto.getSenderId())).map(Visitor::getPhone).orElse("");
             } else if (1 == type) {
                 phone = Optional.ofNullable(cusInfoMapper.selectById(dto.getSenderId())).map(CusInfo::getPhone).orElseThrow(() -> new IllegalArgumentException("visitorId is error, visitorId: " + dto.getSenderId()));
             }
-            entity.setPhone(phone);
+            entity.setPhone(null == phone ? "" : phone);
             entity.setType(dto.getType());
             entity.setToken(dto.getToken());
             entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
