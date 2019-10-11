@@ -185,7 +185,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
         User friend = cacheFriend(dto);
         // 模拟访客给客服发送消息
-        ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
+//        ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
         // 模拟客服给访客发送消息
 //        CompletableFuture.runAsync(() -> {
 //            try {
@@ -194,7 +194,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 //                //TODO
 //            }
 ////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
-//            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
 //        }, threadPoolExecutor);
         return friend;
     }
