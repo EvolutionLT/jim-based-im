@@ -9,6 +9,8 @@ import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.*;
 import cn.ideamake.components.im.service.vanke.VankeMessageService;
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import java.util.Optional;
  * @create: 2019/09/17 20:48
  */
 @Service
+@Slf4j
 public class VankeMessageServiceImpl implements VankeMessageService {
     @Resource
     private CusChatMemberMapper cusChatMemberMapper;
@@ -53,7 +56,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     @Transactional(rollbackFor = Exception.class)
     public void writeMessage(ChatBody chatBody, int cmd) {
         //发起聊天
-        if(Command.COMMAND_CHAT_REQ.getNumber() == cmd && chatBody != null) {
+        if (Command.COMMAND_CHAT_REQ.getNumber() == cmd && chatBody != null) {
             try {
                 addChatRecord(chatBody);
             } catch (Exception e) {
@@ -67,38 +70,41 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateChatMember(String userId, int op) {
-        if(StringUtils.isBlank(userId)) {
-            return ;
+        if (StringUtils.isBlank(userId)) {
+            return;
         }
         CusChatMember member = cusChatMemberMapper.selectByUserId(userId);
         //上线操作
-        if(op == VankeChatStaus.ON_LINE.getStatus()) {
+        if (op == VankeChatStaus.ON_LINE.getStatus()) {
             Integer status = member.getStatus();
-            if(VankeChatStaus.ON_LINE.getStatus().intValue() == status){
-                return ;
+            if (VankeChatStaus.ON_LINE.getStatus().intValue() == status) {
+                return;
             }
             //修改状态为上线
             cusChatMemberMapper.updateStatus(member.getId(), VankeChatStaus.ON_LINE.getStatus(), 0);
             return;
         }
         //下线操作
-        if(op == VankeChatStaus.OFF_LINE.getStatus()) {
+        if (op == VankeChatStaus.OFF_LINE.getStatus()) {
             //修改成员为下线
             cusChatMemberMapper.updateStatus(member.getId(), VankeChatStaus.OFF_LINE.getStatus(), 1);
             //修改聊天房间相关数据为下线状态
-            cusChatRoomRelateMapper.updateStatus(member.getId(),  VankeChatStaus.OFF_LINE.getStatus());
+            cusChatRoomRelateMapper.updateStatus(member.getId(), VankeChatStaus.OFF_LINE.getStatus());
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initChatInfo(VankeLoginDTO dto) {
+        log.info("VankeMessageService-initChatInfo(), init start, input: {}", JSON.toJSONString(dto));
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String receiverId = dto.getReceiverId();
         @NotNull Integer type = dto.getType();
         Date date = new Date();
         //初始化访客信息
-        if(initMember(dto) && type == TermianlType.VISITOR.getType().intValue()) {
+        boolean isSuccess = initMember(dto) && type == TermianlType.VISITOR.getType().intValue();
+        log.info("VankeMessageService-initChatInfo(), init start, isSuccess: {}", isSuccess);
+        if (isSuccess) {
             //初始化聊天房间
             String uniqueCode = Md5.getMD5(senderId + receiverId);
             CusChatRoom cusChatRoom = new CusChatRoom();
@@ -121,13 +127,14 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             cusVisitorMapper.insert(cusVisitor);
             //把客服状态修改为繁忙 0=空闲， 1=繁忙
             cusChatMemberMapper.updateIsBusy(receiverId, 1);
+            log.info("VankeMessageService-initChatInfo(), init end, input: {}", JSON.toJSONString(dto));
         }
     }
 
     @Override
     public boolean initMember(VankeLoginDTO dto) {
         CusChatMember cusChatMember = cusChatMemberMapper.selectByUserId(dto.getSenderId());
-        if(Objects.isNull(cusChatMember)) {
+        if (Objects.isNull(cusChatMember)) {
             @NotNull Integer type = dto.getType();
             CusChatMember entity = new CusChatMember();
             entity.setUserId(dto.getSenderId());
@@ -135,9 +142,9 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             entity.setNickName(dto.getNick());
             //发送人身份类型,1=客服,0=访客, 2置业顾问
             String phone = "";
-            if(0 == type) {
+            if (0 == type) {
                 phone = Optional.ofNullable(visitorMapper.selectByOpenId(dto.getSenderId())).map(Visitor::getPhone).orElse("");
-            }else if(1 == type) {
+            } else if (1 == type) {
                 phone = Optional.ofNullable(cusInfoMapper.selectById(dto.getSenderId())).map(CusInfo::getPhone).orElseThrow(() -> new IllegalArgumentException("visitorId is error, visitorId: " + dto.getSenderId()));
             }
             entity.setPhone(phone);
@@ -145,11 +152,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             entity.setToken(dto.getToken());
             entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
             entity.setCreateAt(new Date());
-            try {
-                return 1 == cusChatMemberMapper.insert(entity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            return 1 == cusChatMemberMapper.insert(entity);
         }
         return false;
     }

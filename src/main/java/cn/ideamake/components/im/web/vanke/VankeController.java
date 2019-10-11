@@ -99,10 +99,10 @@ public class VankeController {
             if (isConcurrent == 0) {
                 vo.setUnReadNum(cache.incr(unReadNumKey, 1));
                 if (mapCache.containsKey(visitorId)) {
-                    vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
+                    vo.setPendingReplyNum((long) mapCache.size());
                 } else {
                     mapCache.put(visitorId, 1L);
-                    vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
+                    vo.setPendingReplyNum((long) mapCache.size());
                 }
             }
         }
@@ -112,7 +112,7 @@ public class VankeController {
             cache.remove(unReadNumKey);
             vo.setUnReadNum(0L);
             mapCache.remove(visitorId);
-            vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
+            vo.setPendingReplyNum((long) mapCache.size());
         }
 
         vo.setAllContactsNum(cache.get(allCountKey, Long.class));
@@ -120,7 +120,7 @@ public class VankeController {
         vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
 
         if(Objects.isNull(vo.getPendingReplyNum())) {
-            vo.setPendingReplyNum(Long.valueOf(mapCache.size()));
+            vo.setPendingReplyNum((long) mapCache.size());
         }
 
         if(Objects.isNull(vo.getUnReadNum())) {
