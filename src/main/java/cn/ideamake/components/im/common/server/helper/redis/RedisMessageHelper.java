@@ -19,6 +19,7 @@ import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import cn.ideamake.components.im.pojo.vo.UserFriendsVO;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -228,8 +230,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             return null;
         }
         UserMessageData messageData = new UserMessageData(userid);
-        putFriendsHistoryMessage(messageData, JsonKit.toArray(messages, ChatBody.class), from_userid);
-        return messageData;
+        return putFriendsHistoryMessage(messageData, JsonKit.toArray(messages, ChatBody.class), from_userid);
     }
 
     @Override
@@ -330,7 +331,10 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 friendMessages = new ArrayList<ChatBody>();
                 userMessage.getFriends().put(friendId, friendMessages);
             }
-            friendMessages.add(chatBody);
+            Object isAutoMessage = chatBody.getExtras().get("isAutoMessage");
+            if(Objects.isNull(isAutoMessage) || Objects.equals(isAutoMessage, "false")){
+                friendMessages.add(chatBody);
+            }
         }
         return userMessage;
     }
@@ -649,6 +653,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         }
         //统计待回复信息数量
         int pendingReplyNum = 0;
+        int totalCount = 0;
         //最近联系人
         int lastedContactsNum = 0;
         List<UserFriendsVO> friendsVOS = new ArrayList<>();
@@ -673,18 +678,25 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             userFriendsVO.setAvatar(userFriend.getAvatar() == null ? "" : userFriend.getAvatar());
             String sessionId = ChatKit.sessionId(userId, friendId);
             String key = USER + SUBFIX + sessionId;
-            //取10条聊天纪录
+            //取1条聊天纪录
 //            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
-            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 1);
+            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 5);
             if (!messages.isEmpty()) {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
-                userFriendsVO.setHistoryMessage(chatBodyList);
                 //最后一条聊天记录的时间
-                long contactTime = chatBodyList.get(chatBodyList.size() - 1).getCreateTime().longValue();
+                long contactTime = chatBodyList.get(0).getCreateTime().longValue();
                 if (now - contactTime <= LASTED_CONTACT_TIME) {
                     lastedContactsNum++;
                     isLastedFriend = true;
                 }
+                List<ChatBody> collect = chatBodyList.stream().map(chatBody -> {
+                    Object isAutoMessage = chatBody.getExtras().get("isAutoMessage");
+                    if (Objects.isNull(isAutoMessage) || Objects.equals(isAutoMessage, "false")) {
+                        return chatBody;
+                    }
+                    return null;
+                }).filter(e -> e != null).collect(Collectors.toList());
+                userFriendsVO.setHistoryMessage(collect);
             } else {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
             }
@@ -722,6 +734,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     friendsVOS.add(userFriendsVO);
                     isReplyFriend = false;
                 }
+                totalCount ++;
                 continue;
             } else if (pullType == 3) {
                 //拉取最近联系人
@@ -729,8 +742,10 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     friendsVOS.add(userFriendsVO);
                     isLastedFriend = false;
                 }
+                totalCount ++;
                 continue;
             }
+            totalCount ++;
             //拉取全部
             friendsVOS.add(userFriendsVO);
         }
@@ -742,7 +757,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         userDetailVO.setFriends(friendsVOS);
         userDetailVO.setPendingReplyNum(isSearch ? mapCache.size() : pendingReplyNum);
         userDetailVO.setLastedContactsNum(lastedContactsNum);
-        userDetailVO.setAllContactsNum(isSearch ? friendsIds.size() : friendsVOS.size());
+        userDetailVO.setAllContactsNum(totalCount);
         userDetailVO.setPullType(pullType);
         return userDetailVO;
     }

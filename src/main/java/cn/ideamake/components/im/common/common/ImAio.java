@@ -1,5 +1,9 @@
 package cn.ideamake.components.im.common.common;
 
+import cn.ideamake.components.im.common.common.packets.Command;
+import cn.ideamake.components.im.common.common.packets.RespBody;
+import cn.ideamake.components.im.common.common.utils.ChatKit;
+import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import cn.ideamake.components.im.common.common.ImConfig;
@@ -34,6 +38,8 @@ public class ImAio {
     public static ImConfig imConfig = null;
 
     private static Logger log = LoggerFactory.getLogger(cn.ideamake.components.im.common.common.ImAio.class);
+
+    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\", \"isAutoMessage\":\"%s\" }, \"content\":\"%s\" }";
 
     /**
      * 功能描述：[根据用户ID获取当前用户]
@@ -248,6 +254,23 @@ public class ImAio {
     }
 
     /**
+     * @description: 给指定人发送指定消息
+     * @param: [user, receiverId, message]
+     * @return: void
+     * @author: apollo
+     * @date: 2019-10-11
+     */
+    public static void sendToUser(User user, String receiverId, String message, String isAutoMessage) {
+        if (Objects.isNull(user) || StringUtils.isBlank(receiverId)) {
+            return;
+        }
+        String body = String.format(CHAT_BODY, receiverId, user.getId(), user.getNick(), user.getAvatar(), isAutoMessage, message);
+        ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
+        ImAio.sendToUser(receiverId, chatPacket);
+
+    }
+
+    /**
      * 发送到指定用户;
      *
      * @param userId
@@ -300,7 +323,7 @@ public class ImAio {
         try {
             SetWithLock<ChannelContext> setWithLock = groupContext.ips.clients(groupContext, ip);
             if (setWithLock == null) {
-                log.info("{}, 没有ip为[{}]的对端" , groupContext.getName(), ip);
+                log.info("{}, 没有ip为[{}]的对端", groupContext.getName(), ip);
                 return false;
             } else {
                 Boolean ret = sendToSet(groupContext, setWithLock, packet, channelContextFilter, isBlock);

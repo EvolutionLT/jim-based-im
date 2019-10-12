@@ -40,4 +40,13 @@ public interface AysnChatService {
      * @date: 2019-09-23
      */
     void synInitChatInfo(VankeLoginDTO dto);
+
+    /**
+    * @description: 异步删除好友
+    * @param: [cusId, friendId]
+    * @return: void
+    * @author: apollo
+    * @date: 2019-10-11
+    */
+    void synDelFriend(String cusId, String friendId);
 }

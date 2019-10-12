@@ -54,4 +54,9 @@ public class AsynChatServiceImpl implements AysnChatService {
             CompletableFuture.runAsync(() -> vankeMessageService.initChatInfo(dto), vankeExecutor);
         }
     }
+
+    @Override
+    public void synDelFriend(String cusId, String friendId) {
+
+    }
 }

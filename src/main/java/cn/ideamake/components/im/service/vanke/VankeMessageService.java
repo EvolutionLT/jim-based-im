@@ -2,6 +2,7 @@ package cn.ideamake.components.im.service.vanke;
 
 import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
+import cn.ideamake.components.im.pojo.entity.CusChatMember;
 
 public interface VankeMessageService {
     /**
@@ -38,5 +39,14 @@ public interface VankeMessageService {
     * @author: apollo
     * @date: 2019-09-21
     */
-    boolean initMember(VankeLoginDTO dto);
+    CusChatMember initMember(VankeLoginDTO dto);
+
+    /**
+    * @description: 逻辑删除Mysql中的好友关系
+    * @param: [cusId, friendId]
+    * @return: void
+    * @author: apollo
+    * @date: 2019-10-11
+    */
+    void delFriend(String cusId, String friendId);
 }
