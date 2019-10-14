@@ -308,10 +308,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
      * @param key
      * @return
      */
-    public User getUserInfo(String key, LoginReqBody loginReqBody) {
-        IMUsers imUser = new IMUsers();
+    private User getUserInfo(String key, LoginReqBody loginReqBody) {
         User user = new User();
-        imUser = userService.getUserInfo(key);
+        IMUsers imUser = userService.getUserInfo(key);
         if (imUser != null) {
             user.setId(imUser.getUuid());
             user.setNick(imUser.getNick());
@@ -324,8 +323,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             user.setAvatar(loginReqBody.getAvatar());
             user.setNick(loginReqBody.getNick());
             user.setId(loginReqBody.getUserId());
-
-
         }
         return user;
     }
