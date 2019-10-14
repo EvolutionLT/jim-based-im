@@ -7,7 +7,7 @@
     </select>
 
     <update id="updateStatus">
-        update wk_cus_chat_member set status = #{status} and is_busy = #{isBusy} where id = #{id} and status != #{status}
+        update wk_cus_chat_member set status = #{status} ,is_busy = #{isBusy} where user_id = #{id} and `type` = 1
     </update>
 
     <select id="selectCustomer" resultType="cn.ideamake.components.im.pojo.entity.CusChatMember">
