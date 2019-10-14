@@ -23,7 +23,7 @@ public interface ICache {
 	 * @author wchao
 	 */
 	public Serializable get(String key);
-	
+
 	/**
 	 * 根据key获取value
 	 * @param key

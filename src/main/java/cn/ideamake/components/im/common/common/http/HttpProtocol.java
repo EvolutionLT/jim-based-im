@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.http;
 
@@ -23,47 +23,46 @@ import java.nio.ByteBuffer;
  */
 public class HttpProtocol extends AbProtocol {
 
-	@Override
-	public String name() {
-		return Protocol.HTTP;
-	}
+    @Override
+    public String name() {
+        return Protocol.HTTP;
+    }
 
-	@Override
-	public boolean isProtocolByBuffer(ByteBuffer buffer,ChannelContext channelContext) throws Throwable {
-		ImSessionContext imSessionContext = (ImSessionContext)channelContext.getAttribute();
-		if(imSessionContext != null && imSessionContext instanceof HttpSession) {
-			return true;
-		}
-		if(buffer != null){
-			HttpRequest request = HttpRequestDecoder.decode(buffer, channelContext,false);
-			if(request.getHeaders().get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key) == null)
-			{
-				channelContext.setAttribute(new HttpSession());
-				ImUtils.setClient(channelContext);
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean isProtocolByBuffer(ByteBuffer buffer, ChannelContext channelContext) throws Throwable {
+        ImSessionContext imSessionContext = (ImSessionContext) channelContext.getAttribute();
+        if (imSessionContext != null && imSessionContext instanceof HttpSession) {
+            return true;
+        }
+        if (buffer != null) {
+            HttpRequest request = HttpRequestDecoder.decode(buffer, channelContext, false);
+            if (request.getHeaders().get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key) == null) {
+                channelContext.setAttribute(new HttpSession());
+                ImUtils.setClient(channelContext);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public IConvertProtocolPacket converter() {
-		return new HttpConvertPacket();
-	}
+    @Override
+    public IConvertProtocolPacket converter() {
+        return new HttpConvertPacket();
+    }
 
-	@Override
-	public boolean isProtocol(ImPacket imPacket, ChannelContext channelContext) throws Throwable {
-		if(imPacket == null) {
-			return false;
-		}
-		if(imPacket instanceof HttpPacket){
-			Object sessionContext = channelContext.getAttribute();
-			if(sessionContext == null){
-				channelContext.setAttribute(new HttpSession());
-			}
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean isProtocol(ImPacket imPacket, ChannelContext channelContext) throws Throwable {
+        if (imPacket == null) {
+            return false;
+        }
+        if (imPacket instanceof HttpPacket) {
+            Object sessionContext = channelContext.getAttribute();
+            if (sessionContext == null) {
+                channelContext.setAttribute(new HttpSession());
+            }
+            return true;
+        }
+        return false;
+    }
 
 }

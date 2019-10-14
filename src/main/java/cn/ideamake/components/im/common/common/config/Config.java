@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.config;
 
@@ -14,159 +14,159 @@ import org.tio.core.ssl.SslConfig;
  * 2018/08/26
  */
 public class Config {
-	/**
-	 * IP地址
-	 */
-	protected String bindIp = null;
-	/**
-	 * 监听端口
-	 */
-	protected Integer bindPort = 80;
-	/**
-	 * 心跳包发送时长heartbeatTimeout/2
-	 */
-	protected long heartbeatTimeout = 0;
-	
-	/**
-	 * 全局群组上下文;
-	 */
-	protected GroupContext groupContext;
-	/**
-	 * 群组监听器;
-	 */
-	protected GroupListener imGroupListener;
-	/**
-	 * 用户消息持久化助手;
-	 */
-	protected MessageHelper messageHelper;
-	/**
-	 * 是否开启持久化;
-	 */
-	protected String isStore = "on";
-	/**
-	 * 是否开启集群;
-	 */
-	protected String isCluster = "off";
-	/**
-	 * 是否开启SSL加密
-	 */
-	protected String isSSL = "off";
-	/**
-	 * SSL配置
-	 */
-	protected SslConfig sslConfig;
-	/**
-	 * 集群配置
-	 * 如果此值不为null，就表示要集群
-	 */
-	protected ImCluster cluster;
-	/**
-	 *  默认的接收数据的buffer size
-	 */
-	protected long readBufferSize = 1024 * 2;
-	
-	public String getBindIp() {
-		return bindIp;
-	}
-	
-	public void setBindIp(String bindIp) {
-		this.bindIp = bindIp;
-	}
-	
-	public Integer getBindPort() {
-		return bindPort;
-	}
-	
-	public void setBindPort(Integer bindPort) {
-		this.bindPort = bindPort;
-	}
+    /**
+     * IP地址
+     */
+    protected String bindIp = null;
+    /**
+     * 监听端口
+     */
+    protected Integer bindPort = 80;
+    /**
+     * 心跳包发送时长heartbeatTimeout/2
+     */
+    protected long heartbeatTimeout = 0;
 
-	public long getHeartbeatTimeout() {
-		return heartbeatTimeout;
-	}
+    /**
+     * 全局群组上下文;
+     */
+    protected GroupContext groupContext;
+    /**
+     * 群组监听器;
+     */
+    protected GroupListener imGroupListener;
+    /**
+     * 用户消息持久化助手;
+     */
+    protected MessageHelper messageHelper;
+    /**
+     * 是否开启持久化;
+     */
+    protected String isStore = "on";
+    /**
+     * 是否开启集群;
+     */
+    protected String isCluster = "off";
+    /**
+     * 是否开启SSL加密
+     */
+    protected String isSSL = "off";
+    /**
+     * SSL配置
+     */
+    protected SslConfig sslConfig;
+    /**
+     * 集群配置
+     * 如果此值不为null，就表示要集群
+     */
+    protected ImCluster cluster;
+    /**
+     *  默认的接收数据的buffer size
+     */
+    protected long readBufferSize = 1024 * 2;
 
-	public void setHeartbeatTimeout(long heartbeatTimeout) {
-		this.heartbeatTimeout = heartbeatTimeout;
-	}
+    public String getBindIp() {
+        return bindIp;
+    }
 
-	public GroupContext getGroupContext() {
-		return groupContext;
-	}
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
 
-	public void setGroupContext(GroupContext groupContext) {
-		this.groupContext = groupContext;
-	}
+    public Integer getBindPort() {
+        return bindPort;
+    }
 
-	public GroupListener getImGroupListener() {
-		return imGroupListener;
-	}
+    public void setBindPort(Integer bindPort) {
+        this.bindPort = bindPort;
+    }
 
-	public void setImGroupListener(GroupListener imGroupListener) {
-		this.imGroupListener = imGroupListener;
-	}
+    public long getHeartbeatTimeout() {
+        return heartbeatTimeout;
+    }
 
-	public MessageHelper getMessageHelper() {
-		return messageHelper;
-	}
+    public void setHeartbeatTimeout(long heartbeatTimeout) {
+        this.heartbeatTimeout = heartbeatTimeout;
+    }
 
-	public void setMessageHelper(MessageHelper messageHelper) {
-		this.messageHelper = messageHelper;
-	}
+    public GroupContext getGroupContext() {
+        return groupContext;
+    }
 
-	public String getIsStore() {
-		return isStore;
-	}
+    public void setGroupContext(GroupContext groupContext) {
+        this.groupContext = groupContext;
+    }
 
-	public void setIsStore(String isStore) {
-		this.isStore = isStore;
-	}
+    public GroupListener getImGroupListener() {
+        return imGroupListener;
+    }
 
-	public String getIsCluster() {
-		return isCluster;
-	}
+    public void setImGroupListener(GroupListener imGroupListener) {
+        this.imGroupListener = imGroupListener;
+    }
 
-	public void setIsCluster(String isCluster) {
-		this.isCluster = isCluster;
-	}
+    public MessageHelper getMessageHelper() {
+        return messageHelper;
+    }
 
-	public String getIsSSL() {
-		return isSSL;
-	}
+    public void setMessageHelper(MessageHelper messageHelper) {
+        this.messageHelper = messageHelper;
+    }
 
-	public void setIsSSL(String isSSL) {
-		this.isSSL = isSSL;
-	}
+    public String getIsStore() {
+        return isStore;
+    }
 
-	public SslConfig getSslConfig() {
-		return sslConfig;
-	}
+    public void setIsStore(String isStore) {
+        this.isStore = isStore;
+    }
 
-	public void setSslConfig(SslConfig sslConfig) {
-		this.sslConfig = sslConfig;
-	}
+    public String getIsCluster() {
+        return isCluster;
+    }
 
-	public ImCluster getCluster() {
-		return cluster;
-	}
+    public void setIsCluster(String isCluster) {
+        this.isCluster = isCluster;
+    }
 
-	public void setCluster(ImCluster cluster) {
-		this.cluster = cluster;
-	}
+    public String getIsSSL() {
+        return isSSL;
+    }
 
-	public long getReadBufferSize() {
-		return readBufferSize;
-	}
+    public void setIsSSL(String isSSL) {
+        this.isSSL = isSSL;
+    }
 
-	public void setReadBufferSize(long readBufferSize) {
-		this.readBufferSize = readBufferSize;
-	}
-	
-	public interface Builder {
-		/**
-		 * 配置构建接口
-		 * @return
-		 * @throws Exception
-		 */
+    public SslConfig getSslConfig() {
+        return sslConfig;
+    }
+
+    public void setSslConfig(SslConfig sslConfig) {
+        this.sslConfig = sslConfig;
+    }
+
+    public ImCluster getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(ImCluster cluster) {
+        this.cluster = cluster;
+    }
+
+    public long getReadBufferSize() {
+        return readBufferSize;
+    }
+
+    public void setReadBufferSize(long readBufferSize) {
+        this.readBufferSize = readBufferSize;
+    }
+
+    public interface Builder {
+        /**
+         * 配置构建接口
+         * @return
+         * @throws Exception
+         */
         cn.ideamake.components.im.common.common.config.Config build() throws Exception;
     }
 }

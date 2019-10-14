@@ -22,7 +22,7 @@ public class PropUtil {
     }
 
     public static Prop use(String fileName, String encoding) {
-        Prop result = (Prop)map.get(fileName);
+        Prop result = (Prop) map.get(fileName);
         if (result == null) {
             result = new Prop(fileName, encoding);
             map.put(fileName, result);
@@ -39,7 +39,7 @@ public class PropUtil {
     }
 
     public static Prop use(File file, String encoding) {
-        Prop result = (Prop)map.get(file.getName());
+        Prop result = (Prop) map.get(file.getName());
         if (result == null) {
             result = new Prop(file, encoding);
             map.put(file.getName(), result);
@@ -52,7 +52,7 @@ public class PropUtil {
     }
 
     public static Prop useless(String fileName) {
-        Prop previous = (Prop)map.remove(fileName);
+        Prop previous = (Prop) map.remove(fileName);
         if (prop == previous) {
             prop = null;
         }
@@ -74,7 +74,7 @@ public class PropUtil {
     }
 
     public static Prop getProp(String fileName) {
-        return (Prop)map.get(fileName);
+        return (Prop) map.get(fileName);
     }
 
     public static String get(String key) {

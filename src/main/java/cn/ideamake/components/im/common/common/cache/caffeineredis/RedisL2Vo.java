@@ -9,39 +9,39 @@ import java.io.Serializable;
  * @date 2018年3月13日 下午8:05:50
  */
 public class RedisL2Vo {
-	
-	private RedisCache redisCache;
-	private String key;
-	private Serializable value;
-	
-	public RedisL2Vo(RedisCache redisCache , String key , Serializable value){
-		this.redisCache = redisCache;
-		this.key = key;
-		this.value = value;
-	}
 
-	public RedisCache getRedisCache() {
-		return redisCache;
-	}
+    private RedisCache redisCache;
+    private String key;
+    private Serializable value;
 
-	public void setRedisCache(RedisCache redisCache) {
-		this.redisCache = redisCache;
-	}
+    public RedisL2Vo(RedisCache redisCache, String key, Serializable value) {
+        this.redisCache = redisCache;
+        this.key = key;
+        this.value = value;
+    }
 
-	public String getKey() {
-		return key;
-	}
+    public RedisCache getRedisCache() {
+        return redisCache;
+    }
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+    public void setRedisCache(RedisCache redisCache) {
+        this.redisCache = redisCache;
+    }
 
-	public Serializable getValue() {
-		return value;
-	}
+    public String getKey() {
+        return key;
+    }
 
-	public void setValue(Serializable value) {
-		this.value = value;
-	}
-	
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public Serializable getValue() {
+        return value;
+    }
+
+    public void setValue(Serializable value) {
+        this.value = value;
+    }
+
 }

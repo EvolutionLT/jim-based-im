@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.server.command.handler.processor.handshake;
 
@@ -19,40 +19,41 @@ import org.tio.core.ChannelContext;
  */
 public class TcpHandshakeProcessor implements HandshakeCmdProcessor {
 
-	@Override
-	public ImPacket handshake(ImPacket packet, ChannelContext channelContext) throws Exception {
-		RespBody handshakeBody = new RespBody(Command.COMMAND_HANDSHAKE_RESP,new HandshakeBody(Protocol.HANDSHAKE_BYTE));
-		ImPacket handshakePacket = ImKit.ConvertRespPacket(handshakeBody,channelContext);
-		return handshakePacket;
-	}
+    @Override
+    public ImPacket handshake(ImPacket packet, ChannelContext channelContext) throws Exception {
+        RespBody handshakeBody = new RespBody(Command.COMMAND_HANDSHAKE_RESP, new HandshakeBody(Protocol.HANDSHAKE_BYTE));
+        ImPacket handshakePacket = ImKit.ConvertRespPacket(handshakeBody, channelContext);
+        return handshakePacket;
+    }
 
-	/**
-	 * 握手成功后
-	 * @param packet
-	 * @param channelContext
-	 * @throws Exception
-	 * @author Wchao
-	 */
-	@Override
-	public void onAfterHandshaked(ImPacket packet, ChannelContext channelContext)throws Exception {
-		
-	}
-	@Override
-	public boolean isProtocol(ChannelContext channelContext){
-		Object sessionContext = channelContext.getAttribute();
-		if(sessionContext == null){
-			return false;
-		}else if(sessionContext instanceof TcpSessionContext){
-			return true;
-		}
-		return false;
-	}
+    /**
+     * 握手成功后
+     * @param packet
+     * @param channelContext
+     * @throws Exception
+     * @author Wchao
+     */
+    @Override
+    public void onAfterHandshaked(ImPacket packet, ChannelContext channelContext) throws Exception {
+
+    }
+
+    @Override
+    public boolean isProtocol(ChannelContext channelContext) {
+        Object sessionContext = channelContext.getAttribute();
+        if (sessionContext == null) {
+            return false;
+        } else if (sessionContext instanceof TcpSessionContext) {
+            return true;
+        }
+        return false;
+    }
 
 
-	@Override
-	public String name() {
-		
-		return Protocol.TCP;
-	}
-	
+    @Override
+    public String name() {
+
+        return Protocol.TCP;
+    }
+
 }

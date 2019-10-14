@@ -15,11 +15,11 @@ import java.util.Properties;
  * @date 2018年3月9日 上午1:06:33
  */
 public class CaffeineConfigurationFactory {
-	
+
     private static final Logger LOG = LoggerFactory.getLogger(cn.ideamake.components.im.common.common.cache.caffeine.CaffeineConfigurationFactory.class.getName());
 
     private static final String DEFAULT_CLASSPATH_CONFIGURATION_FILE = "caffeine.properties";
-    
+
     /**
      * Constructor.
      */
@@ -34,8 +34,8 @@ public class CaffeineConfigurationFactory {
         if (file == null) {
             throw new Exception("Attempt to configure caffeine from null file.");
         }
-        LOG.debug("Configuring caffeine from file: {}", file);
-        List<CaffeineConfiguration> configurations  = null;
+        LOG.debug("Configuring caffeine from file: {}" , file);
+        List<CaffeineConfiguration> configurations = null;
         InputStream input = null;
         try {
             input = new BufferedInputStream(new FileInputStream(file));
@@ -53,11 +53,12 @@ public class CaffeineConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file available as an URL.
      */
     public static List<CaffeineConfiguration> parseConfiguration(final URL url) throws Exception {
-        LOG.debug("Configuring caffeine from URL: {}", url);
+        LOG.debug("Configuring caffeine from URL: {}" , url);
         List<CaffeineConfiguration> configurations;
         InputStream input = null;
         try {
@@ -76,6 +77,7 @@ public class CaffeineConfigurationFactory {
         }
         return configurations;
     }
+
     /**
      * Configures a bean from an property file in the classpath.
      */
@@ -86,13 +88,13 @@ public class CaffeineConfigurationFactory {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url == null) {
-        	url = cn.ideamake.components.im.common.common.cache.caffeine.CaffeineConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
+            url = cn.ideamake.components.im.common.common.cache.caffeine.CaffeineConfigurationFactory.class.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);
         }
         if (url != null) {
             LOG.debug("Configuring caffeine from caffeine.properties found in the classpath: " + url);
         } else {
             LOG.warn("No configuration found. Configuring caffeine from caffeine.properties "
-                    + " found in the classpath: {}", url);
+                    + " found in the classpath: {}" , url);
 
         }
         List<CaffeineConfiguration> configurations = parseConfiguration(url);
@@ -110,9 +112,9 @@ public class CaffeineConfigurationFactory {
         try {
             Properties props = new Properties();
             props.load(inputStream);
-			for(String key : props.stringPropertyNames()){
-    			configurations.add(new CaffeineConfiguration(key , props));
-    		}
+            for (String key : props.stringPropertyNames()) {
+                configurations.add(new CaffeineConfiguration(key, props));
+            }
         } catch (Exception e) {
             throw new Exception("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
         }

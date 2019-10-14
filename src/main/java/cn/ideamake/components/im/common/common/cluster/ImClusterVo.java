@@ -7,113 +7,113 @@ import java.util.UUID;
 /**
  * 成员变量group, userid, ip谁有值就发给谁，toAll为true则发给所有<br>
  * packet是不允许为null的
- * @author WChao 
+ *
+ * @author WChao
  * 2018年05月20日 下午3:10:29
  */
 public class ImClusterVo implements java.io.Serializable {
-	private static final long serialVersionUID = 6978027913776155664L;
-	
-	public static final String CLIENTID = UUID.randomUUID().toString();
+    private static final long serialVersionUID = 6978027913776155664L;
 
-	private ImPacket packet;
+    public static final String CLIENTID = UUID.randomUUID().toString();
 
-	private String clientId = CLIENTID;
-	
-	private String group;
+    private ImPacket packet;
 
-	private String userid;
-	
-	private String token;
-	
-	private String ip;
-	
-	/**
-	 * ChannelContext'id
-	 */
-	private String channelId;
-	
-	private boolean toAll = false;
+    private String clientId = CLIENTID;
 
-	public ImPacket getPacket() {
-		return packet;
-	}
+    private String group;
 
-	public void setPacket(ImPacket packet) {
-		this.packet = packet;
-	}
+    private String userid;
 
-	public String getGroup() {
-		return group;
-	}
+    private String token;
 
-	public void setGroup(String group) {
-		this.group = group;
-	}
+    private String ip;
 
-	public String getUserid() {
-		return userid;
-	}
+    /**
+     * ChannelContext'id
+     */
+    private String channelId;
 
-	public void setUserid(String userid) {
-		this.userid = userid;
-	}
+    private boolean toAll = false;
 
-	public String getIp() {
-		return ip;
-	}
+    public ImPacket getPacket() {
+        return packet;
+    }
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
+    public void setPacket(ImPacket packet) {
+        this.packet = packet;
+    }
 
-	/**
-	 * 
-	 * @author: WChao
-	 */
-	public ImClusterVo() {
-	}
-	
-	public ImClusterVo(ImPacket packet) {
-		this.packet = packet;
-	}
+    public String getGroup() {
+        return group;
+    }
 
-	/**
-	 * @param args
-	 * @author: WChao
-	 */
-	public static void main(String[] args) {
+    public void setGroup(String group) {
+        this.group = group;
+    }
 
-	}
+    public String getUserid() {
+        return userid;
+    }
 
-	public boolean isToAll() {
-		return toAll;
-	}
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
 
-	public void setToAll(boolean toAll) {
-		this.toAll = toAll;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public String getClientId() {
-		return clientId;
-	}
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
-	}
+    /**
+     * @author: WChao
+     */
+    public ImClusterVo() {
+    }
 
-	public String getChannelId() {
-		return channelId;
-	}
+    public ImClusterVo(ImPacket packet) {
+        this.packet = packet;
+    }
 
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
+    /**
+     * @param args
+     * @author: WChao
+     */
+    public static void main(String[] args) {
 
-	public String getToken() {
-		return token;
-	}
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public boolean isToAll() {
+        return toAll;
+    }
+
+    public void setToAll(boolean toAll) {
+        this.toAll = toAll;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

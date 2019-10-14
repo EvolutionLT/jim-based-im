@@ -37,18 +37,37 @@ public class ChatBody extends Message {
 	 * 消息发到哪个群组;
 	 */
 	private String groupId;
+	private String roomId;
+	private String other;
+
+	public String getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(String roomId) {
+		this.roomId = roomId;
+	}
+
+	public String getOther() {
+		return other;
+	}
+
+	public void setOther(String other) {
+		this.other = other;
+	}
 
 	private ChatBody(){}
 
-	private ChatBody(String id , String from , String to , Integer msgType , Integer chatType , String content , String groupId, Integer cmd , Long createTime , JSONObject extras){
+	private ChatBody(String id , String from , String to , Integer msgType , Integer chatType , String content , String groupId,String roomId, String other, Integer cmd , Long createTime , JSONObject extras){
 		this.id = id;
-		this.from = from ;
+		this.from = from;
 		this.to = to;
 		this.msgType = msgType;
 		this.chatType = chatType;
 		this.content = content;
 		this.groupId = groupId;
-
+		this.roomId = roomId;
+		this.other = other;
 		this.cmd = cmd;
 		this.createTime = createTime;
 		this.extras = extras;
@@ -127,6 +146,14 @@ public class ChatBody extends Message {
 		 * 消息发到哪个群组;
 		 */
 		private String groupId;
+		/**
+		 * 房间ID
+		 */
+		private String roomId;
+		/**
+		 * 其他字段
+		 */
+		private String other;
 		
 		public Builder(){};
 		
@@ -160,7 +187,7 @@ public class ChatBody extends Message {
 		}
 		@Override
 		public ChatBody build(){
-			return new ChatBody(this.id , this.from , this.to , this.msgType , this.chatType , this.content , this.groupId,this.cmd , this.createTime , this.extras);
+			return new ChatBody(this.id , this.from , this.to , this.msgType , this.chatType , this.content , this.groupId, this.roomId, this.other, this.cmd , this.createTime , this.extras);
 		}
 	}
 }

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.IMUserMapper">
+<select id="getUserInfo" resultType="cn.ideamake.components.im.pojo.entity.IMUsers">
+  select iu.avatar,
+    iu.capacity,
+    iu.channel,
+    iu.degree,
+    iu.id,
+    iu.nick,
+    iu.phone,
+    iu.recovery_speed,
+    iu.service_count,
+    iu.uuid,
+    iu.sign from wk_im_user iu
+  <where>
+      <if test="id !=null and id !=null">
+          and iu.uuid=#{id}
+      </if>
+  </where>
+
+</select>
+
+    <select id="getUserList" resultType="cn.ideamake.components.im.pojo.entity.IMUsers">
+        select iu.uuid id from wk_im_user iu
+    </select>
+
+<update id="updateServiceCount" >
+ update  wk_im_user set service_count=#{serviceCount}  where uuid=#{id}
+</update>
+
+    <select id="getAllUser" resultType="cn.ideamake.components.im.pojo.entity.IMUsers">
+ select
+ iu.avatar,
+ iu.capacity,
+ iu.channel,
+ iu.degree,
+ iu.id,
+ iu.nick,
+ iu.phone,
+ iu.recovery_speed,
+ iu.service_count,
+ iu.uuid,
+ iu.sign
+from wk_im_user iu
+<where>
+   <if test="query.userType!=null and query.userType!=''">
+       and iu.capacity=#{query.userType}
+   </if>
+
+    <if test="query.channel!=null and query.channel!=''">
+        and iu.channel=#{query.channel}
+    </if>
+
+</where>
+  </select>
+
+    <update id="updateUserDegree" >
+ update  wk_im_user set degree=#{degree}  where uuid=#{id}
+</update>
+
+    <update id="updateUserInfo" >
+        update  wk_im_user
+
+        <if test="query.nick !=null and query.avatar==null ">
+            set nick=#{query.nick}
+        </if>
+
+        <if test="query.avatar !=null and query.nick==null ">
+            set avatar=#{query.avatar}
+        </if>
+        <if test="query.nick !=null and query.avatar!=null ">
+            set nick=#{query.nick}, avatar=#{query.avatar}
+        </if>
+        ,capacity=#{query.capacity}
+        <where>uuid=#{query.userId}</where>
+    </update>
+
+</mapper>

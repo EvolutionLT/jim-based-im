@@ -7,6 +7,7 @@ import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImStatus;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.common.message.MessageHelper;
 import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.constants.Constants;
@@ -19,7 +20,9 @@ import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.CusChatMember;
+import cn.ideamake.components.im.pojo.entity.IMUsers;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
+import cn.ideamake.components.im.service.vanke.IMUserService;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +31,11 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.utils.lock.SetWithLock;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
@@ -52,6 +58,12 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 public class ValidAuthorServiceImpl implements ValidAuthorService {
+    /**
+     * IM客服新需求
+     * @param dto
+     */
+    @Autowired
+    private IMUserService userService;
     @Resource
     private UserMapper userMapper;
 
@@ -73,12 +85,19 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Resource
     private AysnChatService aysnChatService;
 
-//    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
+    @Autowired
+    private IMUserMapper imUserMapper;
+
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
 
 
     private static final int EXPIRE_TIME = 7 * 24 * 60;
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
+
+    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"%s\" }";
+
+
 
 
     @Override
@@ -107,11 +126,11 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
-        if (type.equals(UserType.VISITOR.getType())) {
+        if (type.equals(UserType.CUSTOMER.getType())) {
             isValid = Optional.ofNullable(visitorMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
-        if (type.equals(UserType.ESTATE_AGENT.getType())) {
+        if (type.equals(UserType.CUSTOMER.getType())) {
             isValid = Optional.ofNullable(userMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
@@ -131,6 +150,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         if (Objects.isNull(user)) {
             valid(senderId, token, type);
             //初始化数据
+            cacheUserInfo(dto);
             user = cacheUserInfo(dto);
         }
         //校验接收人合法性
@@ -169,10 +189,28 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
         return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
             dto.setReceiverId(e.getUuId());
+            User cus = cacheFriend(dto);
+            //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
+            sendMessage(cus, senderId, "您的专属客服目前不在线，可给客服留言!");
             return cacheFriend(dto);
         }).orElse(getRandomCustomer(dto, user));
     }
 
+    /**
+     * @description: 给客服推送消息“您的专属客服目前不在线，可给客服留言”
+     * @param: [user, receiverId, message]
+     * @return: cn.ideamake.components.im.common.common.packets.User
+     * @author: apollo
+     * @date: 2019-10-08
+     */
+    private void sendMessage(User user, String receiverId, String message) {
+        String userId = user.getId();
+        if (!new RedisMessageHelper().isOnline(userId)) {
+            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar(), message);
+            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
+            ImAio.sendToUser(receiverId, chatPacket);
+        }
+    }
 
     private User getRandomCustomer(VankeLoginDTO dto, User user) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
@@ -185,8 +223,17 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 //        RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
         User friend = cacheFriend(dto);
         // 模拟访客给客服发送消息
-//        ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
+        ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
         // 模拟客服给访客发送消息
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                //TODO
+            }
+            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
+//        ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
+        }, threadPoolExecutor);
 //        CompletableFuture.runAsync(() -> {
 //            try {
 //                Thread.sleep(500);
@@ -194,6 +241,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 //                //TODO
 //            }
 ////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
+//            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
 //        }, threadPoolExecutor);
         return friend;
     }
@@ -221,16 +269,33 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        String logStr = "VankeLoginService-doLogin(), ";
-        log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
-        String token = loginReqBody.getToken();
-        if (StringUtils.isBlank(token)) {
-            log.info(logStr + "token is null!");
-            return null;
+        log.info(loginReqBody.toString());
+        if(loginReqBody.getToken()!="" && loginReqBody.getToken()!=null){
+            String logStr = "VankeLoginService-doLogin(), ";
+            log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
+            String token = loginReqBody.getToken();
+            if (StringUtils.isBlank(token)) {
+                log.info(logStr + "token is null!");
+                return null;
+            }
+            User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
+            log.info(logStr + "result: {}", JSON.toJSONString(user));
+            return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
+
+        }else{
+
+            User user=null;
+            LoginRespBody loginRespBody;
+            //获取用户信息
+            user = getUserInfo(loginReqBody.getUserId(),loginReqBody);
+
+            if(user == null){
+                return   loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
+            }else{
+                return  loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP,ImStatus.C10007,user);
+            }
+
         }
-        User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
-        log.info(logStr + "result: {}", JSON.toJSONString(user));
-        return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
     }
 
     //TODO 登录成功回调方法
@@ -259,6 +324,34 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         user.setType(dto.getType());
         user.setTerminal(dto.getTerminal());
         RedisCacheManager.getCache(ImConst.USER).put(dto.getSenderId() + ":" + Constants.USER.INFO, user);
+        return user;
+    }
+
+    /**
+     * IM老版需求
+     * 根据Key查询缓存中是否存在用户信息 如果没有则查询数据库
+     * @param key
+     * @return
+     */
+    public User getUserInfo(String key,LoginReqBody loginReqBody) {
+        IMUsers imUser = new IMUsers();
+        User user = new User();
+        imUser = userService.getUserInfo(key);
+        if (imUser != null) {
+            user.setId(imUser.getUuid());
+            user.setNick(imUser.getNick());
+            user.setAvatar(imUser.getAvatar());
+            //修改用户信息
+            imUserMapper.updateUserInfo(loginReqBody);
+        } else {
+            //如果数据库中没有该用户直接新建一个，后续采用调用第三方应用的接口进行查询
+            userService.addUser(loginReqBody);
+            user.setAvatar(loginReqBody.getAvatar());
+            user.setNick(loginReqBody.getNick());
+            user.setId(loginReqBody.getUserId());
+
+
+        }
         return user;
     }
 

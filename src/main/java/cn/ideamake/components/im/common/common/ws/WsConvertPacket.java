@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.ws;
 
@@ -18,26 +18,26 @@ import org.tio.core.ChannelContext;
  */
 public class WsConvertPacket implements IConvertProtocolPacket {
 
-	/**
-	 * WebSocket响应包;
-	 */
-	@Override
-	public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
-		Object sessionContext = channelContext.getAttribute();
-		//转ws协议响应包;
-		if(sessionContext instanceof WsSessionContext){
-			WsResponsePacket wsResponsePacket = new WsResponsePacket();
-			wsResponsePacket.setBody(body);
-			wsResponsePacket.setWsOpcode(Opcode.TEXT);
-			wsResponsePacket.setCommand(command);
-			return wsResponsePacket;
-		}
-		return null;
-	}
+    /**
+     * WebSocket响应包;
+     */
+    @Override
+    public ImPacket RespPacket(byte[] body, Command command, ChannelContext channelContext) {
+        Object sessionContext = channelContext.getAttribute();
+        //转ws协议响应包;
+        if (sessionContext instanceof WsSessionContext) {
+            WsResponsePacket wsResponsePacket = new WsResponsePacket();
+            wsResponsePacket.setBody(body);
+            wsResponsePacket.setWsOpcode(Opcode.TEXT);
+            wsResponsePacket.setCommand(command);
+            return wsResponsePacket;
+        }
+        return null;
+    }
 
-	@Override
-	public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
-		
-		return null;
-	}
+    @Override
+    public ImPacket ReqPacket(byte[] body, Command command, ChannelContext channelContext) {
+
+        return null;
+    }
 }

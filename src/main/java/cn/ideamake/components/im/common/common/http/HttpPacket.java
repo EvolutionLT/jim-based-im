@@ -6,69 +6,68 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author wchao
- *
  */
 public class HttpPacket extends ImPacket {
 
-	//	private static Logger log = LoggerFactory.getLogger(HttpPacket.class);
+    //	private static Logger log = LoggerFactory.getLogger(HttpPacket.class);
 
-	private static final long serialVersionUID = 3903186670675671956L;
+    private static final long serialVersionUID = 3903186670675671956L;
 
-	//	public static final int MAX_LENGTH_OF_BODY = (int) (1024 * 1024 * 5.1); //只支持多少M数据
+    //	public static final int MAX_LENGTH_OF_BODY = (int) (1024 * 1024 * 5.1); //只支持多少M数据
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
 
-	}
-	private String headerString;
+    }
 
-	protected Map<String, String> headers = new HashMap<>();
+    private String headerString;
 
-	public HttpPacket() {
+    protected Map<String, String> headers = new HashMap<>();
 
-	}
+    public HttpPacket() {
 
-	public void addHeader(String key, String value) {
-		headers.put(key, value);
-	}
+    }
 
-	public void addHeaders(Map<String, String> headers) {
-		if (headers != null) {
-			this.headers.putAll(headers);
-		}
-	}
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
+    }
 
-	public String getHeader(String key) {
-		return headers.get(key);
-	}
+    public void addHeaders(Map<String, String> headers) {
+        if (headers != null) {
+            this.headers.putAll(headers);
+        }
+    }
 
-	/**
-	 * @return the headers
-	 */
-	public Map<String, String> getHeaders() {
-		return headers;
-	}
+    public String getHeader(String key) {
+        return headers.get(key);
+    }
 
-	public String getHeaderString() {
-		return headerString;
-	}
+    /**
+     * @return the headers
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
-	public void removeHeader(String key, String value) {
-		headers.remove(key);
-	}
+    public String getHeaderString() {
+        return headerString;
+    }
 
-	/**
-	 * @param headers the headers to set
-	 */
-	public void setHeaders(Map<String, String> headers) {
-		this.headers = headers;
-	}
+    public void removeHeader(String key, String value) {
+        headers.remove(key);
+    }
 
-	public void setHeaderString(String headerString) {
-		this.headerString = headerString;
-	}
+    /**
+     * @param headers the headers to set
+     */
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public void setHeaderString(String headerString) {
+        this.headerString = headerString;
+    }
 }

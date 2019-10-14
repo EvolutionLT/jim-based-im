@@ -1,0 +1,31 @@
+swagger:
+  enabled: true
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-wz9gtu4pe3f6vom022o.mysql.rds.aliyuncs.com/ideamake_wkww?useUnicode=true&characterEncoding=utf8&useSSL=false&&serverTimezone=Asia/Shanghai&autoReconnect=true
+    username: wkww_user
+    password: DVmY0F8pE74SxGaF
+
+
+
+  web:
+    filter:
+      enabled: true
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 60s
+    database: 0
+
+oss:
+  endpoint: oss-cn-shanghai.aliyuncs.com
+  accessKeyId: LTAIY0K1DJ6axk0p
+  accessKeySecret: h3O1C84OwHKK9au1QIVDNhA4UNONhY
+  bucketName: shwanwan
+
+logging:
+  config: classpath:conf/logback-local.xml
+

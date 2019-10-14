@@ -6,7 +6,8 @@ package cn.ideamake.components.im.service;
 public interface LoginService {
     /**
      * 登录逻辑校验
+     *
      * @return
      */
-     boolean login();
+    boolean login();
 }

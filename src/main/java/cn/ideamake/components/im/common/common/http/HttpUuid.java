@@ -7,31 +7,30 @@ import org.tio.core.intf.TioUuid;
  * 2017年6月5日 上午10:44:26
  */
 public class HttpUuid implements TioUuid {
-	//	private static Logger log = LoggerFactory.getLogger(HttpUuid.class);
+    //	private static Logger log = LoggerFactory.getLogger(HttpUuid.class);
 
-	//	private static java.util.concurrent.atomic.AtomicLong seq = new AtomicLong();
+    //	private static java.util.concurrent.atomic.AtomicLong seq = new AtomicLong();
 
-	/**
-	 * @param args
-	 * @author wchao
-	 */
-	public static void main(String[] args) {
+    /**
+     * @param args
+     * @author wchao
+     */
+    public static void main(String[] args) {
 
-	}
+    }
 
-	/**
-	 *
-	 * @author wchao
-	 */
-	public HttpUuid() {
-	}
+    /**
+     * @author wchao
+     */
+    public HttpUuid() {
+    }
 
-	/**
-	 * @return
-	 * @author wchao
-	 */
-	@Override
-	public String uuid() {
-		return null;
-	}
+    /**
+     * @return
+     * @author wchao
+     */
+    @Override
+    public String uuid() {
+        return null;
+    }
 }

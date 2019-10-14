@@ -11,6 +11,7 @@ import org.tio.core.ChannelContext;
 public interface GroupCmdProcessor extends CmdProcessor {
     /**
      * 加入群组处理
+     *
      * @param joinGroup
      * @param channelContext
      * @return

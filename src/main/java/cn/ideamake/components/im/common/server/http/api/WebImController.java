@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.server.http.api;
 
@@ -19,20 +19,20 @@ import java.io.File;
  */
 @RequestPath(value = "/webim")
 public class WebImController {
-	
-	public HttpResponse webim(HttpRequest request) throws Exception {
-		String root = FileUtil.getAbsolutePath(request.getHttpConfig().getPageRoot());
-		String path = request.getRequestLine().getPath();
-		File file = new File(root + path);
-		if (!file.exists() || file.isDirectory()) {
-			if (StringUtils.endsWith(path, "/")) {
-				path = path + "index.html";
-			} else {
-				path = path + "/index.html";
-			}
-			file = new File(root, path);
-		}
-		HttpResponse ret = HttpResps.file(request, file);
-		return ret;
-	}
+
+    public HttpResponse webim(HttpRequest request) throws Exception {
+        String root = FileUtil.getAbsolutePath(request.getHttpConfig().getPageRoot());
+        String path = request.getRequestLine().getPath();
+        File file = new File(root + path);
+        if (!file.exists() || file.isDirectory()) {
+            if (StringUtils.endsWith(path, "/")) {
+                path = path + "index.html";
+            } else {
+                path = path + "/index.html";
+            }
+            file = new File(root, path);
+        }
+        HttpResponse ret = HttpResps.file(request, file);
+        return ret;
+    }
 }

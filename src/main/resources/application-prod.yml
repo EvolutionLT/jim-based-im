@@ -1,0 +1,29 @@
+swagger:
+  enabled: false
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-wz92o7944hm412pd0.mysql.rds.aliyuncs.com/wanwan_service_center?useUnicode=true&characterEncoding=utf8&useSSL=false&&serverTimezone=Asia/Shanghai&autoReconnect=true
+    username: vkapp
+    password: dgGS#98gs4t
+  web:
+    filter:
+      enabled: true
+
+  redis:
+    host: 172.16.24.50
+    port: 8001
+    password: wkww@123
+    timeout: 6000s
+    database: 0
+
+
+oss:
+  endpoint: oss-cn-shanghai.aliyuncs.com
+  accessKeyId: LTAIY0K1DJ6axk0p
+  accessKeySecret: h3O1C84OwHKK9au1QIVDNhA4UNONhY
+  bucketName: shwanwan
+
+#logging:
+#  config: classpath:conf/logback-prod.xml

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ideamake.components.im.dto.mapper.IMChatRecordMapper">
+<select id="getMsgList" resultType="cn.ideamake.components.im.pojo.vo.ChatMsgListVO">
+    SELECT
+    icr.id,
+    icr.msg_content msgContent,
+    icr.created_at as dates,
+    icr.target_id user_id,
+    icr.json_content,
+    icr.msg_type,
+    icr.room_id,
+		icr.msg_id,
+    icr.is_online
+    FROM
+    wk_im_im_record icr  where  icr.room_id=#{query.roomId} and `status` =0
+    order by icr.created_at desc
+</select>
+
+
+<select id="getUserMsgNotRead" resultType="java.lang.Integer">
+    SELECT
+count(icr.id) notreads
+FROM
+	wk_im_im_record icr
+	<where>
+        and icr.is_read=0  and `status` =0
+        <if test="type!=null ">
+            and icr.from_id=#{id}
+        </if>
+        <if test="type!=null and type ==1">
+            and icr.room_id=#{roomId}
+        </if>
+    </where>
+
+
+
+</select>
+
+    <update id="updateChatRecordStatus">
+        update wk_im_im_record set is_read=1
+         <where>
+             room_id=#{query.roomId} and is_read=0
+             <if test="query.id !=null and query.id!=''">
+                 and from_id=#{query.id}
+             </if>
+
+         </where>
+    </update>
+
+    <update id="deletechatRecord">
+          update wk_im_im_record  set `status` =1  where room_id=#{roomId}
+    </update>
+
+</mapper>

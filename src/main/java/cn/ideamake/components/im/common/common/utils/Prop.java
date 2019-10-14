@@ -33,7 +33,7 @@ public class Prop {
             this.properties = new Properties();
             this.properties.load(new InputStreamReader(inputStream, encoding));
         } catch (IOException var12) {
-            throw new RuntimeException("Error loading properties file.", var12);
+            throw new RuntimeException("Error loading properties file." , var12);
         } finally {
             if (inputStream != null) {
                 try {
@@ -70,7 +70,7 @@ public class Prop {
                 this.properties = new Properties();
                 this.properties.load(new InputStreamReader(inputStream, encoding));
             } catch (IOException var12) {
-                throw new RuntimeException("Error loading properties file.", var12);
+                throw new RuntimeException("Error loading properties file." , var12);
             } finally {
                 if (inputStream != null) {
                     try {

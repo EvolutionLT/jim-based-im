@@ -8,9 +8,9 @@ import org.tio.core.ChannelContext;
  * @date 2018年4月3日 下午1:12:30
  */
 public class DefaultAsyncChatMessageProcessor extends BaseAsyncChatMessageProcessor {
-	
-	@Override
-	public void doHandler(ChatBody chatBody, ChannelContext channelContext){
 
-	}
+    @Override
+    public void doHandler(ChatBody chatBody, ChannelContext channelContext) {
+
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.listener;
 
@@ -12,14 +12,14 @@ import cn.ideamake.components.im.common.common.listener.ImBindListener;
  * 2018/08/26
  */
 public abstract class AbstractImBindListener implements ImBindListener, ImConst {
-	
-	protected ImConfig imConfig;
 
-	public ImConfig getImConfig() {
-		return imConfig;
-	}
+    protected ImConfig imConfig;
 
-	public void setImConfig(ImConfig imConfig) {
-		this.imConfig = imConfig;
-	}
+    public ImConfig getImConfig() {
+        return imConfig;
+    }
+
+    public void setImConfig(ImConfig imConfig) {
+        this.imConfig = imConfig;
+    }
 }

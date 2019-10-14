@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.ideamake.components.im.common.common.cache.caffeine;
 
@@ -15,24 +15,26 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DefaultRemovalListener<K, V> implements RemovalListener<K, V> {
-	private static Logger log = LoggerFactory.getLogger(cn.ideamake.components.im.common.common.cache.caffeine.DefaultRemovalListener.class);
+    private static Logger log = LoggerFactory.getLogger(cn.ideamake.components.im.common.common.cache.caffeine.DefaultRemovalListener.class);
 
-	private String cacheName = null;
-	/**
-	 * 
-	 */
-	public DefaultRemovalListener(String cacheName) {
-		this.cacheName = cacheName;
-	}
+    private String cacheName = null;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {}
+    /**
+     *
+     */
+    public DefaultRemovalListener(String cacheName) {
+        this.cacheName = cacheName;
+    }
 
-	@Override
-	public void onRemoval(K key, V value, RemovalCause cause) {
-		log.debug("cacheName:{}, key:{}, value:{} was removed", cacheName, key, value);
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+    }
+
+    @Override
+    public void onRemoval(K key, V value, RemovalCause cause) {
+        log.debug("cacheName:{}, key:{}, value:{} was removed" , cacheName, key, value);
+    }
 
 }
