@@ -88,8 +88,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Autowired
     private IMUserMapper imUserMapper;
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
-
+//    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
 
     private static final int EXPIRE_TIME = 7 * 24 * 60;
 
