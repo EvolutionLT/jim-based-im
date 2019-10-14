@@ -35,6 +35,11 @@ public class CusChatRoom implements Serializable {
     private String name;
 
     /**
+     * 客服openId
+     */
+    private String cusId;
+
+    /**
      * 房间唯一编码
      */
     private String uniqueCode;

@@ -110,6 +110,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 cusChatRoom.setStatus(1);
                 cusChatRoom.setUniqueCode(uniqueCode);
                 cusChatRoom.setCreateAt(date);
+                cusChatRoom.setCusId(dto.getReceiverId());
                 cusChatRoomMapper.insert(cusChatRoom);
                 //初始化聊天关系表
                 Integer roomId = cusChatRoom.getId();
@@ -172,6 +173,9 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         String receiver = chatBody.getTo();
         String uniqueCode = Md5.getMD5(sender + receiver);
         Integer roomId = Optional.ofNullable(cusChatRoomMapper.selectByUniqueCode(uniqueCode)).map(CusChatRoom::getId).orElse(-1);
+        CusChatRoom cusChatRoom = new CusChatRoom();
+        cusChatRoom.setId(roomId);
+        cusChatRoomMapper.updateById(cusChatRoom);
         insertMessage(chatBody, sender, receiver, roomId);
     }
 
