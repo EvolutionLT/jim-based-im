@@ -6,6 +6,7 @@ import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.packets.User;
+import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.pojo.constant.UserType;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.ChatInfoDTO;
@@ -15,6 +16,8 @@ import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
 import org.springframework.web.bind.annotation.*;
@@ -86,7 +89,7 @@ public class VankeController {
         Objects.requireNonNull(visitorId, "VankeController-getChatInfo(), visitorId is null!");
         Objects.requireNonNull(cusId, "VankeController-getChatInfo(), cusId is null!");
         ChatInfoVO vo = new ChatInfoVO();
-        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, cusId);
+//        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, cusId);
         String unReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, cusId, visitorId);
         String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, cusId);
         String lastedContactNumKey = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, cusId);
@@ -118,8 +121,9 @@ public class VankeController {
             mapCache.remove(visitorId);
             vo.setPendingReplyNum((long) mapCache.size());
         }
+        RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + cusId + ":" + Constants.USER.FRIENDS);
 
-        vo.setAllContactsNum(cache.get(allCountKey, Long.class));
+        vo.setAllContactsNum(MapUtils.isEmpty(friendsIds) ? 0L : friendsIds.size());
 
         vo.setLastedContactsNum(cache.get(lastedContactNumKey, Long.class));
 

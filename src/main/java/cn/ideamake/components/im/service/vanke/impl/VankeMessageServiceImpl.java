@@ -81,15 +81,15 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 return;
             }
             //修改状态为上线
-            cusChatMemberMapper.updateStatus(member.getId(), VankeChatStaus.ON_LINE.getStatus(), 0);
+            cusChatMemberMapper.updateStatus(member.getId(), op, 0);
             return;
         }
         //下线操作
         if (op == VankeChatStaus.OFF_LINE.getStatus()) {
             //修改成员为下线
-            cusChatMemberMapper.updateStatus(member.getId(), VankeChatStaus.OFF_LINE.getStatus(), 1);
+            cusChatMemberMapper.updateStatus(member.getId(), op, 1);
             //修改聊天房间相关数据为下线状态
-            cusChatRoomRelateMapper.updateStatus(member.getId(), VankeChatStaus.OFF_LINE.getStatus());
+            cusChatRoomRelateMapper.updateStatus(member.getId(), op);
         }
     }
 
