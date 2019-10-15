@@ -63,8 +63,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
      *
      * @param dto
      */
-    @Autowired
+    @Resource
     private IMUserService userService;
+
     @Resource
     private UserMapper userMapper;
 
@@ -86,7 +87,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     @Resource
     private AysnChatService aysnChatService;
 
-    @Autowired
+    @Resource
     private IMUserMapper imUserMapper;
 
 //    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
@@ -255,32 +256,21 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        if(loginReqBody.getToken()!="" && loginReqBody.getToken()!=null){
-            String logStr = "VankeLoginService-doLogin(), ";
-            log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
+        String logStr = "VankeLoginService-doLogin(), ";
+        log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
+        User user;
+        if (StringUtils.isNotBlank(loginReqBody.getToken())) {
             String token = loginReqBody.getToken();
             if (StringUtils.isBlank(token)) {
                 log.info(logStr + "token is null!");
                 return null;
             }
-            User user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
-            log.info(logStr + "result: {}", JSON.toJSONString(user));
-            return Objects.isNull(user) ? new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008) : new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, user);
-
-        }else{
-
-            User user=null;
-            LoginRespBody loginRespBody;
-            //获取用户信息
-            user = getUserInfo(loginReqBody.getUserId(),loginReqBody);
-
-            if(user == null){
-                return   loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008);
-            }else{
-                return  loginRespBody = new LoginRespBody(Command.COMMAND_LOGIN_RESP,ImStatus.C10007,user);
-            }
-
+            user = RedisCacheManager.getCache(ImConst.USER).get(token + ":" + Constants.USER.INFO, User.class);
+        } else {
+            user = getUserInfo(loginReqBody.getUserId(), loginReqBody);
         }
+        log.info(logStr + "result: {}", JSON.toJSONString(user));
+        return Optional.ofNullable(user).map(e -> new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10007, e)).orElse(new LoginRespBody(Command.COMMAND_LOGIN_RESP, ImStatus.C10008));
     }
 
     //TODO 登录成功回调方法

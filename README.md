@@ -140,8 +140,8 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 > 请求内容
 ```json
 {
-	"to":"oqRgw5U2o6siu0viOo2MQJIBafcw",
-	"from":"asdfghjkl",
+	"to":"oqUK55XDoSGELEx_ni-hrTRlByqs",
+	"from":"obNA65ADSjBHBQ7Motmg4tfK1I4k1",
 	"cmd":"11",
 	"msgType":0,
 	"chatType":2,
@@ -149,7 +149,7 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 	        "nickName" : "昵称",
          	"headImg": "http://jjjj.img"
          	},
-	"content":{"asd":"hell,你2好"}
+	"content":"hell,你2好"
 }
 ```
 > 返回结果
@@ -229,8 +229,8 @@ msgType: 0=text,1=沙盘连接， 2=文章连接
 {
   "cmd": 19,
   "type":"2",
-  "userId":"asdfghjkl",
-  "fromUserId":"oqRgw5U2o6siu0viOo2MQJIBafcw",
+  "userId":"oqUK55XDoSGELEx_ni-hrTRlByqs",
+  "fromUserId":"obNA65A_kU-_9DTyG0Ey9zJXqvBg1",
   "offset":1,
   "count":2
 }
@@ -305,7 +305,7 @@ pullType=1全部列表，2待回复列表，3最近两天联系人
 {
   "cmd": 17,
   "type":"2",
-  "userId":"asdfghjkl",
+  "userId":"oqUK55XDoSGELEx_ni-hrTRlByqs",
   "extras": {"pullType": 1,"searchKey": ""}
 }
 ```
