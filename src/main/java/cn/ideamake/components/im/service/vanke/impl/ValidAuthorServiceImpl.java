@@ -125,11 +125,11 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
-        if (type.equals(UserType.CUSTOMER.getType())) {
+        if (type.equals(UserType.VISITOR.getType())) {
             isValid = Optional.ofNullable(visitorMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
-        if (type.equals(UserType.CUSTOMER.getType())) {
+        if (type.equals(UserType.ESTATE_AGENT.getType())) {
             isValid = Optional.ofNullable(userMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
         }
 
