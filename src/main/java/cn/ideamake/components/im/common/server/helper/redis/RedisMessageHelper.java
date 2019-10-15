@@ -18,6 +18,7 @@ import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.OperatorGroupDTO;
 import cn.ideamake.components.im.pojo.vo.UserDetailVO;
 import cn.ideamake.components.im.pojo.vo.UserFriendsVO;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -624,6 +625,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserDetailVO initLoginUserInfo(UserReqBody userReqBody) {
+        log.info("RedisMessageHelp-initLoginUserInfo(), input: {}", JSON.toJSONString(userReqBody));
         long now = System.currentTimeMillis() / 1000;
         String userId = userReqBody.getUserid();
         JSONObject extras = userReqBody.getExtras();
@@ -648,6 +650,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         userDetailVO.setAvatar(user.getAvatar() == null ? "" : user.getAvatar());
         //初始化用户群组信息
         RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + userId + ":" + Constants.USER.FRIENDS);
+        log.info("RedisMessageHelp-initLoginUserInfo(), friends: {}", JSON.toJSONString(friendsIds));
         if (MapUtils.isEmpty(friendsIds)) {
             return userDetailVO;
         }
@@ -759,6 +762,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         userDetailVO.setLastedContactsNum(lastedContactsNum);
         userDetailVO.setAllContactsNum(totalCount);
         userDetailVO.setPullType(pullType);
+        log.info("RedisMessageHelp-initLoginUserInfo(), result: {}", JSON.toJSONString(userDetailVO));
         return userDetailVO;
     }
 
