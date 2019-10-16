@@ -104,9 +104,9 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
+        valid(senderId, token, type);
         User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
-            valid(senderId, token, type);
             //初始化数据
             cacheUserInfo(dto);
             aysnChatService.synInitChatMember(dto);
@@ -144,10 +144,10 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         String receiverId = dto.getReceiverId();
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
+        valid(senderId, token, type);
         //校验发送人合法性
         User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         if (Objects.isNull(user)) {
-            valid(senderId, token, type);
             //初始化数据
             cacheUserInfo(dto);
             user = cacheUserInfo(dto);
