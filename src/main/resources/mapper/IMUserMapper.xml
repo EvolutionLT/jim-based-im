@@ -61,11 +61,9 @@ from wk_im_user iu
 
     <update id="updateUserInfo" >
         update  wk_im_user
-
         <if test="query.nick !=null and query.avatar==null ">
             set nick=#{query.nick}
         </if>
-
         <if test="query.avatar !=null and query.nick==null ">
             set avatar=#{query.avatar}
         </if>
