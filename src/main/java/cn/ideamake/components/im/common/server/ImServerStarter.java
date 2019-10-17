@@ -15,7 +15,7 @@ import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import cn.ideamake.components.im.components.IMWsHandshakeProcessor;
 import cn.ideamake.components.im.listener.ImGroupListener;
 import cn.ideamake.components.im.listener.ImServerAioListener;
-import cn.ideamake.components.im.service.impl.PeriodServiceImpl;
+//import cn.ideamake.components.im.service.impl.PeriodServiceImpl;
 import cn.ideamake.components.im.service.vanke.ValidAuthorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +57,8 @@ public class ImServerStarter {
 	@Autowired
 	private RedisMessageHelper redisMessageHelper;
 
-	@Autowired
-	private PeriodServiceImpl periodService;
+//	@Autowired
+//	private PeriodServiceImpl periodService;
 
 	@Autowired
 	private ValidAuthorService vankeLoginService;

@@ -17,49 +17,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GroupController {
 
-    @Autowired
-    private PeriodService periodService;
+//    @Autowired
+//    private PeriodService periodService;
 
-    /**
-     * 添加群组
-     * @param groupInsertDTO
-     * @return
-     */
-    @PostMapping("/group/save")
-    public Rest createGroup(GroupInsertDTO groupInsertDTO){
-        return Rest.okObj(periodService.addGroup(groupInsertDTO));
-    }
-
-    /**
-     * 删除群组
-     * @param userId
-     * @return
-     */
-    @DeleteMapping("/group/{token}/{userId}")
-    public Rest deleteGroup(@PathVariable String userId, @PathVariable String token){
-        periodService.deleteGroup(userId,token);
-        return Rest.ok();
-    }
-
-    /**
-     * 添加用户到群聊组
-     * @return
-     */
-    @PostMapping("/group/user/save")
-    public Rest addUserToGroup(UserGroupDTO userGroupDTO){
-        periodService.addUserToGroup(userGroupDTO);
-        return Rest.ok();
-    }
-
-    /**
-     * 从用户组中删除用户
-     * @return
-     */
-    @PostMapping("/group/user/delete")
-    public Rest removeUserFromGroup(UserGroupDTO userGroupDTO){
-        periodService.removeUserFromGroup(userGroupDTO);
-        return Rest.ok();
-    }
+//    /**
+//     * 添加群组
+//     * @param groupInsertDTO
+//     * @return
+//     */
+//    @PostMapping("/group/save")
+//    public Rest createGroup(GroupInsertDTO groupInsertDTO){
+//        return Rest.okObj(periodService.addGroup(groupInsertDTO));
+//    }
+//
+//    /**
+//     * 删除群组
+//     * @param userId
+//     * @return
+//     */
+//    @DeleteMapping("/group/{token}/{userId}")
+//    public Rest deleteGroup(@PathVariable String userId, @PathVariable String token){
+//        periodService.deleteGroup(userId,token);
+//        return Rest.ok();
+//    }
+//
+//    /**
+//     * 添加用户到群聊组
+//     * @return
+//     */
+//    @PostMapping("/group/user/save")
+//    public Rest addUserToGroup(UserGroupDTO userGroupDTO){
+//        periodService.addUserToGroup(userGroupDTO);
+//        return Rest.ok();
+//    }
+//
+//    /**
+//     * 从用户组中删除用户
+//     * @return
+//     */
+//    @PostMapping("/group/user/delete")
+//    public Rest removeUserFromGroup(UserGroupDTO userGroupDTO){
+//        periodService.removeUserFromGroup(userGroupDTO);
+//        return Rest.ok();
+//    }
 
 
 

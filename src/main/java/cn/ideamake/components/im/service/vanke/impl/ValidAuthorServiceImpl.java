@@ -106,9 +106,10 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotNull Integer type = dto.getType();
         valid(senderId, token, type);
         User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
+        //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
+        cacheUserInfo(dto);
         if (Objects.isNull(user)) {
             //初始化数据
-            cacheUserInfo(dto);
             aysnChatService.synInitChatMember(dto);
             return;
         }
@@ -146,12 +147,8 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotNull Integer type = dto.getType();
         valid(senderId, token, type);
         //校验发送人合法性
-        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
-        if (Objects.isNull(user)) {
-            //初始化数据
-            cacheUserInfo(dto);
-            user = cacheUserInfo(dto);
-        }
+        //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
+        User user = cacheUserInfo(dto);
         //校验接收人合法性
         if (StringUtils.isNotBlank(receiverId)) {
             return Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(dto.getToken() + ":" + Constants.USER.INFO, User.class)).orElseThrow(
@@ -298,6 +295,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         user.setSign(dto.getSign());
         user.setType(dto.getType());
         user.setTerminal(dto.getTerminal());
+        log.info("vanke-cacheUserInfo, user: {}", JSON.toJSONString(user));
         RedisCacheManager.getCache(ImConst.USER).put(dto.getSenderId() + ":" + Constants.USER.INFO, user);
         return user;
     }
