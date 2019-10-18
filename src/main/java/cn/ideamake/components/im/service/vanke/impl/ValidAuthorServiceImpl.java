@@ -105,7 +105,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String token = dto.getToken();
         @NotNull Integer type = dto.getType();
         valid(senderId, token, type);
-        User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
         cacheUserInfo(dto);
         //初始化数据
@@ -145,7 +144,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         User user = cacheUserInfo(dto);
         //校验接收人合法性
         if (StringUtils.isNotBlank(receiverId)) {
-            return cacheFriend(dto);
+            return cacheFriend(dto, user);
         }
         String lockKey = String.format(VankeRedisKey.VANKE_CHAT_LOGIN_LOCK_KEY, senderId);
         RLock lock = RedissonTemplate.me().getRedissonClient().getLock(lockKey);
@@ -172,12 +171,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         String userId;
         if (StringUtils.isNotBlank(projectCode) && StringUtils.isNotBlank(userId = userVisitorMapper.selectUserId(senderId, projectCode))) {
             dto.setReceiverId(userId);
-            return cacheFriend(dto);
+            return cacheFriend(dto, user);
         }
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
         return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
             dto.setReceiverId(e.getUuId());
-            return cacheFriend(dto);
+            return cacheFriend(dto, user);
         }).orElse(getRandomCustomer(dto, user));
     }
 
@@ -216,10 +215,10 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 ////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
 //            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
 //        }, threadPoolExecutor);
-        return cacheFriend(dto);
+        return cacheFriend(dto, user);
     }
 
-    private User cacheFriend(VankeLoginDTO dto) {
+    private User cacheFriend(VankeLoginDTO dto, User user) {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String to = dto.getReceiverId();
         User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
@@ -227,17 +226,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
         RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         //发送者好友列表没有接收者时，将接收者添加到其好友列表
-        if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(to)) {
-            log.info("friendsOfSender, sender: {}, receiver: {}, friend: {}", senderId, to, JSON.toJSON(friend));
-            friendsOfSender.put(to, friend);
-        }
+        log.info("friendsOfSender, sender: {}, receiver: {}, friend: {}", senderId, to, JSON.toJSON(friend));
+        friendsOfSender.put(to, friend);
         RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + to + ":" + Constants.USER.FRIENDS);
         //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
-        if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(senderId)) {
-            User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
-            log.info("friendsOfReceiver, sender: {}, receiver: {}, user: {}", senderId, to, JSON.toJSON(user));
-            friendsOfReceiver.put(senderId, user);
-        }
+        log.info("friendsOfReceiver, sender: {}, receiver: {}, user: {}", senderId, to, JSON.toJSON(user));
+        friendsOfReceiver.put(senderId, user);
         dto.setReceiverId(friend.getId());
         aysnChatService.synInitChatInfo(dto);
         return friend;
