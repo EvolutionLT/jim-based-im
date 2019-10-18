@@ -110,13 +110,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         cacheUserInfo(dto);
         //初始化数据
         aysnChatService.synInitChatMember(dto);
-//        return;
-//        if (Objects.isNull(user)) {
-//
-//        }
-//        if (!Objects.equals(user.getId(), dto.getSenderId())) {
-//            throw new IllegalArgumentException("VankeLoginService-validToken(), userId is error, userId:" + user.getId());
-//        }
     }
 
 
@@ -186,9 +179,6 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
         return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
             dto.setReceiverId(e.getUuId());
-            User cus = cacheFriend(dto);
-            //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
-//            sendMessage(cus, senderId, "您的专属客服目前不在线，可给客服留言!");
             return cacheFriend(dto);
         }).orElse(getRandomCustomer(dto, user));
     }
@@ -218,7 +208,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         String to = members.get(random).getUserId();
         dto.setReceiverId(to);
 //        RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
-        User friend = cacheFriend(dto);
+//        User friend = cacheFriend(dto);
 //        CompletableFuture.runAsync(() -> {
 //            try {
 //                Thread.sleep(500);
@@ -228,7 +218,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 ////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
 //            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
 //        }, threadPoolExecutor);
-        return friend;
+        return cacheFriend(dto);
     }
 
     private User cacheFriend(VankeLoginDTO dto) {
