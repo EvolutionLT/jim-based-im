@@ -225,16 +225,19 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         @NotBlank String senderId = dto.getSenderId();
         @NotBlank String to = dto.getReceiverId();
         User friend = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(to + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
+        log.info("cacheFriend, sender: {}, receiver: {}, friend: {}", senderId, to, JSON.toJSON(friend));
         //快速出基本功能，使用jim原先好友存储List<User>，后续改成RMapCache<String,User>形式，便于做消息更新；
         RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + senderId + ":" + Constants.USER.FRIENDS);
         //发送者好友列表没有接收者时，将接收者添加到其好友列表
         if (friendsOfSender.isEmpty() || !friendsOfSender.containsKey(to)) {
+            log.info("friendsOfSender, sender: {}, receiver: {}, friend: {}", senderId, to, JSON.toJSON(friend));
             friendsOfSender.put(to, friend);
         }
         RMapCache<String, User> friendsOfReceiver = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + to + ":" + Constants.USER.FRIENDS);
         //同样检查接收者好友列表，若没有发送时，将接收者添加到其好友列表
         if (friendsOfReceiver.isEmpty() || !friendsOfReceiver.containsKey(senderId)) {
             User user = Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class)).orElseThrow(() -> new IMException(RestEnum.USER_NOT_FOUND));
+            log.info("friendsOfReceiver, sender: {}, receiver: {}, user: {}", senderId, to, JSON.toJSON(user));
             friendsOfReceiver.put(senderId, user);
         }
         dto.setReceiverId(friend.getId());
