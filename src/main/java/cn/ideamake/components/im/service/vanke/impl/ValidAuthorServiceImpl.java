@@ -187,7 +187,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             dto.setReceiverId(e.getUuId());
             User cus = cacheFriend(dto);
             //一个用户只会分配给一个客服，如果该客服不在线，则会发送离线消息，并给客服推送消息“您的专属客服目前不在线，可给客服留言”
-            sendMessage(cus, senderId, "您的专属客服目前不在线，可给客服留言!");
+//            sendMessage(cus, senderId, "您的专属客服目前不在线，可给客服留言!");
             return cacheFriend(dto);
         }).orElse(getRandomCustomer(dto, user));
     }
