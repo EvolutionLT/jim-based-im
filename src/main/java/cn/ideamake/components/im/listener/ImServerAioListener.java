@@ -4,6 +4,7 @@ import cn.ideamake.components.im.common.common.ImConfig;
 import cn.ideamake.components.im.common.common.ImConst;
 import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImSessionContext;
+import cn.ideamake.components.im.common.common.cache.redis.RedisCache;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
 import cn.ideamake.components.im.common.common.message.MessageHelper;
@@ -28,6 +29,8 @@ import org.tio.core.intf.Packet;
 import org.tio.server.intf.ServerAioListener;
 
 import javax.annotation.Resource;
+
+import static com.jfinal.plugin.ehcache.CacheKit.get;
 
 @Slf4j
 @Service
@@ -164,19 +167,18 @@ public class ImServerAioListener implements ServerAioListener {
         }else{
             //进入客服业务逻辑
             //此处做好友关系处理,暂时对每条消息都检查用户好友关系，没有就做添加处理,用户只有再授权登录后才会再im系统中被记录
-            if (chatBody != null && !StringUtils.isEmpty(chatBody.getFrom()) && !StringUtils.isEmpty(chatBody.getTo())) {
+            if (chatBody != null && StringUtils.isNotBlank(chatBody.getFrom()) && StringUtils.isNotBlank(chatBody.getTo())) {
+                RedisCache userCache = RedisCacheManager.getCache(ImConst.USER);
                 aysnChatService.synAddChatRecord(chatBody,imPacket.getCommand().getNumber());
                 String keySender = chatBody.getFrom() + ":" + Constants.USER.INFO;
-                User sender = RedisCacheManager.getCache(ImConst.USER).get(keySender,User.class);
                 //发送者信息未被初始化,正常情况下应用和im双方用户数据需要打通，暂不考虑发送方不存在的情况，会被记录，但是不纪录用户列表
-                if (sender == null) {
+                if (userCache.get(keySender,User.class) == null) {
                     log.error("发送者{}信息未被初始化", chatBody.getFrom());
                     //此处后续可以向三方服务器拉取用户信息
                     return;
                 }
                 String keyReceiver = chatBody.getTo() + ":" + Constants.USER.INFO;
-                User receiver= RedisCacheManager.getCache(ImConst.USER).get(keyReceiver,User.class);
-                if (receiver == null) {
+                if (userCache.get(keyReceiver,User.class) == null) {
                     log.error("接收者{}信息未被初始化", chatBody.getTo());
 //                    return;
                 }

@@ -145,9 +145,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         User user = cacheUserInfo(dto);
         //校验接收人合法性
         if (StringUtils.isNotBlank(receiverId)) {
-            return Optional.ofNullable(RedisCacheManager.getCache(ImConst.USER).get(dto.getToken() + ":" + Constants.USER.INFO, User.class)).orElseThrow(
-                    () -> new BusinessException(500, "接收人错误,请重新发送!" + receiverId)
-            );
+            return cacheFriend(dto);
         }
         String lockKey = String.format(VankeRedisKey.VANKE_CHAT_LOGIN_LOCK_KEY, senderId);
         RLock lock = RedissonTemplate.me().getRedissonClient().getLock(lockKey);
