@@ -25,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +80,8 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 if (chatMsgListVO.size() > 0) {
                     chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
                     chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
+                }else{
+                    chatUserListVO.setDate("2019-08-06 15:15:15");
                 }
                 //查询当前房间是否有未读信息
                 int num = chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(), "1", chatUserListQuery.getUuid());
@@ -90,7 +90,18 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 //从redis中取出数据看是否在线
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }
-           // list.add(adlist);
+
+            //进行排序
+            if(list.size()>0){
+                Collections.sort(list, new Comparator<ChatUserListVO>() {
+                    @Override
+                    public int compare(ChatUserListVO u1, ChatUserListVO u2) {
+//                    return u1.getDate().compareTo(new Double(u2.getSalary())); //升序
+                        return u2.getDate().compareTo(u1.getDate()); //降序
+                    }
+
+                });
+            }
             if(chatMsgListQuery.getPage()==1){
                 //查询用户已绑定客服
                 RMapCache<String, User> friendsOfSender = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + chatUserListQuery.getUuid() + ":" + Constants.USER.FRIENDS);
@@ -99,7 +110,8 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                         User user = e.getValue();
                         ChatUserListVO cusInfo = new ChatUserListVO();
                         cusInfo.setAvatar(user.getAvatar());
-                        cusInfo.setUserType(user.getType() == null ? 0 : user.getType());
+//                        cusInfo.setUserType(user.getType() == null ? 0 : user.getType());
+                        cusInfo.setUserType(1);
                         cusInfo.setUserId(user.getId());
                         cusInfo.setNick(user.getNick());
                         cusInfo.setNotRead("0");
@@ -109,6 +121,10 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 }
 
             }
+
+
+
+
                 ideamakePage.setList(list);
             //ideamakePage.setDesc("date");
             apiResponse.setData(ideamakePage);

@@ -108,14 +108,15 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
         User user = RedisCacheManager.getCache(ImConst.USER).get(senderId + ":" + Constants.USER.INFO, User.class);
         //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
         cacheUserInfo(dto);
-        if (Objects.isNull(user)) {
-            //初始化数据
-            aysnChatService.synInitChatMember(dto);
-            return;
-        }
-        if (!Objects.equals(user.getId(), dto.getSenderId())) {
-            throw new IllegalArgumentException("VankeLoginService-validToken(), userId is error, userId:" + user.getId());
-        }
+        //初始化数据
+        aysnChatService.synInitChatMember(dto);
+//        return;
+//        if (Objects.isNull(user)) {
+//
+//        }
+//        if (!Objects.equals(user.getId(), dto.getSenderId())) {
+//            throw new IllegalArgumentException("VankeLoginService-validToken(), userId is error, userId:" + user.getId());
+//        }
     }
 
 
