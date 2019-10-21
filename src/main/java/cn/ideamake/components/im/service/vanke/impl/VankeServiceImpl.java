@@ -7,7 +7,6 @@ import cn.ideamake.components.im.common.common.ImPacket;
 import cn.ideamake.components.im.common.common.ImStatus;
 import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
-import cn.ideamake.components.im.common.common.message.MessageHelper;
 import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.constants.Constants;
@@ -23,7 +22,7 @@ import cn.ideamake.components.im.pojo.entity.CusChatMember;
 import cn.ideamake.components.im.pojo.entity.IMUsers;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.IMUserService;
-import cn.ideamake.components.im.service.vanke.ValidAuthorService;
+import cn.ideamake.components.im.service.vanke.VankeService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,21 +30,14 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
-import org.tio.utils.lock.SetWithLock;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -57,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Slf4j
-public class ValidAuthorServiceImpl implements ValidAuthorService {
+public class VankeServiceImpl implements VankeService {
     /**
      * IM客服新需求
      *
@@ -96,15 +88,12 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
 
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
-    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"%s\" }";
+//    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"%s\" }";
 
 
     @Override
     public void initUserInfo(VankeLoginDTO dto) {
-        @NotBlank String senderId = dto.getSenderId();
-        @NotBlank String token = dto.getToken();
-        @NotNull Integer type = dto.getType();
-        valid(senderId, token, type);
+        valid(dto);
         //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
         cacheUserInfo(dto);
         //初始化数据
@@ -112,8 +101,11 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     }
 
 
-    private void valid(@NotBlank String senderId, @NotBlank String token, @NotNull Integer type) {
+    private void valid(VankeLoginDTO dto) {
         Boolean isValid = false;
+        @NotBlank String senderId = dto.getSenderId();
+        @NotBlank String token = dto.getToken();
+        @NotNull Integer type = dto.getType();
         //查询db，判断数据的准确性
         if (type.equals(UserType.CUSTOMER.getType())) {
             isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
@@ -136,10 +128,8 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
     public User getReceiverInfo(VankeLoginDTO dto) {
         @NotBlank String senderId = dto.getSenderId();
         String receiverId = dto.getReceiverId();
-        @NotBlank String token = dto.getToken();
-        @NotNull Integer type = dto.getType();
-        valid(senderId, token, type);
         //校验发送人合法性
+        valid(dto);
         //每次登陆更新用户信息，可以及时更新用户的微信昵称和头像变动
         User user = cacheUserInfo(dto);
         //校验接收人合法性
@@ -156,7 +146,7 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
             //查询接收人信息
             return getReceiver(dto, user);
         } catch (InterruptedException e) {
-            log.error("ValidAuthorService-getReceiverInfo(), try lock is error, error: ", e);
+            log.error("VankeService-getReceiverInfo(), try lock is error, error: ", e);
             return null;
         } finally {
             lock.forceUnlock();
@@ -187,14 +177,14 @@ public class ValidAuthorServiceImpl implements ValidAuthorService {
      * @author: apollo
      * @date: 2019-10-08
      */
-    private void sendMessage(User user, String receiverId, String message) {
-        String userId = user.getId();
-        if (!new RedisMessageHelper().isOnline(userId)) {
-            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar(), message);
-            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
-            ImAio.sendToUser(receiverId, chatPacket);
-        }
-    }
+//    private void sendMessage(User user, String receiverId, String message) {
+//        String userId = user.getId();
+//        if (!new RedisMessageHelper().isOnline(userId)) {
+//            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar(), message);
+//            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
+//            ImAio.sendToUser(receiverId, chatPacket);
+//        }
+//    }
 
     private User getRandomCustomer(VankeLoginDTO dto, User user) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();

@@ -13,10 +13,9 @@ import cn.ideamake.components.im.pojo.dto.ChatInfoDTO;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.vo.ChatInfoVO;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
-import cn.ideamake.components.im.service.vanke.ValidAuthorService;
+import cn.ideamake.components.im.service.vanke.VankeService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
@@ -39,7 +38,7 @@ import java.util.Objects;
 @Slf4j
 public class VankeController {
     @Resource
-    private ValidAuthorService validAuthorService;
+    private VankeService vankeService;
 
     @Resource
     private AysnChatService aysnChatService;
@@ -48,7 +47,7 @@ public class VankeController {
     public Rest login(@Valid @RequestBody VankeLoginDTO info) {
         log.info("VankeController-login(), input: {}", JSON.toJSONString(info));
         try {
-            validAuthorService.initUserInfo(info);
+            vankeService.initUserInfo(info);
         } catch (Exception e) {
             log.error("VankeController-initImUserInfo(), is error, error: ", e);
             return Rest.error("登录IM系统失败!");
@@ -67,7 +66,7 @@ public class VankeController {
             throw new IllegalArgumentException("receiverId is null! input: {}" + JSON.toJSONString(dto));
         }
         try {
-            User info = validAuthorService.getReceiverInfo(dto);
+            User info = vankeService.getReceiverInfo(dto);
             log.info("VankeController-getReceiverInfo(), result: {}", JSON.toJSONString(info));
             return info == null ? Rest.error("当前客服繁忙，建议您电话咨询!") : Rest.okObj(info);
         } catch (Exception e) {

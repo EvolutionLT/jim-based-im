@@ -16,7 +16,7 @@ import cn.ideamake.components.im.components.IMWsHandshakeProcessor;
 import cn.ideamake.components.im.listener.ImGroupListener;
 import cn.ideamake.components.im.listener.ImServerAioListener;
 //import cn.ideamake.components.im.service.impl.PeriodServiceImpl;
-import cn.ideamake.components.im.service.vanke.ValidAuthorService;
+import cn.ideamake.components.im.service.vanke.VankeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +61,7 @@ public class ImServerStarter {
 //	private PeriodServiceImpl periodService;
 
 	@Autowired
-	private ValidAuthorService vankeLoginService;
+	private VankeService vankeLoginService;
 
 
 	@PostConstruct
