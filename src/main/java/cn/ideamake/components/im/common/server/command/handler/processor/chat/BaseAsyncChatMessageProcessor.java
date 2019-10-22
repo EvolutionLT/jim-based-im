@@ -7,6 +7,7 @@ import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.ChatType;
 import cn.ideamake.components.im.common.common.utils.ChatKit;
 import cn.ideamake.components.im.common.server.command.CommandManager;
+import org.apache.commons.lang3.StringUtils;
 import org.tio.core.ChannelContext;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  * @date 2018年4月3日 下午1:13:32
  */
 public abstract class BaseAsyncChatMessageProcessor implements AsyncChatMessageProcessor, ImConst {
-	
+
 	protected ImConfig imConfig = null;
 	/**
 	 * 供子类拿到消息进行业务处理(如:消息持久化到数据库等)的抽象方法
@@ -40,6 +41,11 @@ public abstract class BaseAsyncChatMessageProcessor implements AsyncChatMessageP
 		if(imConfig == null) {
 			imConfig = CommandManager.getImConfig();
 		}
+        /**
+         * 20191022 区分客服置业顾问聊天渠道持久化
+         */
+        //进入IM业务逻辑
+        if(chatBody!=null && StringUtils.isNotBlank(chatBody.getRoomId())){ return ; }
 		//开启持久化
 		if(ON.equals(imConfig.getIsStore())){
 			//存储群聊消息;
@@ -83,7 +89,7 @@ public abstract class BaseAsyncChatMessageProcessor implements AsyncChatMessageP
 			}
 		}
 	}
-	
+
 	private void writeMessage(String timelineTable , String timelineId , ChatBody chatBody){
 		MessageHelper messageHelper = imConfig.getMessageHelper();
 		messageHelper.writeMessage(timelineTable, timelineId, chatBody);
