@@ -229,7 +229,7 @@ public class VankeServiceImpl implements VankeService {
 
     @Override
     public LoginRespBody doLogin(LoginReqBody loginReqBody, ChannelContext channelContext) {
-        String logStr = "VankeLoginService-doLogin(), ";
+        String logStr = "VankeService-doLogin(), ";
         log.info(logStr + "input: {}", JSON.toJSONString(loginReqBody));
         User user;
         if (StringUtils.isNotBlank(loginReqBody.getToken())) {
