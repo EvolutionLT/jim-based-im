@@ -41,10 +41,7 @@ public abstract class BaseAsyncChatMessageProcessor implements AsyncChatMessageP
 		if(imConfig == null) {
 			imConfig = CommandManager.getImConfig();
 		}
-        /**
-         * 20191022 区分客服置业顾问聊天渠道持久化
-         */
-        //进入IM业务逻辑
+        // 区分客服置业顾问聊天渠道持久化
         if(chatBody!=null && StringUtils.isNotBlank(chatBody.getRoomId())){ return ; }
 		//开启持久化
 		if(ON.equals(imConfig.getIsStore())){

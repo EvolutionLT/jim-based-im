@@ -178,6 +178,10 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     }
 
     private void addChatRecord(ChatBody chatBody) {
+        // 区分客服置业顾问聊天渠道持久化
+        if (chatBody != null && StringUtils.isNotBlank(chatBody.getRoomId())) {
+            return;
+        }
         String sender = chatBody.getFrom();
         String receiver = chatBody.getTo();
         String uniqueCode = Md5.getMD5(sender + receiver);
