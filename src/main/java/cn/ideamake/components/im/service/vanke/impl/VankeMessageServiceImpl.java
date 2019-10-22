@@ -105,6 +105,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             //初始化访客信息
             CusChatMember member = initMember(dto);
             if (Objects.nonNull(member) && type == UserType.VISITOR.getType().intValue()) {
+                log.info("VankeMessageService-initChatInfo(), init start, member: {}", JSON.toJSONString(member));
                 //初始化聊天房间
                 String uniqueCode = Md5.getMD5(senderId + receiverId);
                 CusChatRoom cusChatRoom = new CusChatRoom();
@@ -128,7 +129,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 cusVisitorMapper.insert(cusVisitor);
                 //把客服状态修改为繁忙 0=空闲， 1=繁忙
                 cusChatMemberMapper.updateIsBusy(receiverId, 1);
-                log.info("VankeMessageService-initChatInfo(), init end, input: {}", JSON.toJSONString(dto));
+                log.info("VankeMessageService-initChatInfo(), init end, result: {}", JSON.toJSONString(cusVisitor));
             }
         } catch (Exception e) {
             log.error("VankeMessageService-initChatInfo(), error: ", e);
@@ -142,6 +143,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             log.info("VankeMessageService-initMember(), init start, input: {}", JSON.toJSONString(dto));
             CusChatMember cusChatMember = cusChatMemberMapper.selectByUserId(dto.getSenderId());
             if (Objects.isNull(cusChatMember)) {
+                log.info("VankeMessageService-initMember(), init start, cusChatMember is null!");
                 @NotNull Integer type = dto.getType();
                 CusChatMember entity = new CusChatMember();
                 entity.setUserId(dto.getSenderId());
