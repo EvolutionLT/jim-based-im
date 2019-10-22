@@ -60,6 +60,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             try {
                 addChatRecord(chatBody);
             } catch (Exception e) {
+                log.error("消息持久化到db异常，异常信息：", e);
                 throw e;
             }
         }
