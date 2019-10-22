@@ -149,9 +149,9 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 entity.setNickName(dto.getNick());
                 //发送人身份类型,1=客服,0=访客, 2置业顾问
                 String phone = null;
-                if (0 == type) {
+                if (UserType.VISITOR.getType().intValue() == type) {
                     phone = Optional.ofNullable(visitorMapper.selectByOpenId(dto.getSenderId())).map(Visitor::getPhone).orElse("");
-                } else if (1 == type) {
+                } else if (UserType.CUSTOMER.getType().intValue() == type) {
                     phone = Optional.ofNullable(cusInfoMapper.selectById(dto.getSenderId())).map(CusInfo::getPhone).orElseThrow(() -> new IllegalArgumentException("visitorId is error, visitorId: " + dto.getSenderId()));
                 }
                 entity.setPhone(phone == null ? "" : phone);
@@ -159,15 +159,15 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 entity.setToken(dto.getToken());
                 entity.setStatus(VankeChatStaus.ON_LINE.getStatus());
                 entity.setCreateAt(new Date());
-                if (1 == cusChatMemberMapper.insert(entity)) {
-                    return entity;
-                }
+                cusChatMemberMapper.insert(entity);
+                log.info("VankeMessageService-initMember(), init end, result: {}", JSON.toJSONString(entity));
+                return entity;
             }
-            return null;
         } catch (IllegalArgumentException e) {
             log.error("VankeMessageService-initMember(), error: ", e);
             throw e;
         }
+        return null;
     }
 
     @Override
