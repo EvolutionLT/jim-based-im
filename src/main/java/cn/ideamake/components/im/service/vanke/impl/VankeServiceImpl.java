@@ -19,6 +19,7 @@ import cn.ideamake.components.im.pojo.constant.VankeChatStaus;
 import cn.ideamake.components.im.pojo.constant.VankeRedisKey;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.entity.CusChatMember;
+import cn.ideamake.components.im.pojo.entity.CusInfo;
 import cn.ideamake.components.im.pojo.entity.IMUsers;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
 import cn.ideamake.components.im.service.vanke.IMUserService;
@@ -37,6 +38,7 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -161,13 +163,17 @@ public class VankeServiceImpl implements VankeService {
         String userId;
         if (StringUtils.isNotBlank(projectCode) && StringUtils.isNotBlank(userId = userVisitorMapper.selectUserId(senderId, projectCode))) {
             dto.setReceiverId(userId);
+            log.info("匹配客服，访客绑定置业顾问！");
             return cacheFriend(dto, user);
         }
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
-        return Optional.ofNullable(cusVisitorMapper.selectCusInfoByVisitor(senderId)).map(e -> {
-            dto.setReceiverId(e.getUuId());
+        CusInfo cusInfo = cusVisitorMapper.selectCusInfoByVisitor(senderId);
+        if(Objects.nonNull(cusInfo)) {
+            dto.setReceiverId(cusInfo.getUuId());
+            log.info("匹配客服，访客绑定客服！");
             return cacheFriend(dto, user);
-        }).orElse(getRandomCustomer(dto, user));
+        }
+        return getRandomCustomer(dto, user);
     }
 
     /**
@@ -189,7 +195,8 @@ public class VankeServiceImpl implements VankeService {
     private User getRandomCustomer(VankeLoginDTO dto, User user) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
         if (CollectionUtils.isEmpty(members)) {
-            throw new IllegalArgumentException("当前客服繁忙，请耐心等待!");
+            log.info("没有空闲客服！");
+            return null;
         }
         int random = RandomUtils.nextInt(0, members.size());
         String to = members.get(random).getUserId();
