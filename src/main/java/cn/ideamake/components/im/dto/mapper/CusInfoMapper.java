@@ -22,7 +22,7 @@ public interface CusInfoMapper extends BaseMapper<CusInfo> {
     * @author: apollo
     * @date: 2019-09-18
     */
-    CusInfo selectById(@Param("userId") String id);
+    CusInfo selectByPrimary(@Param("id") String id);
 
     /**
     * @description: 校验用户是否存在
@@ -31,14 +31,7 @@ public interface CusInfoMapper extends BaseMapper<CusInfo> {
     * @author: apollo
     * @date: 2019-09-19
     */
-    Boolean userIsValid(@Param("userId") String id, @Param("token") String token);
+    Boolean userIsValid(@Param("id") Integer id, @Param("token") String token);
 
-    /**
-     * @description: 校验用户是否存在
-     * @param: [id]
-     * @return: java.lang.Boolean
-     * @author: apollo
-     * @date: 2019-09-19
-     */
-    Boolean userIsValidById(@Param("userId") String id);
+
 }

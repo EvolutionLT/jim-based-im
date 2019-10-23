@@ -35,7 +35,7 @@ public class CusChatMember implements Serializable {
     /**
      * token
      */
-    String token;
+    private String token;
 
     /**
      * 客服昵称

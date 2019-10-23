@@ -40,6 +40,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -84,13 +87,8 @@ public class VankeServiceImpl implements VankeService {
     @Resource
     private IMUserMapper imUserMapper;
 
-//    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(50));
-
-//    private static final int EXPIRE_TIME = 7 * 24 * 60;
-
     private static final long lOCK_EXPIRE_TIME = 2 * 60L;
 
-//    private static String CHAT_BODY = "{ \"to\":\"%s\", \"from\":\"%s\", \"cmd\":11, \"msgType\":0, \"chatType\":2, \"extras\": { \"nickName\" : \"%s\", \"headImg\":\"%s\" }, \"content\":\"%s\" }";
 
 
     @Override
@@ -110,7 +108,7 @@ public class VankeServiceImpl implements VankeService {
         @NotNull Integer type = dto.getType();
         //查询db，判断数据的准确性
         if (type.equals(UserType.CUSTOMER.getType())) {
-            isValid = Optional.ofNullable(cusInfoMapper.userIsValid(senderId, token)).orElse(Boolean.FALSE);
+            isValid = Optional.ofNullable(cusInfoMapper.userIsValid(Integer.valueOf(senderId), token)).orElse(Boolean.FALSE);
         }
 
         if (type.equals(UserType.VISITOR.getType())) {
@@ -176,21 +174,6 @@ public class VankeServiceImpl implements VankeService {
         return getRandomCustomer(dto, user);
     }
 
-    /**
-     * @description: 给客服推送消息“您的专属客服目前不在线，可给客服留言”
-     * @param: [user, receiverId, message]
-     * @return: cn.ideamake.components.im.common.common.packets.User
-     * @author: apollo
-     * @date: 2019-10-08
-     */
-//    private void sendMessage(User user, String receiverId, String message) {
-//        String userId = user.getId();
-//        if (!new RedisMessageHelper().isOnline(userId)) {
-//            String body = String.format(CHAT_BODY, receiverId, userId, user.getNick(), user.getAvatar(), message);
-//            ImPacket chatPacket = new ImPacket(Command.COMMAND_CHAT_REQ, new RespBody(Command.COMMAND_CHAT_REQ, ChatKit.toChatBody(body.getBytes())).toByte());
-//            ImAio.sendToUser(receiverId, chatPacket);
-//        }
-//    }
 
     private User getRandomCustomer(VankeLoginDTO dto, User user) {
         List<CusChatMember> members = cusChatMemberMapper.selectCustomer();
@@ -201,17 +184,7 @@ public class VankeServiceImpl implements VankeService {
         int random = RandomUtils.nextInt(0, members.size());
         String to = members.get(random).getUserId();
         dto.setReceiverId(to);
-//        RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
-//        User friend = cacheFriend(dto);
-//        CompletableFuture.runAsync(() -> {
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                //TODO
-//            }
-////            ImAio.sendToUser(friend, user.getId(), "您好! 我是万科置业客服，有什么可以帮您!", "false");
-//            ImAio.sendToUser(user, friend.getId(), "您好, 我想咨询下楼盘信息！", "false");
-//        }, threadPoolExecutor);
+        RedisCacheManager.getCache(ImConst.USER).incr(String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, to), 1);
         return cacheFriend(dto, user);
     }
 

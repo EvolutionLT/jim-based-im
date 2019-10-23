@@ -12,6 +12,7 @@ import cn.ideamake.components.im.service.vanke.VankeMessageService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * @program jio-based-im
@@ -51,6 +53,8 @@ public class VankeMessageServiceImpl implements VankeMessageService {
 
     @Resource
     private CusInfoMapper cusInfoMapper;
+
+    private static final Pattern pattern =  Pattern.compile("^(\\-|\\+)?\\d+(\\.\\d+)?$");
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -155,7 +159,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
                 if (UserType.VISITOR.getType().intValue() == type) {
                     phone = Optional.ofNullable(visitorMapper.selectByOpenId(dto.getSenderId())).map(Visitor::getPhone).orElse("");
                 } else if (UserType.CUSTOMER.getType().intValue() == type) {
-                    phone = Optional.ofNullable(cusInfoMapper.selectById(dto.getSenderId())).map(CusInfo::getPhone).orElseThrow(() -> new IllegalArgumentException("visitorId is error, visitorId: " + dto.getSenderId()));
+                    phone = Optional.ofNullable(cusInfoMapper.selectByPrimary(dto.getSenderId())).map(CusInfo::getPhone).orElseThrow(() -> new IllegalArgumentException("cusId is error, cusId: " + dto.getSenderId()));
                 }
                 entity.setPhone(phone == null ? "" : phone);
                 entity.setType(dto.getType());
@@ -185,11 +189,8 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         }
         String sender = chatBody.getFrom();
         String receiver = chatBody.getTo();
-        String uniqueCode = Md5.getMD5(sender + receiver);
+        String uniqueCode = pattern.matcher(sender).matches() ? Md5.getMD5(receiver + sender) : Md5.getMD5(sender + receiver);
         Integer roomId = Optional.ofNullable(cusChatRoomMapper.selectByUniqueCode(uniqueCode)).map(CusChatRoom::getId).orElse(-1);
-        CusChatRoom cusChatRoom = new CusChatRoom();
-        cusChatRoom.setId(roomId);
-        cusChatRoomMapper.updateById(cusChatRoom);
         insertMessage(chatBody, sender, receiver, roomId);
     }
 
@@ -217,6 +218,5 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         roomRelate.setCreateAt(new Date());
         roomRelate.setChatMemberId(memberId);
         cusChatRoomRelateMapper.insert(roomRelate);
-
     }
 }

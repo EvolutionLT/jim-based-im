@@ -13,12 +13,12 @@ import java.util.List;
 public interface CusChatMemberMapper extends BaseMapper<CusChatMember>{
     /**
     * @description: 根据聊天成员userId查询
-    * @param: [userId]
+    * @param: [id]
     * @return: cn.ideamake.components.im.pojo.entity.CusChatMember
     * @author: apollo
     * @date: 2019-09-18
     */
-    CusChatMember selectByUserId(String userId);
+    CusChatMember selectByUserId(String id);
 
     /**
     * @description: 修改成员状态
