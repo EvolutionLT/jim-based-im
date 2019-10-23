@@ -78,7 +78,7 @@ public class RedisImBindListener extends AbstractImBindListener {
 		User onlineUser = client.getUser();
 		if(onlineUser != null){
 			initUserTerminal(channelContext,onlineUser.getTerminal(),ONLINE);
-			initUserInfo(onlineUser);
+//			initUserInfo(onlineUser);
 		}
 	}
 
