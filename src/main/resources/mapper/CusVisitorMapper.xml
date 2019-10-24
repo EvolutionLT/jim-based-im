@@ -14,4 +14,3 @@
             and b.visitor_id = #{visitorId}
     </select>
 </mapper>
-id
