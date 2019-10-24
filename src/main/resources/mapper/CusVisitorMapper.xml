@@ -7,10 +7,11 @@
             a.*
         from
             wk_cus_info a
-            inner join wk_cus_visitor b on a.uu_id = b.cus_id
+            inner join wk_cus_visitor b on a.id = b.cus_id
         where
             a.status = 1
             and b.status = 1
             and b.visitor_id = #{visitorId}
     </select>
 </mapper>
+id
