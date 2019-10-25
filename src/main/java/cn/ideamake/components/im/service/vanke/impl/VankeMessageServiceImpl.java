@@ -54,27 +54,21 @@ public class VankeMessageServiceImpl implements VankeMessageService {
     @Resource
     private CusInfoMapper cusInfoMapper;
 
-    private static final Pattern pattern =  Pattern.compile("^(\\-|\\+)?\\d+(\\.\\d+)?$");
+    private static final Pattern pattern = Pattern.compile("^(\\-|\\+)?\\d+(\\.\\d+)?$");
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void writeMessage(ChatBody chatBody, int cmd) {
         //发起聊天
         if (Command.COMMAND_CHAT_REQ.getNumber() == cmd && chatBody != null) {
-            try {
-                addChatRecord(chatBody);
-            } catch (Exception e) {
-                log.error("消息持久化到db异常，异常信息：", e);
-                throw e;
-            }
+            addChatRecord(chatBody);
         }
-
-
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateChatMember(String userId, int op) {
+        log.info("修改db中用户聊天状态, userId: {}, op: {}", userId, op);
         if (StringUtils.isBlank(userId)) {
             return;
         }
@@ -87,6 +81,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             }
             //修改状态为上线
             cusChatMemberMapper.updateStatus(member.getId(), op, 0);
+            log.info("修改db中用户聊天状态上线成功, userId: {}, op: {}", userId, op);
             return;
         }
         //下线操作
@@ -95,6 +90,7 @@ public class VankeMessageServiceImpl implements VankeMessageService {
             cusChatMemberMapper.updateStatus(member.getId(), op, 1);
             //修改聊天房间相关数据为下线状态
             cusChatRoomRelateMapper.updateStatus(member.getId(), op);
+            log.info("修改db中用户聊天状态下线状态成功, userId: {}, op: {}", userId, op);
         }
     }
 
