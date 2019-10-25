@@ -664,6 +664,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, userId);
         RMapCache<String, Long> mapCache = RedissonTemplate.me().getRedissonClient().getMapCache(pendingReplyNumKey);
         //次数先做遍历初始化，默认用户不会特别多，后续再优化内容结构
+        Map<String, User> friends = new HashMap<>(friendsIds.entrySet().size());
         for (Map.Entry<String, User> entry : friendsIds.entrySet()) {
             String friendId = entry.getKey();
             User friend = entry.getValue();
@@ -682,12 +683,12 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             String sessionId = ChatKit.sessionId(userId, friendId);
             String key = USER + SUBFIX + sessionId;
             //取1条聊天纪录
-//            List<String> messages = storeCache.sortSetGetAll(key, 0, Double.MAX_VALUE, 0, 10);
             List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 5);
             if (!messages.isEmpty()) {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
                 //最后一条聊天记录的时间
                 long contactTime = chatBodyList.get(0).getCreateTime().longValue();
+                userFriendsVO.setLastMessageTime(contactTime);
                 if (now - contactTime <= LASTED_CONTACT_TIME) {
                     lastedContactsNum++;
                     isLastedFriend = true;
@@ -702,6 +703,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 userFriendsVO.setHistoryMessage(collect);
             } else {
                 userFriendsVO.setHistoryMessage(Collections.emptyList());
+                //用于排序
+                userFriendsVO.setLastMessageTime(0L);
             }
             //在线未读消息
             String unReadKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, userId, friendId);
@@ -757,7 +760,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             String lastedContactNum = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, userId);
             cache.put(lastedContactNum, lastedContactsNum);
         }
-        userDetailVO.setFriends(friendsVOS);
+        //好友列表按最新联系时间倒序
+        userDetailVO.setFriends(CollectionUtils.isNotEmpty(friendsVOS) ? friendsVOS.stream().sorted(Comparator.comparing(UserFriendsVO::getLastMessageTime).reversed()).collect(Collectors.toList()) : Collections.emptyList());
         userDetailVO.setPendingReplyNum(isSearch ? mapCache.size() : pendingReplyNum);
         userDetailVO.setLastedContactsNum(lastedContactsNum);
         userDetailVO.setAllContactsNum(totalCount);
