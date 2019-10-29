@@ -10,6 +10,8 @@ import cn.ideamake.components.im.common.common.packets.Client;
 import cn.ideamake.components.im.common.common.packets.Group;
 import cn.ideamake.components.im.common.common.packets.User;
 import cn.ideamake.components.im.common.common.utils.ImKit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 
 import java.io.Serializable;
@@ -21,6 +23,8 @@ import java.util.List;
  * @date 2018年4月8日 下午4:12:31
  */
 public class RedisImBindListener extends AbstractImBindListener {
+
+	private static Logger log = LoggerFactory.getLogger(RedisImBindListener.class);
 	
 	private RedisCache groupCache = null;
 	private RedisCache userCache = null;
@@ -78,7 +82,7 @@ public class RedisImBindListener extends AbstractImBindListener {
 		User onlineUser = client.getUser();
 		if(onlineUser != null){
 			initUserTerminal(channelContext,onlineUser.getTerminal(),ONLINE);
-			initUserInfo(onlineUser);
+//			initUserInfo(onlineUser);
 		}
 	}
 
@@ -161,6 +165,7 @@ public class RedisImBindListener extends AbstractImBindListener {
 		if(StringUtils.isEmpty(userId) || StringUtils.isEmpty(terminal)) {
 			return;
 		}
+		log.info("修改redis中用户状态, userId: {}, status: {}", userId, terminal);
 		userCache.put(userId+SUBFIX+TERMINAL+SUBFIX+terminal, status);
 	}
 	/**

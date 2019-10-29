@@ -13,10 +13,9 @@ import cn.ideamake.components.im.pojo.dto.ChatInfoDTO;
 import cn.ideamake.components.im.pojo.dto.VankeLoginDTO;
 import cn.ideamake.components.im.pojo.vo.ChatInfoVO;
 import cn.ideamake.components.im.service.vanke.AysnChatService;
-import cn.ideamake.components.im.service.vanke.ValidAuthorService;
+import cn.ideamake.components.im.service.vanke.VankeService;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
@@ -39,16 +38,13 @@ import java.util.Objects;
 @Slf4j
 public class VankeController {
     @Resource
-    private ValidAuthorService validAuthorService;
-
-    @Resource
-    private AysnChatService aysnChatService;
+    private VankeService vankeService;
 
     @PostMapping(value = "/initUser", produces = "application/json")
     public Rest login(@Valid @RequestBody VankeLoginDTO info) {
         log.info("VankeController-login(), input: {}", JSON.toJSONString(info));
         try {
-            validAuthorService.initUserInfo(info);
+            vankeService.initUserInfo(info);
         } catch (Exception e) {
             log.error("VankeController-initImUserInfo(), is error, error: ", e);
             return Rest.error("登录IM系统失败!");
@@ -67,7 +63,7 @@ public class VankeController {
             throw new IllegalArgumentException("receiverId is null! input: {}" + JSON.toJSONString(dto));
         }
         try {
-            User info = validAuthorService.getReceiverInfo(dto);
+            User info = vankeService.getReceiverInfo(dto);
             log.info("VankeController-getReceiverInfo(), result: {}", JSON.toJSONString(info));
             return info == null ? Rest.error("当前客服繁忙，建议您电话咨询!") : Rest.okObj(info);
         } catch (Exception e) {
@@ -89,7 +85,6 @@ public class VankeController {
         Objects.requireNonNull(visitorId, "VankeController-getChatInfo(), visitorId is null!");
         Objects.requireNonNull(cusId, "VankeController-getChatInfo(), cusId is null!");
         ChatInfoVO vo = new ChatInfoVO();
-//        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, cusId);
         String unReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, cusId, visitorId);
         String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, cusId);
         String lastedContactNumKey = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, cusId);
@@ -141,16 +136,6 @@ public class VankeController {
 
     @GetMapping("/delFriend")
     public Rest<Object> delFriend(String cusId, String friendId) {
-//        if(StringUtils.isBlank(cusId) || StringUtils.isBlank(friendId)) {
-//            return Rest.error("删除好友不能为空!");
-//        }
-//        RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + cusId + ":" + Constants.USER.FRIENDS);
-//        if(MapUtils.isEmpty(friendsIds)) {
-//            return Rest.error("您没有可删除好友!");
-//        }
-//        friendsIds.remove(friendId);
-//        aysnChatService.synDelFriend(cusId, friendId);
-//        return Rest.ok();
         return null;
     }
 

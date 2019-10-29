@@ -12,9 +12,24 @@ import java.util.List;
  */
 @Data
 public class UserFriendsVO {
+    /**
+     * 用户Id
+     */
     private String userId;
+
+    /**
+     * 昵称
+     */
     private String nickname;
+
+    /**
+     * 头像
+     */
     private String avatar;
+
+    /**
+     * 最近联系时间
+     */
     private long lastMessageTime;
     /**
      * 未读消息数量

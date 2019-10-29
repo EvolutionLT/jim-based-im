@@ -2,15 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.ideamake.components.im.dto.mapper.CusInfoMapper">
 
-    <select id="selectById" resultType="cn.ideamake.components.im.pojo.entity.CusInfo">
-        select * from wk_cus_info where uu_id = #{userId} and status = 1 limit 1
+    <select id="selectByPrimary" resultType="cn.ideamake.components.im.pojo.entity.CusInfo">
+        select * from wk_cus_info where id = #{id} and status = 1 limit 1
     </select>
 
     <select id="userIsValid" resultType="boolean">
-        select 1 from wk_cus_info where uu_id = #{userId} and uu_id = #{token} and status = 1 limit 1
-    </select>
-
-    <select id="userIsValidById" resultType="boolean">
-        select 1 from wk_cus_info where uu_id = #{userId} and status = 1 limit 1
+        select 1 from wk_cus_info where id = #{id}  and status = 1 limit 1
     </select>
 </mapper>
