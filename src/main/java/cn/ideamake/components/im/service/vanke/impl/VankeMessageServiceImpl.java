@@ -178,6 +178,10 @@ public class VankeMessageServiceImpl implements VankeMessageService {
         String uniqueCode = pattern.matcher(sender).matches() ? Md5.getMD5(receiver + sender) : Md5.getMD5(sender + receiver);
         Integer roomId = Optional.ofNullable(cusChatRoomMapper.selectByUniqueCode(uniqueCode)).map(CusChatRoom::getId).orElse(-1);
         insertMessage(chatBody, sender, receiver, roomId);
+        CusChatRoom entity = new CusChatRoom();
+        entity.setId(roomId);
+        entity.setUpdateAt(new Date());
+        cusChatRoomMapper.updateById(entity);
     }
 
     private void insertMessage(ChatBody chatBody, String sender, String receiver, Integer roomId) {
