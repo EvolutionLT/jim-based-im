@@ -166,12 +166,11 @@ public class VankeServiceImpl implements VankeService {
         }
         //判断有没有绑定客服, 没有绑定则匹配空闲客服
         CusInfo cusInfo = cusVisitorMapper.selectCusInfoByVisitor(senderId);
-        if(Objects.nonNull(cusInfo)) {
-            dto.setReceiverId(cusInfo.getUuId());
+        return Optional.ofNullable(cusInfo).map(e -> {
+            dto.setReceiverId(e.getUuId());
             log.info("匹配客服，访客绑定客服！");
             return cacheFriend(dto, user);
-        }
-        return getRandomCustomer(dto, user);
+        }).orElseGet(() -> getRandomCustomer(dto, user));
     }
 
 
