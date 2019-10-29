@@ -65,5 +65,12 @@ public class ChatUserListVO {
     private int userType;
 
 
+    private String time;
+
+    private String createdAt;
+
+
+
+
 
 }

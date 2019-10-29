@@ -805,6 +805,33 @@ public class RedisMessageHelper extends AbstractMessageHelper {
         }
     }
 
+
+    /**
+     * 获取最近一条信息
+     */
+    public static Map getHistory(String id,String from) {
+        String sessionId = ChatKit.sessionId(from, id);
+        String key = USER + ":" + sessionId;
+        Map map = new HashMap();
+        try {
+            //取1条聊天纪录
+            List<String> messages = storeCache.sortReSetGetAll(key, 0, Double.MAX_VALUE, 0, 5);
+            if (!messages.isEmpty()) {
+                List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
+                //最后一条聊天记录的时间
+                long contactTime = chatBodyList.get(0).getCreateTime().longValue();
+                if(chatBodyList.size()>0){
+                    ChatBody chatBody = chatBodyList.get(0);
+                   map.put("content",chatBody.getContent());
+                   map.put("date",contactTime);
+                }
+            }
+        }catch (Exception e){
+            log.error("获取客服历史聊天信息失败"+e);
+        }
+
+        return map;
+    }
 }
 
 

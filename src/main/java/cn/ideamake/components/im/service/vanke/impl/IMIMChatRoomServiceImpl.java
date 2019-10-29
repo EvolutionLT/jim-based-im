@@ -5,8 +5,11 @@ import cn.ideamake.common.response.IdeamakePage;
 import cn.ideamake.common.response.Result;
 
 import cn.ideamake.components.im.common.common.cache.redis.RedissonTemplate;
+import cn.ideamake.components.im.common.common.packets.ChatBody;
 import cn.ideamake.components.im.common.common.packets.User;
+import cn.ideamake.components.im.common.common.utils.JsonKit;
 import cn.ideamake.components.im.common.constants.Constants;
+import cn.ideamake.components.im.common.server.helper.redis.RedisMessageHelper;
 import cn.ideamake.components.im.common.utils.BasicConstants;
 import cn.ideamake.components.im.dto.mapper.IMChatRecordMapper;
 import cn.ideamake.components.im.dto.mapper.IMChatRoomMapper;
@@ -20,6 +23,7 @@ import cn.ideamake.components.im.pojo.vo.ChatUserListVO;
 import cn.ideamake.components.im.service.vanke.IMChatRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,14 +78,16 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
             List<ChatUserListVO> collect = new ArrayList<>();
             //遍历出来查询最近消息
             for (ChatUserListVO chatUserListVO : list) {
-                ideamakePage = new IdeamakePage(1, 1);
+                IdeamakePage  ideamakePage1 = new IdeamakePage(1, 1);
                 chatMsgListQuery.setRoomId(chatUserListVO.getRoomId());
-                List<ChatMsgListVO> chatMsgListVO = chatRecordMapper.getMsgList(ideamakePage, chatMsgListQuery);
+                List<ChatMsgListVO> chatMsgListVO = chatRecordMapper.getMsgList(ideamakePage1, chatMsgListQuery);
                 if (chatMsgListVO.size() > 0) {
                     chatUserListVO.setMsgContent(chatMsgListVO.get(0).getMsgContent());
-                    chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
+//                    chatUserListVO.setDate(chatMsgListVO.get(0).getDates());
+                    chatUserListVO.setDate(StringUtils.isEmpty(chatUserListVO.getTime())? chatUserListVO.getCreatedAt():chatUserListVO.getTime());
+
                 }else{
-                    chatUserListVO.setDate("2019-08-06 15:15:15");
+                    chatUserListVO.setDate(chatUserListVO.getCreatedAt());
                 }
                 //查询当前房间是否有未读信息
                 int num = chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(), "1", chatUserListQuery.getUuid());
@@ -91,7 +97,7 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }
 
-            //进行排序
+            //通过最近一条消息时间进行排序
             if(list.size()>0){
                 Collections.sort(list, new Comparator<ChatUserListVO>() {
                     @Override
@@ -115,18 +121,19 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                         cusInfo.setUserId(user.getId());
                         cusInfo.setNick(user.getNick());
                         cusInfo.setNotRead("0");
+                        //查询客服历史信息 limit 1
+                        Map map=RedisMessageHelper.getHistory(user.getId(),chatUserListQuery.getUuid());
+                       if (!map.isEmpty()){
+                           cusInfo.setDate(map.get("date").toString());
+                           cusInfo.setMsgContent(map.get("content").toString());
+                       }
                         return cusInfo;
                     }).collect(Collectors.toList());
                     list.addAll(collect);
                 }
-
             }
 
-
-
-
-                ideamakePage.setList(list);
-            //ideamakePage.setDesc("date");
+            ideamakePage.setList(list);
             apiResponse.setData(ideamakePage);
         }
 

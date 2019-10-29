@@ -101,10 +101,10 @@ public class MysqlDataCrud implements DataCrudStrategy {
 //        redisUtil.lSet(BasicConstants.IMCHATKEY+id,list);
 
         //删除 删除对话记录
-        IMDelRoom delRoom =delRoomMapper.getDelRoomInfo(id);
+      /*  IMDelRoom delRoom =delRoomMapper.getDelRoomInfo(id);
         if(delRoom!=null){
             delRoomMapper.deleteDelRoomInfo(delRoom.getRoomId());
-        }
+        }*/
         return relsut;
     }
 
