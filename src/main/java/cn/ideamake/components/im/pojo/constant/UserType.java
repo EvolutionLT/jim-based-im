@@ -8,8 +8,8 @@ package cn.ideamake.components.im.pojo.constant;
  */
 public enum UserType {
     //身份类型,1=客服,0=访客, 2置业顾问
-    VISITOR(0, "访客", "您联系的客户目前不在线，可给客户留言!"),
-    CUSTOMER(1, "客服", "您的专属客服目前不在线，可给客服留言!"),
+    VISITOR(0, "访客", "您的专属客服目前不在线，可给客服留言哦!"),
+    CUSTOMER(1, "客服", "您联系的客户目前不在线，可给客户留言哦!"),
     ESTATE_AGENT(2, "置业顾问", "您的专属置业顾问目前不在线，可给置业顾问留言!")
     ;
 
@@ -52,6 +52,6 @@ public enum UserType {
 
     public static UserType getUserType(Integer type) {
         if(type == null) { return null;}
-        return VISITOR.getType() == type ? VISITOR : CUSTOMER.getType() == type ? CUSTOMER : ESTATE_AGENT;
+        return VISITOR.getType().intValue() == type ? VISITOR : CUSTOMER.getType() == type ? CUSTOMER : ESTATE_AGENT;
     }
 }
