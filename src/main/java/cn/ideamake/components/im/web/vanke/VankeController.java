@@ -40,9 +40,6 @@ public class VankeController {
     @Resource
     private VankeService vankeService;
 
-    @Resource
-    private AysnChatService aysnChatService;
-
     @PostMapping(value = "/initUser", produces = "application/json")
     public Rest login(@Valid @RequestBody VankeLoginDTO info) {
         log.info("VankeController-login(), input: {}", JSON.toJSONString(info));
@@ -88,7 +85,6 @@ public class VankeController {
         Objects.requireNonNull(visitorId, "VankeController-getChatInfo(), visitorId is null!");
         Objects.requireNonNull(cusId, "VankeController-getChatInfo(), cusId is null!");
         ChatInfoVO vo = new ChatInfoVO();
-//        String allCountKey = String.format(VankeRedisKey.VANKE_CHAT_MEMBER_NUM_KEY, cusId);
         String unReadNumKey = String.format(VankeRedisKey.VANKE_CHAT_UNREAD_NUM_KEY, cusId, visitorId);
         String pendingReplyNumKey = String.format(VankeRedisKey.VANKE_CHAT_PENDING_REPLY_NUM_KEY, cusId);
         String lastedContactNumKey = String.format(VankeRedisKey.VANKE_CHAT_LASTED_CONTACT_SNUM_KEY, cusId);
@@ -140,16 +136,6 @@ public class VankeController {
 
     @GetMapping("/delFriend")
     public Rest<Object> delFriend(String cusId, String friendId) {
-//        if(StringUtils.isBlank(cusId) || StringUtils.isBlank(friendId)) {
-//            return Rest.error("删除好友不能为空!");
-//        }
-//        RMapCache<String, User> friendsIds = RedissonTemplate.me().getRedissonClient().getMapCache(Constants.USER.PREFIX + ":" + cusId + ":" + Constants.USER.FRIENDS);
-//        if(MapUtils.isEmpty(friendsIds)) {
-//            return Rest.error("您没有可删除好友!");
-//        }
-//        friendsIds.remove(friendId);
-//        aysnChatService.synDelFriend(cusId, friendId);
-//        return Rest.ok();
         return null;
     }
 
