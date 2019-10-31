@@ -4,7 +4,9 @@ import cn.ideamake.components.im.common.common.cache.redis.RedisCacheManager;
 import cn.ideamake.components.im.common.common.packets.*;
 import cn.ideamake.components.im.common.constants.Constants;
 import cn.ideamake.components.im.pojo.constant.UserType;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import cn.ideamake.components.im.common.common.ImAio;
 import cn.ideamake.components.im.common.common.ImConst;
@@ -24,6 +26,7 @@ import java.util.Optional;
  *
  * @author : WChao 创建时间: 2017年9月22日 下午2:58:59
  */
+@Slf4j
 public class ChatReqHandler extends AbstractCmdHandler {
 
     @Override
@@ -62,6 +65,7 @@ public class ChatReqHandler extends AbstractCmdHandler {
             } else {
                 //发送指定消息,告知发送人，接收方不在线
                 User user = RedisCacheManager.getCache(ImConst.USER).get(toId + ":" + Constants.USER.INFO, User.class);
+                log.info("发送离线消息，接收人: {}", JSON.toJSONString(user));
                 Optional.ofNullable(UserType.getUserType(user.getType())).map(e -> {
                     String message = e.getMessage();
                     ImAio.sendToUser(user, fromId, message, "true");
