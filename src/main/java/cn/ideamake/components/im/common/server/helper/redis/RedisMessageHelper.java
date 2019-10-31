@@ -826,8 +826,17 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 long contactTime = chatBodyList.get(0).getCreateTime().longValue();
                 if(chatBodyList.size()>0){
                     ChatBody chatBody = chatBodyList.get(0);
-                   map.put("content",chatBody.getContent());
+                 switch (chatBody.getMsgType()){
+                     case 1:
+                         map.put("content","电子物料");
+                         break;
+                     case 2:
+                         map.put("content","文章");
+                         default:
+                         map.put("content",chatBody.getContent());
+                 }
                    map.put("date",contactTime);
+
                 }
             }
         }catch (Exception e){

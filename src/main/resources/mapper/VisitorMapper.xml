@@ -8,4 +8,5 @@
     <select id="selectByOpenId" resultType="cn.ideamake.components.im.pojo.entity.Visitor">
         select * from wk_visitor where openid = #{openId} limit 1
     </select>
+
 </mapper>

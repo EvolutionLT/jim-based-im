@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.ideamake.components.im.dto.mapper.IMChatRoomMapper">
-<select id="getAllChatUserList" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
+<select id="getAllChatUserListbk" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
 select ir.user_id,iu.nick,iu.avatar,ir.id room_id, (select max(ii.`created_at`)  from `im_im_record` ii where ii.`room_id` =ir.id) time ,ir.created_at  from im_chat_room ir,im_user iu where ir.create_user_id=#{query.uuid} and iu.uuid=ir.user_id and ir.`status` =0 and ir.id not in(select room_id from im_del_room where create_user = #{query.uuid} )
     UNION
     select ir.create_user_id  user_id,iu.nick,iu.avatar,ir.id room_id , (select max(ii.`created_at`)  from `im_im_record` ii where ii.`room_id` =ir.id) time ,ir.created_at  from im_chat_room ir,im_user iu where ir.user_id=#{query.uuid} and iu.uuid=ir.create_user_id and ir.`status` =0 and ir.id not in(select room_id from im_del_room where create_user = #{query.uuid}) order by time desc
 </select>
 
-    <select id="getAllChatUserListbk" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
-select ir.user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.create_user_id=#{query.uuid} and iu.uuid=ir.user_id and ir.`status` =0
-UNION
-select ir.create_user_id  user_id,iu.nick,iu.avatar,ir.id room_id from wk_im_chat_room ir,wk_im_user iu where ir.user_id=#{query.uuid} and iu.uuid=ir.create_user_id and ir.`status` =0
+    <select id="getAllChatUserList" resultType="cn.ideamake.components.im.pojo.vo.ChatUserListVO">
+select ir.user_id,iu.nick,iu.avatar,ir.id room_id, (select max(ii.`created_at`)  from `wk_im_im_record` ii where ii.`room_id` =ir.id) time ,ir.created_at  from wk_im_chat_room ir,wk_im_user iu where ir.create_user_id=#{query.uuid} and iu.uuid=ir.user_id and ir.`status` =0
+    UNION
+    select ir.create_user_id  user_id,iu.nick,iu.avatar,ir.id room_id , (select max(ii.`created_at`)  from `wk_im_im_record` ii where ii.`room_id` =ir.id) time ,ir.created_at  from wk_im_chat_room ir,wk_im_user iu where ir.user_id=#{query.uuid} and iu.uuid=ir.create_user_id and ir.`status` =0  order by time desc
 </select>
 
 
