@@ -14,14 +14,17 @@ import cn.ideamake.components.im.common.utils.BasicConstants;
 import cn.ideamake.components.im.dto.mapper.IMChatRecordMapper;
 import cn.ideamake.components.im.dto.mapper.IMChatRoomMapper;
 import cn.ideamake.components.im.dto.mapper.IMDelRoomMapper;
+import cn.ideamake.components.im.dto.mapper.VisitorMapper;
 import cn.ideamake.components.im.pojo.dto.ChatMsgListDTO;
 import cn.ideamake.components.im.pojo.dto.ChatUserListDTO;
 import cn.ideamake.components.im.pojo.entity.IMChatRoom;
 import cn.ideamake.components.im.pojo.entity.IMDelRoom;
+import cn.ideamake.components.im.pojo.entity.Visitor;
 import cn.ideamake.components.im.pojo.vo.ChatMsgListVO;
 import cn.ideamake.components.im.pojo.vo.ChatUserListVO;
 import cn.ideamake.components.im.service.vanke.IMChatRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RMapCache;
@@ -41,6 +44,7 @@ import java.util.stream.Collectors;
  * @since 2019-07-07
  */
 @Service
+@Slf4j
 public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMChatRoom> implements IMChatRoomService {
 
     @Autowired
@@ -51,6 +55,8 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
     //  private RedisUtil redisUtil;
     @Autowired
     private IMDelRoomMapper delRoomMapper;
+    @Autowired
+    private VisitorMapper visitorMapper;
 
 
 
@@ -90,9 +96,15 @@ public class IMIMChatRoomServiceImpl extends ServiceImpl<IMChatRoomMapper, IMCha
                     chatUserListVO.setDate(chatUserListVO.getCreatedAt());
                 }
                 //查询当前房间是否有未读信息
+                chatUserListVO.setUserType(0);
                 int num = chatRecordMapper.getUserMsgNotRead(chatUserListVO.getRoomId(), "1", chatUserListQuery.getUuid());
                 chatUserListVO.setNotRead(num + "");
-                chatUserListVO.setUserType(2);
+                Visitor visitor =visitorMapper.selectByOpenId(chatUserListVO.getUserId());
+                if(visitor!=null){
+                    //0访客 1 置业顾问 2 客服
+                    chatUserListVO.setUserType(visitor.getRole()>1 ? 2:0);
+                }
+
                 //从redis中取出数据看是否在线
                 //chatUserListVO.setIsOnline(redisUtil.get(BasicConstants.IMUSERKEY+chatUserListVO.getUserId()));
             }

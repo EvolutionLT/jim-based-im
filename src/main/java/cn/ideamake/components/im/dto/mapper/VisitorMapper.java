@@ -25,6 +25,6 @@ public interface VisitorMapper extends BaseMapper<Visitor> {
     * @author: apollo
     * @date: 2019-09-26
     */
-    Visitor selectByOpenId(String openId);
+    Visitor selectByOpenId(@Param("openId") String openId);
 
 }
