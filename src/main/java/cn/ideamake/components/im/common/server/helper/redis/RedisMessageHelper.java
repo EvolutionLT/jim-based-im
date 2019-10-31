@@ -333,7 +333,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 userMessage.getFriends().put(friendId, friendMessages);
             }
             Object isAutoMessage = chatBody.getExtras().get("isAutoMessage");
-            if(Objects.isNull(isAutoMessage) || Objects.equals(isAutoMessage, "false")){
+            if (Objects.isNull(isAutoMessage) || Objects.equals(isAutoMessage, "false")) {
                 friendMessages.add(chatBody);
             }
         }
@@ -740,7 +740,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     friendsVOS.add(userFriendsVO);
                     isReplyFriend = false;
                 }
-                totalCount ++;
+                totalCount++;
                 continue;
             } else if (pullType == 3) {
                 //拉取最近联系人
@@ -748,10 +748,10 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                     friendsVOS.add(userFriendsVO);
                     isLastedFriend = false;
                 }
-                totalCount ++;
+                totalCount++;
                 continue;
             }
-            totalCount ++;
+            totalCount++;
             //拉取全部
             friendsVOS.add(userFriendsVO);
         }
@@ -813,7 +813,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取最近一条信息
      */
-    public static Map getHistory(String id,String from) {
+    public static Map getHistory(String id, String from) {
         String sessionId = ChatKit.sessionId(from, id);
         String key = USER + ":" + sessionId;
         Map map = new HashMap();
@@ -824,23 +824,23 @@ public class RedisMessageHelper extends AbstractMessageHelper {
                 List<ChatBody> chatBodyList = JsonKit.toArray(messages, ChatBody.class);
                 //最后一条聊天记录的时间
                 long contactTime = chatBodyList.get(0).getCreateTime().longValue();
-                if(chatBodyList.size()>0){
+                if (chatBodyList.size() > 0) {
                     ChatBody chatBody = chatBodyList.get(0);
-                 switch (chatBody.getMsgType()){
-                     case 1:
-                         map.put("content","电子物料");
-                         break;
-                     case 2:
-                         map.put("content","文章");
-                         default:
-                         map.put("content",chatBody.getContent());
-                 }
-                   map.put("date",contactTime);
+                    switch (chatBody.getMsgType()) {
+                        case 1:
+                            map.put("content", "电子物料");
+                            break;
+                        case 2:
+                            map.put("content", "文章");
+                        default:
+                            map.put("content", chatBody.getContent());
+                    }
+                    map.put("date", contactTime);
 
                 }
             }
-        }catch (Exception e){
-            log.error("获取客服历史聊天信息失败"+e);
+        } catch (Exception e) {
+            log.error("获取客服历史聊天信息失败" + e);
         }
 
         return map;
